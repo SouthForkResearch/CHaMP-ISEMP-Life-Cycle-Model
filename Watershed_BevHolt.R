@@ -38,7 +38,7 @@ N_RAINBOW_SPAWNERS = array(0, c(K,I5,Tr,G,2))
 N_ESCAPEMENT = array(0, c(K,Tr,G,2))
 
 # For all adults, store distribution of true age and adult age
-N_ADULT = array(Tr,10,20)
+#N_ADULT = array(Tr,10,20)
 
 N5_FISH = array(0, c(K,10,Tr,G,K,2)) 
 NT_FISH = array(0, c(K,10,Tr,G,2))
@@ -49,10 +49,9 @@ for (k in 1:K) {
       N5_FISH[k,,,,k,2]=N5[k,,,] *.5
 }
 
-for (y in 1:10) {
-#	For year one, ocean age 1-10, real age 3-12 = sum of fish at stage 7-16
-	N_ADULT(1,y,y+2) = sum(N[,y+7,,])
-}
+#for (y in 1:10) {
+#	N_ADULT(1,y,y+4) = sum(N[,y+7,,])
+#}
 
 
 ################################
@@ -733,30 +732,40 @@ for (t in 2:(Tr-1)){
             }
       }
 
-	# CandN6_Imprint_M/F - fish trying to advance from N5 to N6 life stage.
-	# N5.Psmolt_F/M - probability of smolting (as opposed to staying or spawning as rainbow spanwers).  They are
-	#          user defined and read from the input fies
-	# if i5=0, the fish is two years old.  Each additional year increments i5.
+# Matt? -- at this point, what do the arrays CandN6_Imprint_M/F represent?  The fish that "might" smolt?
+# Answer - yes, these are the fish trying to advance from the N5 to N6 life stage.  We can't use all the N5_Fish because
+#          some will stay as N5 and some will spawn as rainbow spawners.
+# Matt? -- what are the arrays N5.Psmolt_F/M?  Where are they derived?  They are percentages for each smolt
+# Matt? --     age?
+# Answer - these are the probability of smolting (as opposed to staying or spawning as rainbow spanwers).  They are
+#          user defined and read from the input fies
+# Matt? -- i5 if a substage for pre-smolt.  What is the relationship between that and their true age.  If i5=0, 
+# Matt? --     when was the fish born?
+# Answer   each level if I5 = 1 year.
+# Answer if i5=0, the fish is two years 0ld.  Year0 is spawner and egg, fry is 1 year old, Par is still 1 year old, 
+# 		Pre-smolt(0) is 2 years old, smolt from pre-smolt0 is still 2 years old.  (Smolt is age of pre-smolt that smolts).
+
+# Matt? -- This is the last time we use the N5_FISH (formerly I5) array, so the last timne we know how old the fish
+# Matt? -- actually is.  Here is where we would need to update the new (proposed) array.  
+# Matt? -- Can we assume the survival calculation is unaffected by the N5 stage?  
+# Answer Yes, for better or worse we've always assumed the survival at N6 is independent "true age"
 
 # Matt? -- If so we can just keep the age distribution here and then apply the survival calculation 
 # Matt? -- on the age distribution below? 
 # Answer: Yes, I believe that should work
-
-	# keep track of the new smolts by what their real age is.
-	NewSmolts = array(rep(0,(I5))
-	
       for (k in 1:K) {
-		for (i5 in 1:I5) {
-			for (g in 1:G) {
-				Candidate_Smolt_Age[k,i5,t,g]=
-					CandN6_Imprint_F[k,i5,g,k]+CandN6_Imprint_M[k,i5,g,k]
-				Candidate_Smolt_Age[k,i5,t,g]=
-					Candidate_Smolt_Age[k,i5,t,g]*Sr[k,6,t] #to get them into JDA equivalents
-				NewSmolts[i5] = NewSmolts[i5] + Candidate_Smolt_Age[k,i5,t,g]
-			}
-		}
+        for (i5 in 1:I5) {
+          for (g in 1:G) {
+            Candidate_Smolt_Age[k,i5,t,g]=CandN6_Imprint_F[k,i5,g,k]+CandN6_Imprint_M[k,i5,g,k]
+            Candidate_Smolt_Age[k,i5,t,g]=Candidate_Smolt_Age[k,i5,t,g]*Sr[k,6,t] #to get them into JDA equivalents
+          }
+        }
       }
-      
+
+# Matt? -- the Candidate_Smolt_Age array collapses the imprint location but also stores the current year
+#       -- this is a return argument to function but otherwise not used again
+
+       
       CandidateN6= array(rep(0,(K*G)), c(K,G))
       
       for (k in 1:K) {
