@@ -1,9 +1,5 @@
 BevHolt <- function(Parameter.data, Var.data, header.data) {
-######################################################################
-### Pete May 2015 Version including minor fix and increased indent ###
-######################################################################
-  
-###### 
+
 # for debugging uncomment out thees two)
 #attach(variables)
 #attach(parameters)
@@ -20,8 +16,8 @@ attach(header.data)
 # Move to initialization section
 Fry_Migrate.T=rep(0,K)
 Par_Migrate.T=rep(0,K)
-PreSmolt_Migrate.T=rep(0,K)
-PreSmoltN5_Migrate.T = array(rep(0, K*I5), c(K, I5))
+OnePlus_Migrate.T=rep(0,K)
+OnePlusN5_Migrate.T = array(rep(0, K*I5), c(K, I5))
 Candidate_Smolt=array(rep(0,K*Tr*G), c(K,Tr,G))
 
 Rainbow_Spawners = array(rep(0, K*Tr*G), c(K,Tr,G))
@@ -37,8 +33,9 @@ N_SPAWNERS = array(0, c(K,Tr,G,2))
 N_RAINBOW_SPAWNERS = array(0, c(K,I5,Tr,G,2))
 N_ESCAPEMENT = array(0, c(K,Tr,G,2))
 
-# For all adults, store distribution of true age and adult age
-#N_ADULT = array(Tr,10,20)
+# For all adults, store distribution of ocean age and true age
+N_ADULTS = array(0, c(K,I5,Tr,G,2,10+I5)) 
+N_SMOLTS = array(0, c(K,I5,Tr,G,2))
 
 N5_FISH = array(0, c(K,10,Tr,G,K,2)) 
 NT_FISH = array(0, c(K,10,Tr,G,2))
@@ -49,15 +46,7 @@ for (k in 1:K) {
       N5_FISH[k,,,,k,2]=N5[k,,,] *.5
 }
 
-#for (y in 1:10) {
-#	N_ADULT(1,y,y+4) = sum(N[,y+7,,])
-#}
-
-
-################################
-################################
-#################################
-
+ONEPLUSMAX = 10
 
 # Smolts_by_BroodYear = array(rep(0, K*Tr*G),c(K,Tr,G))
 
@@ -74,6 +63,16 @@ Post_Spawn_Returns_Rainbow = array(0, c(K,I5,G,2))
 for (k in 1:K) {
       N_FISH[k,,,,k,1]=N[k,,,] *.5
       N_FISH[k,,,,k,2]=N[k,,,] *.5
+}
+
+# For year one, ocean age 1-10, smolt-year 1 <- fish at stage 8-17
+for (k in 1:K) {
+	for (g in 1:G) {
+		for (y in 1:10) {
+			N_ADULTS[k,1,1,g,1,y] = sum(N_FISH[k,y+7,1,g,,1])
+			N_ADULTS[k,1,1,g,2,y] = sum(N_FISH[k,y+7,1,g,,2])
+		}
+	}
 }
 
 t=2
@@ -131,7 +130,7 @@ for (t in 2:(Tr-1)){
       
       
       # OK, we have carrying capacity for first four stages:
-      # spawning, egg, fry, pre-smolt     
+      # spawning, egg, fry, OnePlus     
             
       #calculate productivity for time t, site k
       for (k in 1:K) {
@@ -168,6 +167,11 @@ for (t in 2:(Tr-1)){
                   CandN_M = apply(N_FISH[k,i,t-1,,,1], 1, sum) * (1-Mat8Plus_M[k,i-7,t-1])
 			CandN_F = apply(N_FISH[k,i,t-1,,,2], 1, sum) * (1-Mat8Plus_F[k, i-7, t-1])
 
+			# Mat8Plus_M/F -- user specified input for the fraction of M or F fish that mature 
+			#   (i.e. are going to try to spawn)at each adult age.  The adult age is i-7.
+			# CandN_M/F -- The number of fish trying to remain as adults for another year
+			#   the number of adult fish of each age times (1-%fish that are leaving to spawn)
+
                   # Here's where I should be adding the surviving spawners???  Otherwise,
                   # 1-Mat8Plus gets rid of them all.....  initialize to zero than carry from
                   # previous time loop and add here.  Do similar for resident rainbow.
@@ -179,7 +183,14 @@ for (t in 2:(Tr-1)){
 
 				Candidates = (CandN[g]*Rel_Surv[k,i,t-1,g]) / 
                                         (1/Sr[k,i+1,t-1]+ 1/(C_ocean[k,i-7,t-1]) * sum(Rel_Surv[k,i,t-1,]* CandN))
+
+                        # Sr -- density independent survival. 
+				# C_ocean -- ocean capacity in the Bev Holt equation.
+		
 				Candidates [is.na(Candidates )] = 0
+
+				# Calculate how many male and female fish stick around for another
+				# 	year as adult and age one year.
 
 				N_FISH[k,i+1,t,g,k,1]= MALE_PERCENT * Candidates 
 				N_FISH[k,i+1,t,g,k,2]= (1-MALE_PERCENT) * Candidates 
@@ -188,6 +199,10 @@ for (t in 2:(Tr-1)){
      
             ## Add back surviving spawners from before...      
             for (i in 1:10){
+
+			# Steelhead spawners can return to become adults and then spawn again.
+			#	Can screw up reconstruction.
+
 			N_FISH[k,i+7,t,,k,] = N_FISH[k,i+7,t,,k,] + Post_Spawn_Returns_Anadromous[k,i,,]
             }     
             
@@ -198,8 +213,10 @@ for (t in 2:(Tr-1)){
                   CandN_F = apply(N_FISH[k,i,t,,,2],1,sum) * (Mat8Plus_M[k,i-7,t])
                   CandN = CandN_M+ CandN_F
   
+			# CandN are the fish leaving the ocean.
+
                   for (g in 1:G) {
-				#Pete May 2015 Fix
+				# NT_FISH -- mature fish (mature meaning "trying to spawn")
 
 				NT_FISH[k,i-7,t,g,1] = (CandN_M[g] * Rel_Surv[k, i,t,g]) /
 					(1/(1+0*(Sr[k,2,t])) + 1/(C_ocean[k,i-7,t]) *  #Sr[k,2,t] doesn't get implemented here
@@ -209,7 +226,22 @@ for (t in 2:(Tr-1)){
 					sum(CandN[]*Rel_Surv[k,i,t,]))
                   }
             }
+
+		# remove fish leaving ocean from our adult array
+		for (g in 1:G) {
+			for (i in 8:17) {
+				N_ADULTS[k,,t,g,,i-7] = N_ADULTS[k,,t,g,,i-7] * (Mat8Plus_M[k,i-7,t])
+			}
+		}
+
       } # End of cycle through K's for mature fish....
+
+#
+#
+# Matt: Where in all of this do we know how many fish are leaving the ocean?  I am keeping track of the fish in
+#       the ocean, and I can't figure when they have left.  When do they move to a new Stage?
+#
+#
       
 	N_FISH[is.na(N_FISH)] = 0 
       
@@ -305,7 +337,7 @@ for (t in 2:(Tr-1)){
             
             ################################
             # Calculate fish that will return after surviving trip to spawn (SR * Rel_Surv) and then surviving the actual spawning and return journy (PSSA and PSSR)
-            # And add them back into the current year at pre-smolt stages (for rainbow) and adult stages(for anadromous)
+            # And add them back into the current year at OnePlus stages (for rainbow) and adult stages(for anadromous)
                       
             for (i in 1:9){
                   Post_Spawn_Returns_Anadromous[k,i+1,,1]=   NT_FISH[k, i, t,,1] *  (Sr[k,2,t])* Rel_Surv[k,1,t,] * Post_Spawn_Survival_Anadromous_M[k,i,t,] 
@@ -353,7 +385,7 @@ for (t in 2:(Tr-1)){
                               	Female_Fecundity[k,i, t,g1]*NT_FISH[k,i,t,g1,2]*Male_GDist[g2] 
                         }
                               
-                        for (i5 in 1:I5) { # cycle through all pre-smolt spawner ages
+                        for (i5 in 1:I5) { # cycle through all OnePlus spawner ages
 					Rainbow.Cand.Egg.N[g.index[g1,g2]] = Rainbow.Cand.Egg.N[g.index[g1,g2]]+
 						(N5.Rainbow.Fecundity[k,i5,t] * 
 						(N_RAINBOW_SPAWNERS[k,i5,t,g1,2])*Rainbow.Male_GDist[g2])
@@ -494,7 +526,7 @@ for (t in 2:(Tr-1)){
       
       
       #####################################################################
-      #Move X Site Migration of Parr here for Pre-Smolt
+      #Move X Site Migration of Parr here for OnePlus
       ################ Move X Site Fry Migration Here for Parr##############
       ################### apply Cross-Site Migration for Par #############
       #print(paste("t=",t,"e1"))
@@ -532,12 +564,12 @@ for (t in 2:(Tr-1)){
       
       ###############################################################
       ###############################################################
-      # Pre-Smolt (Re-Writted August 22 2013 
-      # N5 (presmolt)
+      # OnePlus 
+      # N5 (OnePlus)
       # N5 is complicated because of steelhead
       # N5 is based on number of pass entering system and number of prior
-      # year's presmolt, at each age, staying for another year
-      # Capcity is weighted based on age distribution and survival probability
+      # year's OnePlus, at each age, staying for another year
+      # Capacity is weighted based on age distribution and survival probability
       # of fish trying to occupy given space (older fish require more space)
       ###########
 
@@ -619,7 +651,7 @@ for (t in 2:(Tr-1)){
       
       #ratio = N_Equiv/(Cand_Y1_Equivalent[k]+.00000001)
       #print(paste("ratio=",ratio))
-      #print(paste("pre-smolts=", N_Equiv))
+      #print(paste("OnePlus=", N_Equiv))
       
       ### Figure out Actual fish at t+1
       # Equvialent 1st year fish of Temp.Cand.Fish # which are in correct relative proportion
@@ -672,15 +704,15 @@ for (t in 2:(Tr-1)){
       for (k in 1:K) {
 		N5_FISH[k,1,t+1,2,k,] = N5_FISH[k,1,t+1,2,k,] + 0.5*(Hatch_Fish[k,5,t+1])
 		N_FISH[k,5,t+1,2,k,] = apply(N5_FISH[k,,t+1,2,k,],2,sum)
-      } # end of K for pre-smolt
+      } # end of K for OnePlus
       
       
-      # Move X-Site Migration of Pre-Smolt's Here for N6
+      # Move X-Site Migration of OnePlus Here for N6
       #print(paste("t=",t,"f1"))
       
-      ################### apply Cross-Site Migration for Pre-Smolts #############
+      ################### apply Cross-Site Migration for OnePlus #############
       ################## apply Cross-Site Migration for Fry #############
-      #Presmolt.x.siteMigration[, ,t+1] = t(array(c(.9,.1,0,0,.95, .05, 0, .3, .7), c(3,3)))
+      #OnePlus.x.siteMigration[, ,t+1] = t(array(c(.9,.1,0,0,.95, .05, 0, .3, .7), c(3,3)))
       
       if (K >1) {
       
@@ -692,7 +724,7 @@ for (t in 2:(Tr-1)){
                         for (k3 in 1:K) {
                               for (i5 in 1:I5) {
                                     N_PS_Migrate[k1, k2, k3,i5, ,] = 
-                                    	N5_FISH[k2,i5,t+1,,k3,]*Presmolt.x.siteMigration[k2, k1,t+1] 
+                                    	N5_FISH[k2,i5,t+1,,k3,]*OnePlus.x.siteMigration[k2, k1,t+1] 
                               }
                         }
                   }
@@ -716,9 +748,9 @@ for (t in 2:(Tr-1)){
       #print(paste("t=",t,"f2"))
       
       ###########
-      #N6 (smolt, based on same year's presmolts that decide to smolt )
+      #N6 (smolt, based on same year's OnePlus that decide to smolt )
       # Also complicated slightly by N5's are a mixture of mutiple ages 
-      # of pre-smolts, at least in the Steelhead case
+      # of OnePlus, at least in the Steelhead case
       
       CandN6_Imprint_M = array(0, c(K,I5,G,K))
       CandN6_Imprint_F = array(0, c(K,I5,G,K))
@@ -732,40 +764,24 @@ for (t in 2:(Tr-1)){
             }
       }
 
-# Matt? -- at this point, what do the arrays CandN6_Imprint_M/F represent?  The fish that "might" smolt?
-# Answer - yes, these are the fish trying to advance from the N5 to N6 life stage.  We can't use all the N5_Fish because
-#          some will stay as N5 and some will spawn as rainbow spawners.
-# Matt? -- what are the arrays N5.Psmolt_F/M?  Where are they derived?  They are percentages for each smolt
-# Matt? --     age?
-# Answer - these are the probability of smolting (as opposed to staying or spawning as rainbow spanwers).  They are
-#          user defined and read from the input fies
-# Matt? -- i5 if a substage for pre-smolt.  What is the relationship between that and their true age.  If i5=0, 
-# Matt? --     when was the fish born?
-# Answer   each level if I5 = 1 year.
-# Answer if i5=0, the fish is two years 0ld.  Year0 is spawner and egg, fry is 1 year old, Par is still 1 year old, 
-# 		Pre-smolt(0) is 2 years old, smolt from pre-smolt0 is still 2 years old.  (Smolt is age of pre-smolt that smolts).
+	# CandN6_Imprint_M/F - fish trying to advance from N5 to N6 life stage.
+	# N5.Psmolt_F/M - probability of smolting (as opposed to staying or spawning as rainbow spanwers).  They are
+	#          user defined and read from the input fies
+	# if i5=0, the fish is two years old.  Each additional year increments i5.
 
-# Matt? -- This is the last time we use the N5_FISH (formerly I5) array, so the last timne we know how old the fish
-# Matt? -- actually is.  Here is where we would need to update the new (proposed) array.  
-# Matt? -- Can we assume the survival calculation is unaffected by the N5 stage?  
-# Answer Yes, for better or worse we've always assumed the survival at N6 is independent "true age"
-
-# Matt? -- If so we can just keep the age distribution here and then apply the survival calculation 
-# Matt? -- on the age distribution below? 
-# Answer: Yes, I believe that should work
       for (k in 1:K) {
-        for (i5 in 1:I5) {
-          for (g in 1:G) {
-            Candidate_Smolt_Age[k,i5,t,g]=CandN6_Imprint_F[k,i5,g,k]+CandN6_Imprint_M[k,i5,g,k]
-            Candidate_Smolt_Age[k,i5,t,g]=Candidate_Smolt_Age[k,i5,t,g]*Sr[k,6,t] #to get them into JDA equivalents
-          }
-        }
+		for (i5 in 1:I5) {
+			for (g in 1:G) {
+				Candidate_Smolt_Age[k,i5,t,g] = 
+					CandN6_Imprint_F[k,i5,g,k]+CandN6_Imprint_M[k,i5,g,k]
+				Candidate_Smolt_Age[k,i5,t,g] = 
+					Candidate_Smolt_Age[k,i5,t,g]*Sr[k,6,t] #to get them into JDA equivalents
+				N_SMOLTS[k,i5,t,g,1] = CandN6_Imprint_M[k,i5,g,k] *Sr[k,6,t]
+				N_SMOLTS[k,i5,t,g,2] = CandN6_Imprint_F[k,i5,g,k] *Sr[k,6,t]
+			}
+		}
       }
 
-# Matt? -- the Candidate_Smolt_Age array collapses the imprint location but also stores the current year
-#       -- this is a return argument to function but otherwise not used again
-
-       
       CandidateN6= array(rep(0,(K*G)), c(K,G))
       
       for (k in 1:K) {
@@ -774,24 +790,21 @@ for (t in 2:(Tr-1)){
             }
       }
       
-# Matt? -- the CandidateN6 array tracks current location and genetic type for the candidates
-# Matt? -- the Candidate_Smolt array tracks the above array per year - this is a return argument
-       
       Candidate_Smolt[,t,]=CandidateN6
       SmoltSurvivors = array(0, c(K,I,Tr,G))
       
-      ## why is pn5 used below????  Need to fix this in case all pre-smolts smolt
+      ## why is pn5 used below????  Need to fix this in case all OnePlus smolt
       ## should address smolting fish, not fish that remained unsmolted!!
       ## add code here!!!!
       for (k in 1:K) {
             for (g in 1:G) {
 			SmoltSurvivors[k,6,t,g] = (CandidateN6[k,g]*Rel_Surv[k,5,t,g]) / 
                   	(1/Sr[k,6,t]+ 1/c[k,5,t] * sum(Rel_Surv[k,5,t,]*CandidateN6[k,]))
+			N_SMOLTS[k,,t,g,1] = N_SMOLTS[k,,t,g,1] *Rel_Surv[k,5,t,g]
+			N_SMOLTS[k,,t,g,2] = N_SMOLTS[k,,t,g,2] *Rel_Surv[k,5,t,g]
             }
       } # end of K
       
-# Matt? -- SmoltSurvivors applies survivor function on the candidates
-       
       # Assign Imprints and M/F in same ratios as incoming candidate smolts
       ImprintShare =apply((CandN6_Imprint_M+CandN6_Imprint_F),c(1,3,4),sum)
       FemaleImprintShare = apply((CandN6_Imprint_F),c(1,3,4),sum)
@@ -811,19 +824,13 @@ for (t in 2:(Tr-1)){
 	}
 	N_FISH[is.na(N_FISH)] = 0  
       
-# Matt? -- N_FISH distributes the survivors by imprint location and sex.  These are the actual smolts
-       
       for (k in 1:K) {
 		N_FISH[k,6,t,2,k,1] = N_FISH[k,6,t,2,k,1] + 0.5*Hatch_Fish[k,6,t]
 		N_FISH[k,6,t,2,k,2] = N_FISH[k,6,t,2,k,2] + 0.5*Hatch_Fish[k,6,t]
+		N_SMOLTS[k,2,t,2,1] = N_SMOLTS[k,2,t,2,1] + 0.5*Hatch_Fish[k,6,t]
+		N_SMOLTS[k,2,t,2,2] = N_SMOLTS[k,2,t,2,2] + 0.5*Hatch_Fish[k,6,t]
       }
 
-# Matt? -- Hatchery fish are added in.
-
-# Matt? -- At this point the N_ADULT array would be up to date. What dimensions are needed?
-# Matt? -- (1) Brood year.  (2) Smolt year. 
-# Matt? -- When they return we update a separate array that keeps track of Brood year and Return year.
- 
     
       ###########
       # N7:  Smolt to Adult (Dam survival rate dependent only, c[k,6,t] assumed negligible (Eq 4)
@@ -837,7 +844,8 @@ for (t in 2:(Tr-1)){
             for (g in 1:G) {
 			N_FISH[k,7,t,g,,] = 0  
 			N_FISH[k,7,t,g,k,1] = tempN_M[k,g] /  (1/Sr[k,7,t] ) * Rel_Surv[k,6,t,g]
-			N_FISH[k,7,t,g,k,2] = tempN_F[k,g] /  (1/Sr[k,7,t] ) * Rel_Surv[k,6,t,g]		
+			N_FISH[k,7,t,g,k,2] = tempN_F[k,g] /  (1/Sr[k,7,t] ) * Rel_Surv[k,6,t,g]	
+			N_SMOLTS[k,,,g,] = N_SMOLTS[k,,,g,] /  (1/Sr[k,7,t] ) * Rel_Surv[k,6,t,g]
            }
       }
         
@@ -846,6 +854,11 @@ for (t in 2:(Tr-1)){
       ###########
       # N8: Adult (Ocean age 1) Fish, based on prior year's ocean year 
       
+	# Age all the adults in the adult array. y=adult age
+	for (y in 2:10) {
+		N_ADULTS[,,t+1,,,y] = N_ADULTS[,,t,,,y-1]
+	}
+
       for (g in 1:G) {
             for (k in 1:K) {
 			AdultSurvivors = sum(N_FISH[k,7,t,g,,])*Rel_Surv[k,7,t,g] / 
@@ -856,6 +869,12 @@ for (t in 2:(Tr-1)){
 			N_FISH[k,8,t+1,g,,] = 0  
 			N_FISH[k,8,t+1,g,k,1] = MALE_PORTION * AdultSurvivors  
 			N_FISH[k,8,t+1,g,k,2] = (1 - MALE_PORTION) * AdultSurvivors  
+
+			# new adults from smolts. ocean age is 1, real age is age as smolts.
+			for (i5 in 1:10) {
+			 	N_ADULTS[k,i5,t+1,g,1,1] = N_ADULTS[k,i5,t+1,g,1,1] + N_SMOLTS[k,i5,t,g,1]
+			 	N_ADULTS[k,i5,t+1,g,2,1] = N_ADULTS[k,i5,t+1,g,2,1] + N_SMOLTS[k,i5,t,g,2]
+			}
             }
       }
 

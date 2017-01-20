@@ -52,16 +52,16 @@ for (k in 1:K) {
 
 	N5Final[k,,] = apply(N5R[k,,(header$Tr-2),,], margin, mean)
 
-	NRFinalNames=c("Adult Escapement","Egg","Fry","Par","PreSmolt",
+	NRFinalNames=c("Adult Escapement","Egg","Fry","Par","OnePlus",
 	"Smolt","Adult_Y0","Adult_Y1","Adult_Y2","Adult_Y3","Adult_Y4",
 	"Adult_Y5","Adult_Y6","Adult_Y7","Adult_Y8","Adult_Y9", "Adult_Y10")
 
 }
 #	rownames(NRFinal)=c(as.character(seq(1:header$K)))
 
-	N5FinalNames = c("Pre-SmoltY1","Pre-SmoltY2","Pre-SmoltY3",
-	"Pre-SmoltY4","Pre-SmoltY5","Pre-SmoltY6","Pre-SmoltY7","Pre-SmoltY8",
-	"Pre-SmoltY9","Pre-SmoltY10")
+	N5FinalNames = c("OnePlusY1","OnePlusY2","OnePlusY3",
+	"OnePlusY4","OnePlusY5","OnePlusY6","OnePlusY7","OnePlusY8",
+	"OnePlusY9","OnePlusY10")
 
 
 #	rownames(N5Final)=c(as.character(seq(1:header$K)))
@@ -137,7 +137,7 @@ write.csv(
 
 
 ##############################################
-# Write full output file of results for all pre-smolts all ages of pre-smolts
+# Write full output file of results for all OnePlus all ages of OnePlus
 
 PS.LifeStageMeans = array(rep(0, header$Tr * I5*G), c(header$Tr,I5*G))
 PS.LifeStageSds = array(rep(0, header$Tr * I5*G), c(header$Tr,I5*G))
@@ -177,13 +177,13 @@ PS.LifeStageSds[t,(g-1)*I5 +n5] = sd(N5R[k,n5,t,g,])
 # write.csv(
 # as.data.frame(list("year"=seq(1:header$Tr), PS.LifeStageMeans[,],
 #     PS.LifeStageSds[,])), 
-#    paste("Output Files/PreSmolt_Results_",Site.Names[k],".csv",sep=""))
+#    paste("Output Files/OnePlus_Results_",Site.Names[k],".csv",sep=""))
 # New Way
 year<-seq(1:header$Tr)
 write.csv(
   cbind(year, PS.LifeStageMeans[,],
                      PS.LifeStageSds[,]), 
-  paste("Output Files/PreSmolt_Results_",Site.Names[k],".csv",sep=""))
+  paste("Output Files/OnePlus_Results_",Site.Names[k],".csv",sep=""))
 
 }  # end of sites
 

@@ -279,7 +279,7 @@ rm(M.alpha)
 
 ############################################################
 #### randomly correlated Dirichlet (or Beta) probabilities
-# for Presmolts:  Pspawn, Pstay, Psmolt 
+# for OnePlus:  Pspawn, Pstay, Psmolt 
 # for J-dimensional RV
 
 # Note: males and females will be 100% correlated year-year and site-site, but independent within site,
@@ -1366,13 +1366,13 @@ if (N.input.files==1) {T.lo=1; T.hi=Tr+1} else {
   Par.x.siteMigration = Par.x.siteMigration.mu
   Par.x.siteMigration.target.alphaR =array(rep(0,K*K*Tr), c(K,K,Tr))
 	Par.x.siteMigration.target.r = Par.x.siteMigration.target
-	Presmolt.x.siteMigration.alphaR=array(rep(0,K*K*Tr), c(K,K,Tr))
-	Presmolt.x.siteMigration.alphaT=array(rep(0,K*K*Tr), c(K,K,Tr))
-	Presmolt.x.siteMigration.alphaS=array(rep(0,K*K*Tr), c(K,K,Tr))
- 	Presmolt.x.siteMigration.alpha=array(rep(0,K*K*Tr), c(K,K,Tr))
-  Presmolt.x.siteMigration = Presmolt.x.siteMigration.mu
-  Presmolt.x.siteMigration.target.alphaR =array(rep(0,K*K*Tr), c(K,K,Tr))
-	Presmolt.x.siteMigration.target.r = Presmolt.x.siteMigration.target
+	OnePlus.x.siteMigration.alphaR=array(rep(0,K*K*Tr), c(K,K,Tr))
+	OnePlus.x.siteMigration.alphaT=array(rep(0,K*K*Tr), c(K,K,Tr))
+	OnePlus.x.siteMigration.alphaS=array(rep(0,K*K*Tr), c(K,K,Tr))
+ 	OnePlus.x.siteMigration.alpha=array(rep(0,K*K*Tr), c(K,K,Tr))
+  OnePlus.x.siteMigration = OnePlus.x.siteMigration.mu
+  OnePlus.x.siteMigration.target.alphaR =array(rep(0,K*K*Tr), c(K,K,Tr))
+	OnePlus.x.siteMigration.target.r = OnePlus.x.siteMigration.target
 	Spawner.x.siteMigration.alphaR=array(rep(0,K*K*Tr), c(K,K,Tr))
 	Spawner.x.siteMigration.alphaT=array(rep(0,K*K*Tr), c(K,K,Tr))
 	Spawner.x.siteMigration.alphaS=array(rep(0,K*K*Tr), c(K,K,Tr))
@@ -1398,8 +1398,8 @@ if ((R > 1) * (MCsim4==1)) {
        Fry.x.siteMigration.target.alphaR[k1,k2,] = Fry.x.siteMigration.target[k1,k2,] * Fry.x.siteMigration.alphaR.N[k1,]
         Par.x.siteMigration.alphaR[k1,k2,] = Par.x.siteMigration.mu[k1,k2,] * Fry.x.siteMigration.alphaR.N[k1,]
        Par.x.siteMigration.target.alphaR[k1,k2,] = Par.x.siteMigration.target[k1,k2,] * Fry.x.siteMigration.alphaR.N[k1,]
-        Presmolt.x.siteMigration.alphaR[k1,k2,] = Presmolt.x.siteMigration.mu[k1,k2,] * Fry.x.siteMigration.alphaR.N[k1,]
-       Presmolt.x.siteMigration.target.alphaR[k1,k2,] = Presmolt.x.siteMigration.target[k1,k2,] * Fry.x.siteMigration.alphaR.N[k1,]
+        OnePlus.x.siteMigration.alphaR[k1,k2,] = OnePlus.x.siteMigration.mu[k1,k2,] * Fry.x.siteMigration.alphaR.N[k1,]
+       OnePlus.x.siteMigration.target.alphaR[k1,k2,] = OnePlus.x.siteMigration.target[k1,k2,] * Fry.x.siteMigration.alphaR.N[k1,]
         Spawner.x.siteMigration.alphaR[k1,k2,] = Spawner.x.siteMigration.mu[k1,k2,] * Fry.x.siteMigration.alphaR.N[k1,]
        Spawner.x.siteMigration.target.alphaR[k1,k2,] = Spawner.x.siteMigration.target[k1,k2,] * Fry.x.siteMigration.alphaR.N[k1,]
 
@@ -1423,8 +1423,8 @@ if ((R > 1) * (MCsim4==1)) {
             yfrytarget.j =round(qgamma(R.unif,shape=Fry.x.siteMigration.target.alphaR[k1,,t]+.000001),5)
 		ypar.j = round(qgamma(R.unif,shape=Par.x.siteMigration.alphaR[k1,,t]+.000001),5)
             ypartarget.j =round(qgamma(R.unif,shape=Par.x.siteMigration.target.alphaR[k1,,t]+.000001),5)
-		ypresmolt.j = round(qgamma(R.unif,shape=Presmolt.x.siteMigration.alphaR[k1,,t]+.000001),5)
-            ypresmolttarget.j =round(qgamma(R.unif,shape=Presmolt.x.siteMigration.target.alphaR[k1,,t]+.000001),5)
+		yOnePlus.j = round(qgamma(R.unif,shape=OnePlus.x.siteMigration.alphaR[k1,,t]+.000001),5)
+            yOnePlustarget.j =round(qgamma(R.unif,shape=OnePlus.x.siteMigration.target.alphaR[k1,,t]+.000001),5)
 		yspawner.j = round(qgamma(R.unif,shape=Spawner.x.siteMigration.alphaR[k1,,t]+.000001),5)
             yspawnertarget.j =round(qgamma(R.unif,shape=Spawner.x.siteMigration.target.alphaR[k1,,t]+.000001),5)
 
@@ -1433,8 +1433,8 @@ if ((R > 1) * (MCsim4==1)) {
 			Fry.x.siteMigration.target.r[k1,k2,t]= yfrytarget.j[k2] / sum(yfrytarget.j)
 			Par.x.siteMigration[k1,k2,t]= ypar.j[k2] / sum(ypar.j)
 			Par.x.siteMigration.target.r[k1,k2,t]= ypartarget.j[k2] / sum(ypartarget.j)
-			Presmolt.x.siteMigration[k1,k2,t]= ypresmolt.j[k2] / sum(ypresmolt.j)
-			Presmolt.x.siteMigration.target.r[k1,k2,t]= ypresmolttarget.j[k2] / sum(ypresmolttarget.j)
+			OnePlus.x.siteMigration[k1,k2,t]= yOnePlus.j[k2] / sum(yOnePlus.j)
+			OnePlus.x.siteMigration.target.r[k1,k2,t]= yOnePlustarget.j[k2] / sum(yOnePlustarget.j)
 			Spawner.x.siteMigration[k1,k2,t]= yspawner.j[k2] / sum(yspawner.j)
 			Spawner.x.siteMigration.target.r[k1,k2,t]= yspawnertarget.j[k2] / sum(yspawnertarget.j)
 
@@ -1446,7 +1446,7 @@ if ((R > 1) * (MCsim4==1)) {
 #plot(Fry.x.siteMigration[1,1,])
 #plot(Fry.x.siteMigration.target.r[1,1,])
 #plot(Par.x.siteMigration[1,1,])
-#plot(Presmolt.x.siteMigration[1,1,])
+#plot(OnePlus.x.siteMigration[1,1,])
 #plot(Spawner.x.siteMigration[1,1,])
 
 
@@ -1476,12 +1476,12 @@ if ((R > 1) * (MCsim4==1)) {
       Fry.x.siteMigration[k,,t-1] = Fry.x.siteMigration[k,,t-1]+ Diff
 	Diff = (Par.x.siteMigration.target.r[k,,t-1]-Par.x.siteMigration[k,,t-1])*exp(-1/((t-T.lo)*(.0000000001+Par.x.siteMigration.rate[,t-1]))) 
       Par.x.siteMigration[k,,t-1] = Par.x.siteMigration[k,,t-1]+ Diff
-	Diff = (Presmolt.x.siteMigration.target.r[k,,t-1]-Presmolt.x.siteMigration[k,,t-1])*exp(-1/((t-T.lo)*(.00000000001+Presmolt.x.siteMigration.rate[,t-1]))) 
-      Presmolt.x.siteMigration[k,,t-1] = Presmolt.x.siteMigration[k,,t-1]+ Diff
+	Diff = (OnePlus.x.siteMigration.target.r[k,,t-1]-OnePlus.x.siteMigration[k,,t-1])*exp(-1/((t-T.lo)*(.00000000001+OnePlus.x.siteMigration.rate[,t-1]))) 
+      OnePlus.x.siteMigration[k,,t-1] = OnePlus.x.siteMigration[k,,t-1]+ Diff
 	Diff = (Spawner.x.siteMigration.target.r[k,,t-1]-Spawner.x.siteMigration[k,,t-1])*exp(-1/((t-T.lo)*(.000000001+Spawner.x.siteMigration.rate[,t-1]))) 
       Spawner.x.siteMigration[k,,t-1] = Spawner.x.siteMigration[k,,t-1]+ Diff
 
-### duplicate above lines for Par, pre-smolts, and spawners 
+### duplicate above lines for Par, OnePlus, and spawners 
 
 }
 }
@@ -1500,10 +1500,10 @@ if ((R > 1) * (MCsim4==1)) {
 	for (k in 1:K) {
 	Fry.x.siteMigration.alphaT[k,,]=Fry.x.siteMigration[k,,] * Fry.x.siteMigration.alphaT.N[,] 
 	Par.x.siteMigration.alphaT[k,,]=Par.x.siteMigration[k,,] * Par.x.siteMigration.alphaT.N[,]
-	Presmolt.x.siteMigration.alphaT[k,,]=Presmolt.x.siteMigration[k,,] * Presmolt.x.siteMigration.alphaT.N[,]
+	OnePlus.x.siteMigration.alphaT[k,,]=OnePlus.x.siteMigration[k,,] * OnePlus.x.siteMigration.alphaT.N[,]
 	Spawner.x.siteMigration.alphaT[k,,]=Spawner.x.siteMigration[k,,] * Spawner.x.siteMigration.alphaT.N[,]
 
-### duplicate above lines for Par, pre-smolts, and spawners
+### duplicate above lines for Par, OnePlus, and spawners
 	}
 
 #plot(Fry.x.siteMigration.alphaT[1,1,])
@@ -1521,14 +1521,14 @@ if ((R > 1) * (MCsim4==1)) {
 	# a random dirichlet distribution.
 		yfry.j = round(qgamma(T.unif,shape=Fry.x.siteMigration.alphaT[k1,,t]+.000001),5)
 		ypar.j = round(qgamma(T.unif,shape=Par.x.siteMigration.alphaT[k1,,t]+.000001),5)
-		ypresmolt.j = round(qgamma(T.unif,shape=Presmolt.x.siteMigration.alphaT[k1,,t]+.000001),5)
+		yOnePlus.j = round(qgamma(T.unif,shape=OnePlus.x.siteMigration.alphaT[k1,,t]+.000001),5)
 		yspawner.j = round(qgamma(T.unif,shape=Spawner.x.siteMigration.alphaT[k1,,t]+.000001),5)
 
 
       for (k2 in 1:K){          
     	 	Fry.x.siteMigration[k1,k2,t]= yfry.j[k2] / sum(yfry.j)
 		Par.x.siteMigration[k1,k2,t]= ypar.j[k2] / sum(ypar.j)
-		Presmolt.x.siteMigration[k1,k2,t]= ypresmolt.j[k2] / sum(ypresmolt.j)
+		OnePlus.x.siteMigration[k1,k2,t]= yOnePlus.j[k2] / sum(yOnePlus.j)
 		Spawner.x.siteMigration[k1,k2,t]= yspawner.j[k2] / sum(yspawner.j)
           }	}  
 }
@@ -1540,11 +1540,11 @@ if ((R > 1) * (MCsim4==1)) {
 	for (k in 1:K) {
 	Fry.x.siteMigration.alphaS[k,,]=Fry.x.siteMigration[k,,] * Fry.x.siteMigration.alphaS.N[,] 
 	Par.x.siteMigration.alphaS[k,,]=Par.x.siteMigration[k,,] * Par.x.siteMigration.alphaS.N[,]
-	Presmolt.x.siteMigration.alphaS[k,,]=Presmolt.x.siteMigration[k,,] * Presmolt.x.siteMigration.alphaS.N[,]
+	OnePlus.x.siteMigration.alphaS[k,,]=OnePlus.x.siteMigration[k,,] * OnePlus.x.siteMigration.alphaS.N[,]
 	Spawner.x.siteMigration.alphaS[k,,]=Spawner.x.siteMigration[k,,] * Spawner.x.siteMigration.alphaS.N[,]
 
 
-### duplicate above lines for Par, pre-smolts, and spawners
+### duplicate above lines for Par, OnePlus, and spawners
 	}
 
 	for (t in 2:Tr) {
@@ -1556,16 +1556,16 @@ if ((R > 1) * (MCsim4==1)) {
 	# a random dirichlet distribution.
 		yfry.j = round(qgamma(S.unif,shape=Fry.x.siteMigration.alphaS[k1,,t]+.000001),5)
 		ypar.j = round(qgamma(S.unif,shape=Par.x.siteMigration.alphaS[k1,,t]+.000001),5)
-		ypresmolt.j = round(qgamma(S.unif,shape=Presmolt.x.siteMigration.alphaS[k1,,t]+.000001),5)
+		yOnePlus.j = round(qgamma(S.unif,shape=OnePlus.x.siteMigration.alphaS[k1,,t]+.000001),5)
 		yspawner.j = round(qgamma(S.unif,shape=Spawner.x.siteMigration.alphaS[k1,,t]+.000001),5)
 
  	for (k2 in 1:K){          
    	 	Fry.x.siteMigration[k1,k2,t]= yfry.j[k2] / sum(yfry.j)
 		Par.x.siteMigration[k1,k2,t]= ypar.j[k2] / sum(ypar.j)
-		Presmolt.x.siteMigration[k1,k2,t]= ypresmolt.j[k2] / sum(ypresmolt.j)
+		OnePlus.x.siteMigration[k1,k2,t]= yOnePlus.j[k2] / sum(yOnePlus.j)
 		Spawner.x.siteMigration[k1,k2,t]= yspawner.j[k2] / sum(yspawner.j)
 
-### duplicate above lines for Par, pre-smolts, and spawners
+### duplicate above lines for Par, OnePlus, and spawners
          }	}  }
 
 
@@ -1576,7 +1576,7 @@ if ((R > 1) * (MCsim4==1)) {
 	for (k in 1:K) {
 	Fry.x.siteMigration.alpha[k,,]=Fry.x.siteMigration[k,,] * Fry.x.siteMigration.alpha.N[,] 
 	Par.x.siteMigration.alpha[k,,]=Par.x.siteMigration[k,,] * Par.x.siteMigration.alpha.N[,]
-	Presmolt.x.siteMigration.alpha[k,,]=Presmolt.x.siteMigration[k,,] * Presmolt.x.siteMigration.alpha.N[,]
+	OnePlus.x.siteMigration.alpha[k,,]=OnePlus.x.siteMigration[k,,] * OnePlus.x.siteMigration.alpha.N[,]
 	Spawner.x.siteMigration.alpha[k,,]=Spawner.x.siteMigration[k,,] * Spawner.x.siteMigration.alpha.N[,]
 
 	}
@@ -1590,7 +1590,7 @@ if ((R > 1) * (MCsim4==1)) {
 # Duplicate Below for each life stage w/ cross site migration
 		withinSfry.unif=runif(K)
 		withinSpar.unif=runif(K)
-		withinSpresmolt.unif=runif(K)
+		withinSOnePlus.unif=runif(K)
 		withinSspawner.unif=runif(K)
 
 
@@ -1598,7 +1598,7 @@ if ((R > 1) * (MCsim4==1)) {
 	# a random dirichlet distribution.
 		yfry.j = round(qgamma(withinSfry.unif,shape=Fry.x.siteMigration.alpha[k1,,t]+.000001),5)
 		ypar.j = round(qgamma(withinSpar.unif,shape=Par.x.siteMigration.alpha[k1,,t]+.000001),5)
-		ypresmolt.j = round(qgamma(withinSpresmolt.unif,shape=Presmolt.x.siteMigration.alpha[k1,,t]+.000001),5)
+		yOnePlus.j = round(qgamma(withinSOnePlus.unif,shape=OnePlus.x.siteMigration.alpha[k1,,t]+.000001),5)
 		yspawner.j = round(qgamma(withinSspawner.unif,shape=Spawner.x.siteMigration.alpha[k1,,t]+.000001),5)
 
 
@@ -1606,13 +1606,13 @@ if ((R > 1) * (MCsim4==1)) {
  	for (k2 in 1:K){          
    	 	Fry.x.siteMigration[k1,k2,t]= yfry.j[k2] / sum(yfry.j)
 		Par.x.siteMigration[k1,k2,t]= ypar.j[k2] / sum(ypar.j)
-		Presmolt.x.siteMigration[k1,k2,t]= ypresmolt.j[k2] / sum(ypresmolt.j)
+		OnePlus.x.siteMigration[k1,k2,t]= yOnePlus.j[k2] / sum(yOnePlus.j)
 		Spawner.x.siteMigration[k1,k2,t]= yspawner.j[k2] / sum(yspawner.j)
 
 
 
          }	}  	
-### duplicate above lines for Par, pre-smolts, and spawners (see note above)
+### duplicate above lines for Par, OnePlus, and spawners (see note above)
 	
 } # close time loop
 
@@ -1622,7 +1622,7 @@ if ((R > 1) * (MCsim4==1)) {
 
 #plot(Fry.x.siteMigration[1,1,])
 #plot(Par.x.siteMigration[1,1,])
-#plot(Presmolt.x.siteMigration[1,1,])
+#plot(OnePlus.x.siteMigration[1,1,])
 #plot(Spawner.x.siteMigration[1,1,])
 
 ################################################################
@@ -1690,7 +1690,7 @@ data = list(
 
 "Fry.x.siteMigration"=Fry.x.siteMigration,
 "Par.x.siteMigration"=Par.x.siteMigration,
-"Presmolt.x.siteMigration"=Presmolt.x.siteMigration,
+"OnePlus.x.siteMigration"=OnePlus.x.siteMigration,
 "Spawner.x.siteMigration"=Spawner.x.siteMigration,
 "N5.Rainbow.Fecundity"=N5.Rainbow.Fecundity,
 

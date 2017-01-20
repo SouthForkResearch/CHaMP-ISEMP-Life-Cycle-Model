@@ -112,14 +112,14 @@ legend("topleft",paste(rep("Land Use Classification",Q) ,c(1:Q)), lt=c(1:Q))
 
 
 ### Sr ###########
-### Take out i=5 (presmolts handled separately) and i=1 (NA)
+### Take out i=5 (OnePlus handled separately) and i=1 (NA)
 k=1
 for (k in 1:K) {
 
 maxSr=1
 plot(c(1:Tr),parametersNR[1,]$Sr[k,2,], 
 main=paste("Site",k,"Sr: Survival Probability by 
-Life Stage (Pre-smolt to Smolt Not Included)"),
+Life Stage (OnePlus to Smolt Not Included)"),
 ylim=c(0, 1.4*maxSr), type="l",
 xlab="time", ylab="Sr")
 
@@ -135,7 +135,7 @@ parametersNR[r,]$Sr[k,i,]
 as.character(0:9)
 
 legend("topright",
-c("Spawner-Egg","Egg-Fry","Fry-Parr","Parr-Pre-Smolt",
+c("Spawner-Egg","Egg-Fry","Fry-Parr","Parr-OnePlus",
 "Smolt-Adult", paste(rep("Ocean Age ",10),0:9,"-",seq(1:10)),sep=""),
 col= c(2:4,6:17), lt=c(rep(1,8), rep(2,7)),ncol=3, cex=.8)
 
@@ -151,8 +151,8 @@ for (k in 1:K) {
 
 maxSR5=1
 plot(c(1:Tr),parametersNR[1,]$SR5[k,1,], 
-main=paste("Site",k,"SR5: Pre-Smolt Survival Probability by 
-Years as Pre-Smolt"),
+main=paste("Site",k,"SR5: OnePlus Survival Probability by 
+Years as OnePlus"),
 ylim=c(0, 1.4*maxSR5), type="l",
 xlab="time", ylab="SR5")
 
@@ -167,7 +167,7 @@ parametersNR[r,]$SR5[k,i,]
 
 
 legend("topright",
-paste(rep("Pre-Smolt YR ",10),c(0:9),"-",c(1:10), sep=""),
+paste(rep("OnePlus YR ",10),c(0:9),"-",c(1:10), sep=""),
 ,        col=1:10, lt=c(rep(1,5), rep(2,5)),
 ncol=3, cex=.8)
 
@@ -200,7 +200,7 @@ for (r in 1:R) {
 parametersNR[r,]$D[k,2,d,]
 
 legend("topright",paste(rep("Habitat Type", J) ,c(1:J)),lt=c(1:J),cex=.8)
-legend("topleft",c("Egg","Fry","Parr","Pre-Smolt-Y0","Smolt"),lt=1, col=c(1:5),cex=.8)
+legend("topleft",c("Egg","Fry","Parr","OnePlus-Y0","Smolt"),lt=1, col=c(1:5),cex=.8)
 
 } # end of sites
 
@@ -236,7 +236,7 @@ for (r in 1:R) {
 }}}
 
 legend("topright",paste(rep("Land Use Class", Q) ,c(1:Q)),lt=c(1:Q),cex=.8)
-legend("topleft",c("Egg","Fry","Parr","Pre-Smolt-Y0","Smolt"),lt=1, col=c(1:5),cex=.8)
+legend("topleft",c("Egg","Fry","Parr","OnePlus-Y0","Smolt"),lt=1, col=c(1:5),cex=.8)
 
 } # end of sites
 
@@ -262,7 +262,7 @@ color = c(1,2,3,4,5,1,2,3,4,5)
 
 plot(c(1:Tr), parametersNR[1,]$N5.Psmolt_F[k,1,], 
 main=paste("Site",k,"Probability of Females Smolting 
-by Years as Pre-Smolt"),
+by Years as OnePlus"),
 ylim=c(round(.95*minD,digits=2), 1.4)
 , type="l",
 xlab="time", ylab="D")
@@ -299,7 +299,7 @@ color = c(1,2,3,4,5,1,2,3,4,5)
 
 plot(c(1:Tr), parametersNR[1,]$N5.Psmolt_M[k,1,], 
 main=paste("Site",k,"Probability of Males Smolting 
-by Years as Pre-Smolt"),
+by Years as OnePlus"),
 ylim=c(round(.95*minD,digits=2), 1.4)
 , type="l",
 xlab="time", ylab="D")
@@ -336,7 +336,7 @@ color = c(1,2,3,4,5,1,2,3,4,5)
 
 plot(c(1:Tr), parametersNR[1,]$N5.Pstay_F[k,1,], 
 main=paste("Site",k,"Probability of a Female
- Staying a Pre-Smolt, by Years as Pre-Smolt"),
+ Staying a OnePlus, by Years as OnePlus"),
 ylim=c(round(.95*minD,digits=2), 1.4)
 , type="l",
 xlab="time", ylab="D")
@@ -371,7 +371,7 @@ color = c(1,2,3,4,5,1,2,3,4,5)
 
 plot(c(1:Tr), parametersNR[1,]$N5.Pstay_M[k,1,], 
 main=paste("Site",k,"Probability of a Male
- Staying a Pre-Smolt, by Years as Pre-Smolt"),
+ Staying a OnePlus, by Years as OnePlus"),
 ylim=c(round(.95*minD,digits=2), 1.4)
 , type="l",
 xlab="time", ylab="D")
@@ -407,7 +407,7 @@ color = c(1,2,3,4,5,1,2,3,4,5)
 
 plot(c(1:Tr), parametersNR[1,]$N5.Pspawn_F[k,1,], 
 main=paste("Site",k,"Probability of Female Spawning 
-(as resident rainbow) by Years as Pre-Smolt"),
+(as resident rainbow) by Years as OnePlus"),
 ylim=c(round(.95*minD,digits=2), 1.4)
 , type="l",
 xlab="time", ylab="D")
@@ -440,7 +440,7 @@ color = c(1,2,3,4,5,1,2,3,4,5)
 
 plot(c(1:Tr), parametersNR[1,]$N5.Pspawn_M[k,1,], 
 main=paste("Site",k,"Probability of Male Spawning 
-(as resident rainbow) by Years as Pre-Smolt"),
+(as resident rainbow) by Years as OnePlus"),
 ylim=c(round(.95*minD,digits=2), 1.4)
 , type="l",
 xlab="time", ylab="D")
@@ -473,7 +473,7 @@ lt = c(1,1,1,1,1,2,2,2,2,2)
 color = c(1,2,3,4,5,1,2,3,4,5)
 
 plot(c(1:Tr), parametersNR[1,]$N5.cap[k,1,], 
-main=paste("Site",k,"Pre-Smolt Capcity Scalar by Number of Years as Pre-Smolt"),
+main=paste("Site",k,"OnePlus Capcity Scalar by Number of Years as OnePlus"),
 ylim=c(round(.95*minD,digits=2), 1.4)
 , type="l",
 xlab="time", ylab="D")
@@ -614,7 +614,7 @@ for (r in 1:R) {
 
 
 legend("topright",paste(rep("Habitat Type", J) ,c(1:J)),lt=c(1:J),cex=.8)
-legend("topleft",c("Spawner","Egg","Fry","Parr","Pre-Smolt-Y0"),lt=1, col=c(1:5),cex=.8)
+legend("topleft",c("Spawner","Egg","Fry","Parr","OnePlus-Y0"),lt=1, col=c(1:5),cex=.8)
 
 } # end of sites
 
@@ -642,7 +642,7 @@ legend("topright",c("wild", "hatchery"),col=c("blue","red"),lt=1,cex=.8)
 
 #######################################
 # Rel_Surv
-lifestage = c("Spawner","Egg","Fry","Presmolt","Smolt","Adult (all ages)")
+lifestage = c("Spawner","Egg","Fry","OnePlus","Smolt","Adult (all ages)")
 
 for (i in 1:6) {
 for (k in 1:K) {
@@ -772,20 +772,20 @@ ncol=2)
 
 ##################################################
 ##################################################
-# PreSmolt.x.siteMigration
+# OnePlus.x.siteMigration
 colors=c(1,2,3,4,5,1,2,3,4,5)
 ls = c(1,1,1,1,1,2,2,2,2,2)
 for (k1 in 1:K) {
 k2=1
-plot(c(1:Tr), parametersNR[1,]$Presmolt.x.siteMigration[k1,k2,], 
-main= paste("PreSmolt: Cross Site Migration from Site",k1),
+plot(c(1:Tr), parametersNR[1,]$OnePlus.x.siteMigration[k1,k2,], 
+main= paste("OnePlus: Cross Site Migration from Site",k1),
 ylim=c(0, 1.4), type="l",
 xlab="time", ylab="Cross Site Migration Fraction")
 
 
 for (r in 1:R) {
  for (k2 in 1:K) {
-     lines(c(1:Tr), parametersNR[r,]$Presmolt.x.siteMigration[k1,k2,],
+     lines(c(1:Tr), parametersNR[r,]$OnePlus.x.siteMigration[k1,k2,],
         col=colors[k2], lt=ls[k2])
 }}
 

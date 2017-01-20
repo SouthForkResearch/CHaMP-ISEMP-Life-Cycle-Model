@@ -5,7 +5,7 @@ Read.Header <- function(Header.File) {
 ##################################################################
 
 I=17 #(number of life stages) ### Need to Read This in DATA FILE
-I5=10 # Number of potential pre-smolt years (Steelhead)
+I5=10 # Number of potential OnePlus years (Steelhead)
 
 
 Header.File = "Watershed_Header_File.csv"
@@ -189,7 +189,7 @@ Sr.alpha.N = Sr.mu
 Sr.target = Sr.mu
 Sr.rate = Sr.mu
 
-# Presmolt Stuff...
+# OnePlus Stuff...
 SR5.mu = array(rep(0, K*I5*Tr), c(K, I5, Tr))
 SR5.alphaR=SR5.mu
 SR5.alphaT=SR5.mu
@@ -361,12 +361,12 @@ Rel_Fecund.rate = Rel_Fecund.mu
 
 Fry.x.siteMigration.mu = array(rep(0, K*K*Tr), c(K,K,Tr))
 Par.x.siteMigration.mu = array(rep(0, K*K*Tr), c(K,K,Tr))
-Presmolt.x.siteMigration.mu = array(rep(0, K*K*Tr), c(K,K,Tr))
+OnePlus.x.siteMigration.mu = array(rep(0, K*K*Tr), c(K,K,Tr))
 Spawner.x.siteMigration.mu = array(rep(0, K*K*Tr), c(K,K,Tr))
 
 Fry.x.siteMigration.target = array(rep(0, K*K*Tr), c(K,K,Tr))
 Par.x.siteMigration.target = array(rep(0, K*K*Tr), c(K,K,Tr))
-Presmolt.x.siteMigration.target = array(rep(0, K*K*Tr), c(K,K,Tr))
+OnePlus.x.siteMigration.target = array(rep(0, K*K*Tr), c(K,K,Tr))
 Spawner.x.siteMigration.target = array(rep(0, K*K*Tr), c(K,K,Tr))
 
 Fry.x.siteMigration.alphaR = array(rep(0, K*Tr), c(K, Tr))
@@ -379,10 +379,10 @@ Par.x.siteMigration.alphaT = array(rep(0,K*Tr), c(K, Tr))
 Par.x.siteMigration.alphaS = array(rep(0,K*Tr), c(K, Tr))
 Par.x.siteMigration.alpha = array(rep(0,K*Tr), c(K, Tr))
 
-Presmolt.x.siteMigration.alphaR = array(rep(0,K*Tr), c(K, Tr))
-Presmolt.x.siteMigration.alphaT = array(rep(0,K*Tr), c(K, Tr))
-Presmolt.x.siteMigration.alphaS = array(rep(0,K*Tr), c(K, Tr))
-Presmolt.x.siteMigration.alpha = array(rep(0,K*Tr), c(K, Tr))
+OnePlus.x.siteMigration.alphaR = array(rep(0,K*Tr), c(K, Tr))
+OnePlus.x.siteMigration.alphaT = array(rep(0,K*Tr), c(K, Tr))
+OnePlus.x.siteMigration.alphaS = array(rep(0,K*Tr), c(K, Tr))
+OnePlus.x.siteMigration.alpha = array(rep(0,K*Tr), c(K, Tr))
 
 Spawner.x.siteMigration.alphaR = array(rep(0,K*Tr), c(K, Tr))
 Spawner.x.siteMigration.alphaT = array(rep(0,K*Tr), c(K, Tr))
@@ -391,7 +391,7 @@ Spawner.x.siteMigration.alpha = array(rep(0,K*Tr), c(K, Tr))
 
 Fry.x.siteMigration.rate = array(rep(0, K*Tr), c(K, Tr))
 Par.x.siteMigration.rate = array(rep(0, K*Tr), c(K, Tr))
-Presmolt.x.siteMigration.rate = array(rep(0, K*Tr), c(K, Tr))
+OnePlus.x.siteMigration.rate = array(rep(0, K*Tr), c(K, Tr))
 Spawner.x.siteMigration.rate = array(rep(0, K*Tr), c(K, Tr))
 
 ###########################
@@ -606,7 +606,7 @@ rm(SrTable)
 dim(Sr.mu)
 Sr.mu[1,1:5,1:10]
 Sr.target[1,1:5, 1:10]
-### Presmolt Inputs
+### OnePlus Inputs
 
 #PSinputs = read.xlsx2(Watershed.Input.File, sheetName=Site,
 #       startRow=99, endRow=(99+I5-1),colClasses=rep("numeric", 26),
@@ -906,11 +906,11 @@ for (k1 in 1:K) {
  for (k2 in 1:K) {
 Fry.x.siteMigration.mu[k1, k2,t] = Cross.Site.Mig[k1,k2]
 Par.x.siteMigration.mu[k1, k2,t] = Cross.Site.Mig[k1+11,k2]
-Presmolt.x.siteMigration.mu[k1, k2,t] = Cross.Site.Mig[k1+22,k2]
+OnePlus.x.siteMigration.mu[k1, k2,t] = Cross.Site.Mig[k1+22,k2]
 Spawner.x.siteMigration.mu[k1, k2,t] = Cross.Site.Mig[k1+33,k2]
 Fry.x.siteMigration.target[k1, k2,t] = Cross.Site.Mig[k1,k2+14]
 Par.x.siteMigration.target[k1, k2,t] = Cross.Site.Mig[k1+11,k2+14]
-Presmolt.x.siteMigration.target[k1, k2,t] = Cross.Site.Mig[k1+22,k2+14]
+OnePlus.x.siteMigration.target[k1, k2,t] = Cross.Site.Mig[k1+22,k2+14]
 Spawner.x.siteMigration.target[k1, k2,t] = Cross.Site.Mig[k1+33,k2+14]
  }
 Fry.x.siteMigration.alphaR[k1, t] = as.numeric(as.character(Cross.Site.Mig[k1, 11]))
@@ -927,11 +927,11 @@ Par.x.siteMigration.alpha[k1,t] =  as.numeric(as.character(Cross.Site.Mig[k1+11,
 Par.x.siteMigration.rate[k1, t]  = as.numeric(as.character(Cross.Site.Mig[k1+11, 25]))
 
 
-Presmolt.x.siteMigration.alphaR[k1,t] =  as.numeric(as.character(Cross.Site.Mig[k1+22,11]))
-Presmolt.x.siteMigration.alphaT[k1,t] =  as.numeric(as.character(Cross.Site.Mig[k1+22,12]))
-Presmolt.x.siteMigration.alphaS[k1,t] =  as.numeric(as.character(Cross.Site.Mig[k1+22,13]))
-Presmolt.x.siteMigration.alpha[k1,t] =  as.numeric(as.character(Cross.Site.Mig[k1+22,14]))
-Presmolt.x.siteMigration.rate[k1, t]  = as.numeric(as.character(Cross.Site.Mig[k1+22, 25]))
+OnePlus.x.siteMigration.alphaR[k1,t] =  as.numeric(as.character(Cross.Site.Mig[k1+22,11]))
+OnePlus.x.siteMigration.alphaT[k1,t] =  as.numeric(as.character(Cross.Site.Mig[k1+22,12]))
+OnePlus.x.siteMigration.alphaS[k1,t] =  as.numeric(as.character(Cross.Site.Mig[k1+22,13]))
+OnePlus.x.siteMigration.alpha[k1,t] =  as.numeric(as.character(Cross.Site.Mig[k1+22,14]))
+OnePlus.x.siteMigration.rate[k1, t]  = as.numeric(as.character(Cross.Site.Mig[k1+22, 25]))
 
 Spawner.x.siteMigration.alphaR[k1,t] =  as.numeric(as.character(Cross.Site.Mig[k1+33,11]))
 Spawner.x.siteMigration.alphaT[k1,t] =  as.numeric(as.character(Cross.Site.Mig[k1+33,12]))
@@ -1086,12 +1086,12 @@ list(
 
 "Fry.x.siteMigration.mu"=Fry.x.siteMigration.mu,
 "Par.x.siteMigration.mu"=Par.x.siteMigration.mu,
-"Presmolt.x.siteMigration.mu"=Presmolt.x.siteMigration.mu,
+"OnePlus.x.siteMigration.mu"=OnePlus.x.siteMigration.mu,
 "Spawner.x.siteMigration.mu"=Spawner.x.siteMigration.mu,
 
 "Fry.x.siteMigration.target"=Fry.x.siteMigration.target,
 "Par.x.siteMigration.target"=Par.x.siteMigration.target,
-"Presmolt.x.siteMigration.target"=Presmolt.x.siteMigration.target,
+"OnePlus.x.siteMigration.target"=OnePlus.x.siteMigration.target,
 "Spawner.x.siteMigration.target"=Spawner.x.siteMigration.target,
 
 "Fry.x.siteMigration.alphaR.N" = Fry.x.siteMigration.alphaR,
@@ -1106,11 +1106,11 @@ list(
 "Par.x.siteMigration.alpha.N" = Par.x.siteMigration.alpha,
 "Par.x.siteMigration.rate" = Par.x.siteMigration.rate,
 
-"Presmolt.x.siteMigration.alphaR.N" = Presmolt.x.siteMigration.alphaR,
-"Presmolt.x.siteMigration.alphaT.N" = Presmolt.x.siteMigration.alphaT,
-"Presmolt.x.siteMigration.alphaS.N" = Presmolt.x.siteMigration.alphaS,
-"Presmolt.x.siteMigration.alpha.N" = Presmolt.x.siteMigration.alpha,
-"Presmolt.x.siteMigration.rate" = Presmolt.x.siteMigration.rate,
+"OnePlus.x.siteMigration.alphaR.N" = OnePlus.x.siteMigration.alphaR,
+"OnePlus.x.siteMigration.alphaT.N" = OnePlus.x.siteMigration.alphaT,
+"OnePlus.x.siteMigration.alphaS.N" = OnePlus.x.siteMigration.alphaS,
+"OnePlus.x.siteMigration.alpha.N" = OnePlus.x.siteMigration.alpha,
+"OnePlus.x.siteMigration.rate" = OnePlus.x.siteMigration.rate,
 
 "Spawner.x.siteMigration.alphaR.N" = Spawner.x.siteMigration.alphaR,
 "Spawner.x.siteMigration.alphaT.N" = Spawner.x.siteMigration.alphaT,

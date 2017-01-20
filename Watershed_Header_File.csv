@@ -5,10 +5,10 @@
 ,Number of Habitat Types (J),3,,Not Including Spawning Grave,,,,,,,,,,,,,,,,,,,,
 ,Number of Time Steps (Years) simulation (T),100,,,,,,,,,,,,,,,,,,,,,,
 ,Number of MonteCarlo Simulations ®,1,,Note:  Run-Run Stochasticity Included for # simulations > 1,,,,,,,,,,,,,,,,,,,,
-,MC1,1,,1=run to run stochasticity for Table 2.3 and carrying capacity (2.4),,,,,,,,,,,,,,,,,,,,
-,MC2,1,,1=run to run stochasticity for productivity scalars,,,,,,,,,,,,,,,,,,,,
-,MC3,1,,1=run to runstochasticity for life history parameters (survival by life stage),,,,,,,,,,,,,,,,,,,,alpha.r
-,MC4,1,,"1=temporal, spatial, and within site variability included w/ MC1, MC2, and MC3 selections.  ",,,,,,,,,,,,,,,,,,,,
+,MC1,0,,1=run to run stochasticity for Table 2.3 and carrying capacity (2.4),,,,,,,,,,,,,,,,,,,,
+,MC2,0,,1=run to run stochasticity for productivity scalars,,,,,,,,,,,,,,,,,,,,
+,MC3,0,,1=run to runstochasticity for life history parameters (survival by life stage),,,,,,,,,,,,,,,,,,,,alpha.r
+,MC4,0,,"1=temporal, spatial, and within site variability included w/ MC1, MC2, and MC3 selections.  ",,,,,,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,
 ,,Input File Times,1,,,,,,,,,,,,,,,,,,,,,

@@ -28,9 +28,9 @@ rm(list = ls(all=TRUE)) #Clean up shop before beginning
 # NR is global variable containing all counts N in run R
 #NR = Abundance for site k, stage i, time t, life stage g, run R
 #NR_F = fraction of NR that are females
-#N5R = NR except just for pre-smolts
+#N5R = NR except just for OnePlus
 #N5R_F = fraction of N5R that are females (a fraction)
-#SmoltsR = pre-smolts attempting to smolt (# pre Bev-Holt survival)
+#SmoltsR = OnePlus attempting to smolt (# pre Bev-Holt survival)
 	    NR=with(header, {array(rep(0,K*I*Tr*G*R),c(K,I,Tr,G,R))})
       NR_F=with(header, {array(rep(0,K*I*Tr*G*R),c(K,I,Tr,G,R))}) 
       N5R=with(header, {array(rep(0,K*I5*Tr*G*R), c(K,I5,Tr,G,R))})
@@ -99,18 +99,18 @@ if (header$R > 1) {
   escapement_SD = sd(apply(Escapement_NR[,header$Tr-1,,],mar,sum))
   escapement_se_by_r = escapement_SD/sqrt(r.range)
   escapement_COV_by_r = escapement_se_by_r/ escapement_Mean
-  presmolts_Cand_mean = mean(apply(Candidate_Smolt_NR[,header$Tr-1,,],mar,sum))
-  presmolts_Cand_SD = sd(apply(Candidate_Smolt_NR[,header$Tr-1,,],mar,sum))
-  presmolts_Cand_se_by_r= presmolts_Cand_SD/sqrt(r.range)
-  presmolts_Cand_COV_by_r= presmolts_Cand_se_by_r /  presmolts_Cand_mean
+  OnePlus_Cand_mean = mean(apply(Candidate_Smolt_NR[,header$Tr-1,,],mar,sum))
+  OnePlus_Cand_SD = sd(apply(Candidate_Smolt_NR[,header$Tr-1,,],mar,sum))
+  OnePlus_Cand_se_by_r= OnePlus_Cand_SD/sqrt(r.range)
+  OnePlus_Cand_COV_by_r= OnePlus_Cand_se_by_r /  OnePlus_Cand_mean
   
   plot(r.range, escapement_COV_by_r, type="l", 
   main="Coefficient of Variation for Total Escapement and
-  Total Pre-Smolts, by Number of MC Iterations" ,
+  Total OnePlus, by Number of MC Iterations" ,
   xlab= "Number of MC Iterations",
   ylab="Coefficient of Variation",
   ylim=c(0, 1))
-  lines(r.range, presmolts_Cand_COV_by_r, lt=2)
+  lines(r.range, OnePlus_Cand_COV_by_r, lt=2)
   legend("topright", c("Escapement", "Smolts (Pre-Dam Passage)"), lt=c(1,2))
 }
 
