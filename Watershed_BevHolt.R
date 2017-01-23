@@ -37,7 +37,8 @@ N_ESCAPEMENT = array(0, c(K,Tr,G,2))
 N_ADULTS = array(0, c(K,I5,Tr,G,2,10+I5)) 
 N_SMOLTS = array(0, c(K,I5,Tr,G,2))
 
-N5_FISH = array(0, c(K,10,Tr,G,K,2)) 
+N5_FISH = array(0, c(K,I5,Tr,G,K,2)) 
+## number of ocean years = 10
 NT_FISH = array(0, c(K,10,Tr,G,2))
  
 #Initialize new array
@@ -45,8 +46,6 @@ for (k in 1:K) {
       N5_FISH[k,,,,k,1]=N5[k,,,] *.5
       N5_FISH[k,,,,k,2]=N5[k,,,] *.5
 }
-
-ONEPLUSMAX = 10
 
 # Smolts_by_BroodYear = array(rep(0, K*Tr*G),c(K,Tr,G))
 
@@ -111,7 +110,6 @@ for (t in 2:(Tr-1)){
       
       }
       
-      
       # D is capacity per sq. meter
     	# Note: per document description of table 2-4, assume nearly "infinite"
     	# density and resulting capacity for fry-to-par, and thus only productivity
@@ -152,7 +150,7 @@ for (t in 2:(Tr-1)){
       
       k=1
       for (k in 1:K) { 
-      
+
             ###################################################################
             ###################################################################
             
@@ -164,6 +162,7 @@ for (t in 2:(Tr-1)){
             # N9, N10, etc...: ocean ages 2 ->10 (taking into account loss due to maturation rates of prior years)
 
             for (i in 8:16) {
+
                   CandN_M = apply(N_FISH[k,i,t-1,,,1], 1, sum) * (1-Mat8Plus_M[k,i-7,t-1])
 			CandN_F = apply(N_FISH[k,i,t-1,,,2], 1, sum) * (1-Mat8Plus_F[k, i-7, t-1])
 
@@ -196,7 +195,7 @@ for (t in 2:(Tr-1)){
 				N_FISH[k,i+1,t,g,k,2]= (1-MALE_PERCENT) * Candidates 
                   } 
             } # end of i in (8:16)
-     
+    
             ## Add back surviving spawners from before...      
             for (i in 1:10){
 
@@ -205,10 +204,12 @@ for (t in 2:(Tr-1)){
 
 			N_FISH[k,i+7,t,,k,] = N_FISH[k,i+7,t,,k,] + Post_Spawn_Returns_Anadromous[k,i,,]
             }     
+
             
             ############
             # NT: Mature Fish (ready to Spawn, calc's as % of ocean ages 1-10)
           	for (i in 8:17) {
+
                   CandN_M = apply(N_FISH[k,i,t,,,1],1,sum) * (Mat8Plus_M[k,i-7,t]) 
                   CandN_F = apply(N_FISH[k,i,t,,,2],1,sum) * (Mat8Plus_M[k,i-7,t])
                   CandN = CandN_M+ CandN_F
@@ -217,7 +218,6 @@ for (t in 2:(Tr-1)){
 
                   for (g in 1:G) {
 				# NT_FISH -- mature fish (mature meaning "trying to spawn")
-
 				NT_FISH[k,i-7,t,g,1] = (CandN_M[g] * Rel_Surv[k, i,t,g]) /
 					(1/(1+0*(Sr[k,2,t])) + 1/(C_ocean[k,i-7,t]) *  #Sr[k,2,t] doesn't get implemented here
 					sum(CandN[]*Rel_Surv[k,i,t,]))
@@ -573,16 +573,16 @@ for (t in 2:(Tr-1)){
       # of fish trying to occupy given space (older fish require more space)
       ###########
 
-      Cand_M = array(rep(0, K*G*K*10), c(K,G,K,10)) #in K1, G, imprint K2, i5, Sr, Cap_Scale)
+      Cand_M = array(rep(0, K*G*K*I5), c(K,G,K,I5)) #in K1, G, imprint K2, i5, Sr, Cap_Scale)
       Cand_F = Cand_M
        
       Cand_M[,,,1] = N_FISH[,4,t,,,1]
       Cand_F[,,,1] = N_FISH[,4,t,,,2]
 
       for (k in 1:K) {
-            for (i5 in 1:9) {
-			Cand_M[k,,,i5+1] = N5_FISH[k,i5,t,,,1] * N5.Pstay_M[k,i5,t]
- 			Cand_F[k,,,i5+1] = N5_FISH[k,i5,t,,,2] * N5.Pstay_F[k,i5,t]
+            for (i5 in 2:I5) {
+			Cand_M[k,,,i5] = N5_FISH[k,i5-1,t,,,1] * N5.Pstay_M[k,i5-1,t]
+ 			Cand_F[k,,,i5] = N5_FISH[k,i5-1,t,,,2] * N5.Pstay_F[k,i5-1,t]
             }
       }
 
@@ -664,7 +664,7 @@ for (t in 2:(Tr-1)){
      
 	Correction = N_Equiv/(Y1_Equiv_Temp+.000000000001)
       for (k in 1:K) {
-            for (i5 in 1:10) {
+            for (i5 in 1:I5) {
                   for (g in 1:G) {
 				N5_FISH[k,i5,t+1,g,,1] = temp.Cand_M[k,g,,i5] * Correction[k]
                         N5_FISH[k,i5,t+1,g,,2] = temp.Cand_F[k,g,,i5] * Correction[k]
@@ -871,7 +871,7 @@ for (t in 2:(Tr-1)){
 			N_FISH[k,8,t+1,g,k,2] = (1 - MALE_PORTION) * AdultSurvivors  
 
 			# new adults from smolts. ocean age is 1, real age is age as smolts.
-			for (i5 in 1:10) {
+			for (i5 in 1:I5) {
 			 	N_ADULTS[k,i5,t+1,g,1,1] = N_ADULTS[k,i5,t+1,g,1,1] + N_SMOLTS[k,i5,t,g,1]
 			 	N_ADULTS[k,i5,t+1,g,2,1] = N_ADULTS[k,i5,t+1,g,2,1] + N_SMOLTS[k,i5,t,g,2]
 			}

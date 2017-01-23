@@ -5,7 +5,7 @@ Read.Header <- function(Header.File) {
 ##################################################################
 
 I=17 #(number of life stages) ### Need to Read This in DATA FILE
-I5=10 # Number of potential OnePlus years (Steelhead)
+I5=5 # Number of potential OnePlus years (Steelhead)
 
 
 Header.File = "Watershed_Header_File.csv"

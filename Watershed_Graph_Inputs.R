@@ -480,7 +480,7 @@ xlab="time", ylab="D")
 
 
 for (r in 1:R) {
-  for (i5 in 1:10) {
+  for (i5 in 1:I5) {
      lines(c(1:Tr), parametersNR[r,]$N5.cap[k,i5,],
         col=color[i5], lt=lt[i5])}}
 

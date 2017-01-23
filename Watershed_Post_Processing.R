@@ -39,7 +39,7 @@ dir.create("Output Files", showWarnings = FALSE)
 
 
 NRFinal = array(0, c(K, 17,G))
-N5Final = array(0, c(K, 10,G))
+N5Final = array(0, c(K, I5,G))
 k=1
 margin=c(1,2)
 
@@ -60,8 +60,7 @@ for (k in 1:K) {
 #	rownames(NRFinal)=c(as.character(seq(1:header$K)))
 
 	N5FinalNames = c("OnePlusY1","OnePlusY2","OnePlusY3",
-	"OnePlusY4","OnePlusY5","OnePlusY6","OnePlusY7","OnePlusY8",
-	"OnePlusY9","OnePlusY10")
+	"OnePlusY4","OnePlusY5")
 
 
 #	rownames(N5Final)=c(as.character(seq(1:header$K)))
@@ -142,8 +141,7 @@ write.csv(
 PS.LifeStageMeans = array(rep(0, header$Tr * I5*G), c(header$Tr,I5*G))
 PS.LifeStageSds = array(rep(0, header$Tr * I5*G), c(header$Tr,I5*G))
 
-NR5Names = c("PS.1", "PS.2", "PS.3","PS.4","PS.5","PS.6",
-"PS.7","PS.8","PS.9","PS.10")
+NR5Names = c("PS.1", "PS.2", "PS.3","PS.4","PS.5")
 
 
 N1 = rep(subpop.names[1],I5)
@@ -171,7 +169,7 @@ PS.LifeStageSds[t,(g-1)*I5 +n5] = sd(N5R[k,n5,t,g,])
 #mean(N5R[k,n5,t,g,])
 #mean(N5R[3,1,3,1,])
 #dim(PS.LifeStageMeans)
-#PS.LifeStageMeans[3,1:10]
+#PS.LifeStageMeans[3,1:I5]
 #dim(N5R)
 #Old way
 # write.csv(

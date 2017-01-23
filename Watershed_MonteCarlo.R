@@ -1154,7 +1154,7 @@ if ((R>1)* (MCsim2==1)) {
 R.unif = runif(1)
 	for (t in 1:Tr) {
 	 for (k in 1:K) {
-		    for (i in 1:10) {
+		    for (i in 1:I5) {
 	  N5.cap[k,i,t] =   max(0.0, 
    (N5.cap[k,i,t] +
           qnorm(R.unif, 0, N5.cap.sigma[k,i,t]))) 
@@ -1179,7 +1179,7 @@ if (N.input.files==1) {T.lo=1; T.hi=Tr+1} else {
 	 T.unif = runif(1)
 		 for (k in 1:K) {
 		   S.unif = runif(1)
-             for (i in 1:10) {
+             for (i in 1:I5) {
 	   withinS.unif=runif(1)
      	N5.cap[k,i,t-1] =   max(0.0, 
    (N5.cap[k,i,t-1] +
