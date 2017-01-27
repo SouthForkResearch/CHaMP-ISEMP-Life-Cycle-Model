@@ -18,24 +18,26 @@ attach(header.data)
 
 #     Read initial values for csv files
 
-
+k=1
+I
 for (k in 1:K) {
 
-inits = read.csv(Init.file.names[k], skip=1, header=F, nrows=11)[,3:28]
-
+inits = read.csv(Init.file.names[k], skip=1, header=F, nrows=11)[,3:19]
+inits
 N[k,1,1,] = rep(0, G)
 for (i in 2:I) {  
 N[k,i,1,]=inits[,(i-1)]
 N[k,i,2,]=inits[,(i-1)]  # Initialze time 2 = time 1 
 }
-
+N[k,,1,]
 
 dim(N5)
 for (i5 in 1:I5) {  
  for (g in 1:G) {
-N5[k,i5,1,g]=inits[g,(16+i5)]
-N5[k,i5,2,g]=inits[g,(16+i5)] # Initialize time 2 = time 1
+N5[k,i5,1,g]=inits[g,(12+i5)]
+N5[k,i5,2,g]=inits[g,(12+i5)] # Initialize time 2 = time 1
 }}
+N5[k,,,1]
 
 rm(inits)
 
@@ -77,6 +79,9 @@ attach(header.data)
 #attach(header)
 #attach(variables)
 #attach(Inputs)
+
+Frac.Subyear.M= Frac.Subyear.M.mu
+Frac.Subyear.F= Frac.Subyear.F.mu
 
 	Sr=Sr.mu
 	SR5=SR5.mu
@@ -1209,7 +1214,7 @@ if ((R>1)* (MCsim2==1)) {
 R.unif = runif(1)
 	for (t in 1:Tr) {
 	 for (k in 1:K) {
-		    for (i in 1:10) {
+		    for (i in 1:5) { # only 5 ocean life stages now
 	  C_ocean[k,i,t] =   max(0.0, 
    (C_ocean[k,i,t] +
           qnorm(R.unif, 0, C_ocean.sigma[k,i,t]))) 
@@ -1234,7 +1239,7 @@ if (N.input.files==1) {T.lo=1; T.hi=Tr+1} else {
 	 T.unif = runif(1)
 		 for (k in 1:K) {
 		   S.unif = runif(1)
-             for (i in 1:10) {
+             for (i in 1:5) { #only 5 ocean stages now
 	   withinS.unif=runif(1)
      	C_ocean[k,i,t-1] =   max(0.0, 
    (C_ocean[k,i,t-1] +
@@ -1661,6 +1666,9 @@ data = list(
 	
 	"D"=D,
  	"Prod_Scalar"=Prod_Scalar,
+
+	"Frac.Subyear.M" = Frac.Subyear.M,
+	"Frac.Subyear.F" = Frac.Subyear.F,
 
 	"N5.Psmolt_F"=N5.Psmolt_F,
       "N5.Pstay_F" = N5.Pstay_F,

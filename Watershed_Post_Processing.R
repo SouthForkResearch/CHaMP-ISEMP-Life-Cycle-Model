@@ -38,7 +38,7 @@ dir.create("Output Files", showWarnings = FALSE)
 
 
 
-NRFinal = array(0, c(K, 17,G))
+NRFinal = array(0, c(K, I,G))
 N5Final = array(0, c(K, I5,G))
 k=1
 margin=c(1,2)
@@ -54,7 +54,7 @@ for (k in 1:K) {
 
 	NRFinalNames=c("Adult Escapement","Egg","Fry","Par","OnePlus",
 	"Smolt","Adult_Y0","Adult_Y1","Adult_Y2","Adult_Y3","Adult_Y4",
-	"Adult_Y5","Adult_Y6","Adult_Y7","Adult_Y8","Adult_Y9", "Adult_Y10")
+	"Adult_Y5")
 
 }
 #	rownames(NRFinal)=c(as.character(seq(1:header$K)))
@@ -71,8 +71,8 @@ for (k in 1:K) {
 	
 	for (k in 1:K) {
 
-	NRout.data=t(NRFinal[k,2:17,])
-	colnames(NRout.data)=NRFinalNames[2:17]
+	NRout.data=t(NRFinal[k,2:I,])
+	colnames(NRout.data)=NRFinalNames[2:I]
 	N5out.data=t(N5Final[k,,])
 	colnames(N5out.data)=N5FinalNames
 
@@ -99,23 +99,23 @@ for (k in 1:K) {
 ##############################################
 # Write full output file of results
 
-LifeStageMeans = array(rep(0, header$Tr * 17*G), c(header$Tr,17*G))
-LifeStageSds = array(rep(0, header$Tr * 17*G), c(header$Tr,17*G))
+LifeStageMeans = array(rep(0, header$Tr * I*G), c(header$Tr,I*G))
+LifeStageSds = array(rep(0, header$Tr * I*G), c(header$Tr,I*G))
 
 
-N1 = rep(subpop.names[1],17)
-for (g in 2:G) {N1= c(N1, rep(subpop.names[g],17))}
+N1 = rep(subpop.names[1],I)
+for (g in 2:G) {N1= c(N1, rep(subpop.names[g],I))}
 
 colnames(LifeStageMeans) = paste(rep(NRFinalNames,G),"_",N1,"_Mean",sep="")
 colnames(LifeStageSds)= paste(rep(NRFinalNames,G),"_",N1,"_sd",sep="")
 
 for (k in 1:header$K) {
 
-for (n in 1:17) {
+for (n in 1:I) {
 for (g in 1:G)  {
 for (t in 1:Tr) {
-LifeStageMeans[t,(g-1)*17 +n] = mean(NR[k,n,t,g,])
-LifeStageSds[t,(g-1)*17 +n] = sd(NR[k,n,t,g,])
+LifeStageMeans[t,(g-1)*I +n] = mean(NR[k,n,t,g,])
+LifeStageSds[t,(g-1)*I +n] = sd(NR[k,n,t,g,])
 }}}
 #Old way
 # write.csv(
@@ -192,23 +192,23 @@ write.csv(
 
 
 # Write file for  All Sites Combined
-Total_by_LS_gtype_r = array(0,c(17,Tr,G,R))
-Total_by_LS_gtype_mean = array(0,c(Tr,17*G))
-Total_by_LS_gtype_sd = array(0,c(Tr,17*G))
+Total_by_LS_gtype_r = array(0,c(I,Tr,G,R))
+Total_by_LS_gtype_mean = array(0,c(Tr,I*G))
+Total_by_LS_gtype_sd = array(0,c(Tr,I*G))
 
 #Pete Fix Feb 2016
-N1 = rep(subpop.names[1],17)
-for (g in 2:G) {N1= c(N1, rep(subpop.names[g],17))}
+N1 = rep(subpop.names[1],I)
+for (g in 2:G) {N1= c(N1, rep(subpop.names[g],I))}
 
 
 
 for (t in 1:Tr){
 for (g in 1:G){
-for (n in 1:17) {
+for (n in 1:I) {
 for (r in 1:R) {
 Total_by_LS_gtype_r[n,t,g,r] =sum(NR[,n,t,g,r]) }
-Total_by_LS_gtype_mean[t,(g-1)*17+n] = mean(Total_by_LS_gtype_r[n,t,g,])
-Total_by_LS_gtype_sd[t,(g-1)*17 +n] = sd(Total_by_LS_gtype_r[n,t,g,])
+Total_by_LS_gtype_mean[t,(g-1)*I+n] = mean(Total_by_LS_gtype_r[n,t,g,])
+Total_by_LS_gtype_sd[t,(g-1)*I +n] = sd(Total_by_LS_gtype_r[n,t,g,])
 }}}
 
 

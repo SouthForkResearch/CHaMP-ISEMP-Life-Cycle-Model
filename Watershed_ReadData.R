@@ -4,7 +4,7 @@
 Read.Header <- function(Header.File) {
 ##################################################################
 
-I=17 #(number of life stages) ### Need to Read This in DATA FILE
+I=12 #(number of life stages) ### Need to Read This in DATA FILE
 I5=5 # Number of potential OnePlus years (Steelhead)
 
 
@@ -15,6 +15,11 @@ Header.File = "Watershed_Header_File.csv"
 #WshedKJQ=read.xlsx2(Header.File, sheetName="Header",
 #         startRow=2, endRow=11, colClasses=c("numeric"),
 #         colIndex=3:3, header=F)
+
+species = as.character(read.csv(Header.File, nrows=1, header=F)[,3])
+# correct for capitalization differences
+if (species == "Chinook") {species = "chinook"}
+if (species == "Steelhead")  {species = "steelhead"}
 
 WshedKJQ = read.csv(Header.File, skip=1, nrows=10, header=F)[,3]
 WshedKJQ
@@ -109,6 +114,7 @@ Site.Names
 
 return(
 	list(
+      "species" = species,
       "I"=I, "I5"=I5,"G"=G,
 	"K"=K, "N.input.files"=N.input.files, "Q"=Q, "J"=J, "Tr"=Tr, "R"=R, 
 	"MCsim1"=MCsim1, "MCsim2"=MCsim2,"MCsim3"=MCsim3,"MCsim4"=MCsim4,
@@ -162,8 +168,9 @@ Ak_x_Lqk.rate=Ak_x_Lqk.mu
 
 
 
-
-D.mu=array(rep(0, K* 5*(J+1)*Tr), c(K, J, 5, Tr))
+# The six are for:  (1)egg, (2)Fry, (3)Parr, (4)Pre-Smolt, 
+# (5)subyearling chinook or NA for steelhead, (6) yearling chinook or Steelhead
+D.mu=array(rep(0, K* 6*(J+1)*Tr), c(K, J, 6, Tr))
 D.sigmaR=D.mu
 D.sigmaT=D.mu
 D.sigmaS=D.mu
@@ -172,13 +179,16 @@ D.target=D.mu
 D.rate = D.mu
 
 
-Prod_Scalar.mu=array(rep(0, K*5*Q*Tr), c(K, Q, 5, Tr))
+# The six are for:  (1)egg, (2)Fry, (3)Parr, (4)Pre-Smolt, 
+# (5)subyearling chinook or NA for steelhead, (6) yearling chinook or Steelhead
+Prod_Scalar.mu=array(rep(0, K*6*Q*Tr), c(K, Q, 6, Tr))
 Prod_Scalar.sigmaR=Prod_Scalar.mu 
 Prod_Scalar.sigmaT=Prod_Scalar.mu
 Prod_Scalar.sigmaS=Prod_Scalar.mu
 Prod_Scalar.sigma=Prod_Scalar.mu
 Prod_Scalar.target = Prod_Scalar.mu
 Prod_Scalar.rate = Prod_Scalar.mu
+
 
 
 Sr.mu = array(rep(0, K*I*Tr), c(K,I,Tr))
@@ -188,6 +198,24 @@ Sr.alphaS.N= Sr.mu
 Sr.alpha.N = Sr.mu
 Sr.target = Sr.mu
 Sr.rate = Sr.mu
+
+#harvest.wild.mu = array(rep(0,K*Tr), c(K, Tr))
+
+
+#initialize fraction subyearlings
+
+Frac.Subyear.M.mu = array(rep(0,K*Tr), c(K, Tr))
+Frac.Subyear.F.mu = array(rep(0,K*Tr), c(K, Tr))
+Frac.Subyear.M.alphaR.N =  Frac.Subyear.M.mu
+Frac.Subyear.M.alphaT.N =  Frac.Subyear.M.mu
+Frac.Subyear.M.alphaS.N =  Frac.Subyear.M.mu
+Frac.Subyear.M.alpha.N =  Frac.Subyear.M.mu
+Frac.Subyear.F.alphaR.N =  Frac.Subyear.F.mu
+Frac.Subyear.F.alphaT.N =  Frac.Subyear.F.mu
+Frac.Subyear.F.alphaS.N =  Frac.Subyear.F.mu
+Frac.Subyear.F.alpha.N =  Frac.Subyear.F.mu
+
+
 
 # OnePlus Stuff...
 SR5.mu = array(rep(0, K*I5*Tr), c(K, I5, Tr))
@@ -237,8 +265,8 @@ N5.cap.target = SR5.mu
 N5.cap.rate = SR5.mu
 
 
-# Adult (ocean) fish by ocean age parameters (track up to 10 ocean years)
-	Mat8Plus_Female.mu = array(rep(0,K*10*Tr), c(K, 10, Tr))
+# Adult (ocean) fish by ocean age parameters (track up to 5 ocean years)
+	Mat8Plus_Female.mu = array(rep(0,K*5*Tr), c(K, 5, Tr))
 	Mat8Plus_Female.alphaR.N = Mat8Plus_Female.mu
 	Mat8Plus_Female.alphaT.N = Mat8Plus_Female.mu
 	Mat8Plus_Female.alphaS.N = Mat8Plus_Female.mu
@@ -246,15 +274,13 @@ N5.cap.rate = SR5.mu
 	Mat8Plus_Female.target = Mat8Plus_Female.mu
 	Mat8Plus_Female.rate = Mat8Plus_Female.mu
 
-	Mat8Plus_Male.mu = array(rep(0,K*10*Tr), c(K, 10, Tr))
+	Mat8Plus_Male.mu = array(rep(0,K*5*Tr), c(K, 5, Tr))
 	Mat8Plus_Male.alphaR.N = Mat8Plus_Female.mu
 	Mat8Plus_Male.alphaT.N = Mat8Plus_Female.mu
 	Mat8Plus_Male.alphaS.N = Mat8Plus_Female.mu
 	Mat8Plus_Male.alpha.N = Mat8Plus_Female.mu
 	Mat8Plus_Male.target = Mat8Plus_Female.mu
 	Mat8Plus_Male.rate = Mat8Plus_Female.mu
-
-
 
 
 
@@ -323,18 +349,18 @@ Rel_Surv.target= Rel_Surv.mu
 Rel_Surv.rate= Rel_Surv.mu
 
 #Male Female Ratio
+# 5 is for 5 year ocean life
+Post_Spawn_Survival_Anadromous_M.mu =  array(rep(0, K*5*Tr*G), c(K,5,Tr,G))
+Post_Spawn_Survival_Anadromous_F.mu =  array(rep(0, K*5*Tr*G), c(K,5,Tr,G))
 
-Post_Spawn_Survival_Anadromous_M.mu =  array(rep(0, K*10*Tr*G), c(K,10,Tr,G))
-Post_Spawn_Survival_Anadromous_F.mu =  array(rep(0, K*10*Tr*G), c(K,10,Tr,G))
+Post_Spawn_Survival_Rainbow_M.mu =  array(rep(0, K*5*Tr*G), c(K,5,Tr,G))
+Post_Spawn_Survival_Rainbow_F.mu =  array(rep(0, K*5*Tr*G), c(K,5,Tr,G))
 
-Post_Spawn_Survival_Rainbow_M.mu =  array(rep(0, K*10*Tr*G), c(K,10,Tr,G))
-Post_Spawn_Survival_Rainbow_F.mu =  array(rep(0, K*10*Tr*G), c(K,10,Tr,G))
-
-#Female_Frac.mu = array(rep(0, K*10*Tr*G), c(K,10,Tr,G))
+#Female_Frac.mu = array(rep(0, K*5*Tr*G), c(K,5,Tr,G))
 
 
 #Fecundity of Female Spawners by Ocean Age)
-Female_Fecundity = array(rep(0, K*10*Tr*G), c(K,10,Tr,G))
+Female_Fecundity = array(rep(0, K*5*Tr*G), c(K,5,Tr,G))
 
 
 
@@ -415,11 +441,12 @@ T.step.change
 
 # loop through each input file
 #Watershed.Input.File=Input.file.names[n.step] 
+k=1
 	for (k in 1:K) {
     #print(k)
 #	Site=paste("Site",k,sep="")
 Watershed.Input.File = as.character(Input.file.names[k, n.step])
-
+Watershed.Input.File
 # Read the M's
 #T2.3 <-read.xlsx2(Watershed.Input.File, sheetName=Site,
 #         startRow=26, endRow=(26+Q-1), colClasses=rep("numeric",J),
@@ -519,30 +546,34 @@ rm(Ak)
 #colIndex=3:37, header=F)
 
 Dtable = read.csv(Watershed.Input.File, header=F,
-         skip=44, nrows=12)[,3:37]
+         skip=44, nrows=12)[,3:44]
+Dtable
 
 # Note - this has been updated so that capcity of spawning gravel is input directly in "spawner to egg" category
 
-
+t=1
+i=1
+J
 for (t in T.lo:T.hi) {
-for (i in 1:5) {
+for (i in 1:6) { 
+# 6 is for 6 life stages (including one each for subyearlings or yearling chinook
 D.mu[k,1:J,i,t] = Dtable[1:J,i] 
 #D.mu[k, (J+1),i ,t] = Dtable[13, i]
-D.sigmaR[k,1:J,i,t] = Dtable[1:J,(i+5)] 
-#D.sigmaR[k, (J+1),i ,t] = Dtable[13, (i+5)]
-D.sigmaT[k,1:J,i,t] = Dtable[1:J,(i+10)] 
-#D.sigmaT[k, (J+1),i ,t] = Dtable[13, (i+10)]
-D.sigmaS[k,1:J,i,t] = Dtable[1:J,(i+15)] 
-#D.sigmaS[k, (J+1),i ,t] = Dtable[13, (i+15)] 
-D.sigma[k,1:J,i,t] = Dtable[1:J,(i+20)] 
-#D.sigma[k, (J+1),i ,t] = Dtable[13,(i+20)] 
-D.target[k,1:J,i,t] = Dtable[1:J,(i+25)]
-#D.target[k,(J+1),i,t] = Dtable[13,(i+25)]
-D.rate[k,1:J,i,t] = Dtable[1:J, (i+30)]
-#D.rate[k,(J+1),i,t] = Dtable[13, (i+30)]
+D.sigmaR[k,1:J,i,t] = Dtable[1:J,(i+6)] 
+#D.sigmaR[k, (J+1),i ,t] = Dtable[13, (i+6)]
+D.sigmaT[k,1:J,i,t] = Dtable[1:J,(i+12)] 
+#D.sigmaT[k, (J+1),i ,t] = Dtable[13, (i+12)]
+D.sigmaS[k,1:J,i,t] = Dtable[1:J,(i+18)] 
+#D.sigmaS[k, (J+1),i ,t] = Dtable[13, (i+18)] 
+D.sigma[k,1:J,i,t] = Dtable[1:J,(i+24)] 
+#D.sigma[k, (J+1),i ,t] = Dtable[13,(i+24)] 
+D.target[k,1:J,i,t] = Dtable[1:J,(i+30)]
+#D.target[k,(J+1),i,t] = Dtable[13,(i+30)]
+D.rate[k,1:J,i,t] = Dtable[1:J, (i+36)]
+#D.rate[k,(J+1),i,t] = Dtable[13, (i+36)]
 }
 }
-
+dim(D.mu)
 
 D.mu[1,1,1,1:10]
 D.target[1,1,1,1:10]
@@ -557,31 +588,31 @@ rm(Dtable)
 #         colIndex=3:38, header=F)
 
 Etable = read.csv(Watershed.Input.File, header=F,
-        skip=62, nrows=Q)[,3:37]
+        skip=62, nrows=Q)[,3:44]
 
 
 Etable
 for (t in T.lo:T.hi) {
 for (i in 1:5) {
 Prod_Scalar.mu[k,1:Q,i,t] = Etable[1:Q,i] 
-Prod_Scalar.sigmaR[k,1:Q,i,t] = Etable[1:Q,(i+5)] 
-Prod_Scalar.sigmaT[k,1:Q,i,t] = Etable[1:Q,(i+10)] 
-Prod_Scalar.sigmaS[k,1:Q,i,t] = Etable[1:Q,(i+15)] 
-Prod_Scalar.sigma[k,1:Q,i,t] = Etable[1:Q,(i+20)] 
-Prod_Scalar.target[k,1:Q,i,t] = Etable[1:Q,(i+25)]
-Prod_Scalar.rate[k,1:Q,i,t] = Etable[1:Q,(i+30)]
+Prod_Scalar.sigmaR[k,1:Q,i,t] = Etable[1:Q,(i+6)] 
+Prod_Scalar.sigmaT[k,1:Q,i,t] = Etable[1:Q,(i+12)] 
+Prod_Scalar.sigmaS[k,1:Q,i,t] = Etable[1:Q,(i+18)] 
+Prod_Scalar.sigma[k,1:Q,i,t] = Etable[1:Q,(i+24)] 
+Prod_Scalar.target[k,1:Q,i,t] = Etable[1:Q,(i+30)]
+Prod_Scalar.rate[k,1:Q,i,t] = Etable[1:Q,(i+36)]
 } #close i
 } # close t
 rm(Etable)
 
 Prod_Scalar.mu[1,1,1,1:10]
 Prod_Scalar.target[1,1,1,1:10]
-
+dim(Prod_Scalar.mu)
 #?read.xlsx
 
 
 
-
+I
 #SrTable = read.xlsx2(Watershed.Input.File, sheetName=Site,
 #         startRow=78, endRow=(78+I-1-1), colClasses=rep("numeric",7),
 ##         rowIndex=78:(78+I-1-1), 
@@ -606,8 +637,33 @@ rm(SrTable)
 dim(Sr.mu)
 Sr.mu[1,1:5,1:10]
 Sr.target[1,1:5, 1:10]
-### OnePlus Inputs
 
+# Fraction Subyearling Inputs
+# HERE!!
+SRLTable = read.csv(Watershed.Input.File, header=F,
+        skip= 98, nrows = 1)[4:13]
+SRLTable
+dim(SRLTable)
+dim(Frac.Subyear.M.mu)
+for (t in T.lo:T.hi) {
+Frac.Subyear.M.mu[k, t] =SRLTable[1,1] 
+Frac.Subyear.F.mu[k, t] = SRLTable[1,2] 
+Frac.Subyear.M.alphaR.N[k, t] = SRLTable[1,3] 
+Frac.Subyear.M.alphaT.N[k, t] = SRLTable[1,4]  
+Frac.Subyear.M.alphaS.N[k, t] = SRLTable[1,5]  
+Frac.Subyear.M.alpha.N[k, t] = SRLTable[1,6]  
+Frac.Subyear.F.alphaR.N[k, t] = SRLTable[1,7] 
+Frac.Subyear.F.alphaT.N[k, t] = SRLTable[1,8] 
+Frac.Subyear.F.alphaS.N[k, t] = SRLTable[1,9] 
+Frac.Subyear.F.alpha.N[k, t] = SRLTable[1,10] 
+} # end for t....
+
+Frac.Subyear.M.mu
+
+
+
+### OnePlus Inputs
+I5
 #PSinputs = read.xlsx2(Watershed.Input.File, sheetName=Site,
 #       startRow=99, endRow=(99+I5-1),colClasses=rep("numeric", 26),
 ##       rowIndex=99:(99+I5-1), 
@@ -615,7 +671,7 @@ Sr.target[1,1:5, 1:10]
 
 
 PSinputs = read.csv(Watershed.Input.File, header=F,
-      skip=100, nrows = I5)[, 3:39]
+      skip=103, nrows = I5)[, 3:39]
 PSinputs
 
 for (t in T.lo:T.hi) {
@@ -683,7 +739,7 @@ rm(PSinputs)
 #          colIndex=4:24, header=F)
 
 o.inputs = read.csv(Watershed.Input.File, header=F,
-         skip=115, nrow=10)[, 4:24]
+         skip=113, nrow=5)[, 4:24]
 o.inputs
 for (t in T.lo:T.hi) {
 	Mat8Plus_Female.mu[k, ,t] = o.inputs[,1]
@@ -723,7 +779,7 @@ rm(o.inputs)
 #          colIndex=4:87, header=F)
 
 fractions = read.csv(Watershed.Input.File, header=F,
-          skip=130, nrows = 5)[,4:87]
+          skip=123, nrows = 5)[,4:87]
 
 fractions
 #dim(frac.mu)
@@ -759,9 +815,9 @@ frac.target[1,,,1:10]
 #          colIndex=3:9, header=F)
 
 harvest = read.csv(Watershed.Input.File, header=F, 
-         skip = 139, nrows = 2)[, 3:9]
+         skip = 132, nrows = 2)[, 3:9]
 
-#harvest
+harvest
 for (t in T.lo:T.hi) {
 harvest.wild.mu[k,t] = harvest[1,1]
 harvest.wild.sigmaR[k,t] = harvest[1,2]
@@ -793,17 +849,17 @@ rm(harvest)
 
 
 Hatch_Fish_Inputs = read.csv(Watershed.Input.File, header=F,
-   skip=147, nrows=1)[, 2:4]
-
+   skip=140, nrows=1)[, 2:5]
+Hatch_Fish_Inputs
 #dim(Hatch_Fish_Inputs)
 for (t in T.lo:T.hi) {
    Hatch_Fish.mu[k, 1:2, t]=0
    Hatch_Fish.mu[k, 6:I, t] = 0
- for (i in 3:5) {
+ for (i in 3:6) {
    Hatch_Fish.mu[k,i,t]= Hatch_Fish_Inputs[1, i-2]
  }
 }  
-    
+Hatch_Fish.mu    
 
 
 #Rel_Surv_Inputs = read.xlsx2(Watershed.Input.File, sheetName=Site,
@@ -812,8 +868,8 @@ for (t in T.lo:T.hi) {
 #          colIndex=4:10, header=F)
 
 Rel_Surv_Inputs = read.csv(Watershed.Input.File, header=F,
-                           skip=152, nrow=11)[, 4:9] #Pete Feb 2016, this be nrow = 11 not 12, right?
-#                           skip=152, nrow=12)[, 4:9] #Pete Feb 2016, this be nrow = 11 not 12, right?
+                           skip=145, nrow=11)[, 4:9] #Pete Feb 2016, this be nrow = 11 not 12, right?
+#                           skip=145, nrow=12)[, 4:9] #Pete Feb 2016, this be nrow = 11 not 12, right?
 
 #Rel_Surv_Inputs
 # Will add variability at a later time ---M@
@@ -848,7 +904,8 @@ rm(Rel_Surv_Inputs)
 
 
 Fecund_Inputs = read.csv(Watershed.Input.File, header=F,
-        skip=168, nrow=11)[, 4:13]
+        skip=161, nrow=11)[, 4:8]
+Fecund_Inputs
 for (t in T.lo:T.hi) {
      Female_Fecundity[k,,t,] = t(Fecund_Inputs)
 }
@@ -862,10 +919,11 @@ rm(Fecund_Inputs)
 
 Post_Spawn_Survival_Anadromous_Inputs = 
 			 read.csv(Watershed.Input.File, header=F,
-                   skip=184, nrow=11)[, 4:23]
+                   skip=177, nrow=11)[, 4:13]
+Post_Spawn_Survival_Anadromous_Inputs
 for (t in T.lo:T.hi) {
-     Post_Spawn_Survival_Anadromous_M.mu[k,,t,] = t(Post_Spawn_Survival_Anadromous_Inputs[,1:10])
-     Post_Spawn_Survival_Anadromous_F.mu[k,,t,] = t(Post_Spawn_Survival_Anadromous_Inputs[,11:20])
+     Post_Spawn_Survival_Anadromous_M.mu[k,,t,] = t(Post_Spawn_Survival_Anadromous_Inputs[,1:5])
+     Post_Spawn_Survival_Anadromous_F.mu[k,,t,] = t(Post_Spawn_Survival_Anadromous_Inputs[,6:10])
 }
 rm(Post_Spawn_Survival_Anadromous_Inputs)
 
@@ -873,10 +931,10 @@ rm(Post_Spawn_Survival_Anadromous_Inputs)
 
 Post_Spawn_Survival_Rainbow_Inputs =
 	 read.csv(Watershed.Input.File, header=F,
-                   skip=199, nrow=11)[, 4:23]  #Pete October 2015 Fix--was previously referencing the wrong row...
+                   skip=192, nrow=11)[, 4:13]  #Pete October 2015 Fix--was previously referencing the wrong row...
 for (t in T.lo:T.hi) {
-     Post_Spawn_Survival_Rainbow_M.mu[k,,t,] = t(Post_Spawn_Survival_Rainbow_Inputs[,1:10])
-     Post_Spawn_Survival_Rainbow_F.mu[k,,t,] = t(Post_Spawn_Survival_Rainbow_Inputs[,11:20])
+     Post_Spawn_Survival_Rainbow_M.mu[k,,t,] = t(Post_Spawn_Survival_Rainbow_Inputs[,1:5])
+     Post_Spawn_Survival_Rainbow_F.mu[k,,t,] = t(Post_Spawn_Survival_Rainbow_Inputs[,6:10])
 }
 
 rm(Post_Spawn_Survival_Rainbow_Inputs)
@@ -1003,6 +1061,18 @@ list(
 "Sr.mu" = Sr.mu, "Sr.alphaR.N" = Sr.alphaR.N,  "Sr.alphaT.N" = Sr.alphaT.N,
  "Sr.alphaS.N" = Sr.alphaS.N, "Sr.alpha.N" = Sr.alpha.N,
   "Sr.target" = Sr.target, "Sr.rate"=Sr.rate,
+
+"Frac.Subyear.M.mu" = Frac.Subyear.M.mu, 
+"Frac.Subyear.F.mu" = Frac.Subyear.F.mu,
+"Frac.Subyear.M.alphaR.N" = Frac.Subyear.M.alphaR.N,
+"Frac.Subyear.M.alphaT.N" = Frac.Subyear.M.alphaT.N,
+"Frac.Subyear.M.alphaS.N" =  Frac.Subyear.M.alphaS.N,
+"Frac.Subyear.M.alpha.N" = Frac.Subyear.M.alpha.N, 
+"Frac.Subyear.F.alphaR.N" =  Frac.Subyear.F.alphaR.N,
+"Frac.Subyear.F.alphaT.N" =  Frac.Subyear.F.alphaT.N,
+"Frac.Subyear.F.alphaS.N" =  Frac.Subyear.F.alphaS.N,
+"Frac.Subyear.F.alpha.N" =  Frac.Subyear.F.alpha.N,
+
 
 
 "C_ocean.mu" = C_ocean.mu, "C_ocean.sigmaR" = C_ocean.sigmaR, 

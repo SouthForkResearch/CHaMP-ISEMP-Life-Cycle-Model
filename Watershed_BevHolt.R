@@ -23,6 +23,9 @@ Candidate_Smolt=array(rep(0,K*Tr*G), c(K,Tr,G))
 Rainbow_Spawners = array(rep(0, K*Tr*G), c(K,Tr,G))
 Rainbow_Female_Spawners  = array(rep(0, K*Tr*G),c(K,Tr,G))
 
+# Maximum number of ocean years
+IO = 5
+
 # ###***Pete May 2015 Addition***
  Candidate_Smolt_Age=array(rep(0,K*I5*Tr*G), c(K,I5,Tr,G))
 # ###***Pete May 2015 Addition***
@@ -34,12 +37,11 @@ N_RAINBOW_SPAWNERS = array(0, c(K,I5,Tr,G,2))
 N_ESCAPEMENT = array(0, c(K,Tr,G,2))
 
 # For all adults, store distribution of ocean age and true age
-N_ADULTS = array(0, c(K,I5,Tr,G,2,10+I5)) 
+N_ADULTS = array(0, c(K,I5,Tr,G,2,IO+I5)) 
 N_SMOLTS = array(0, c(K,I5,Tr,G,2))
 
 N5_FISH = array(0, c(K,I5,Tr,G,K,2)) 
-## number of ocean years = 10
-NT_FISH = array(0, c(K,10,Tr,G,2))
+NT_FISH = array(0, c(K,IO,Tr,G,2))
  
 #Initialize new array
 for (k in 1:K) {
@@ -50,7 +52,7 @@ for (k in 1:K) {
 # Smolts_by_BroodYear = array(rep(0, K*Tr*G),c(K,Tr,G))
 
 #Initialize these
-Post_Spawn_Returns_Anadromous = array(0, c(K,10,G,2))
+Post_Spawn_Returns_Anadromous = array(0, c(K,IO,G,2))
 Post_Spawn_Returns_Rainbow = array(0, c(K,I5,G,2))
 
 #######################################################
@@ -64,10 +66,10 @@ for (k in 1:K) {
       N_FISH[k,,,,k,2]=N[k,,,] *.5
 }
 
-# For year one, ocean age 1-10, smolt-year 1 <- fish at stage 8-17
+# For year one, ocean age 1-5, smolt-year 1 <- fish at stage 8-12
 for (k in 1:K) {
 	for (g in 1:G) {
-		for (y in 1:10) {
+		for (y in 1:IO) {
 			N_ADULTS[k,1,1,g,1,y] = sum(N_FISH[k,y+7,1,g,,1])
 			N_ADULTS[k,1,1,g,2,y] = sum(N_FISH[k,y+7,1,g,,2])
 		}
@@ -159,9 +161,9 @@ for (t in 2:(Tr-1)){
             # fish counts from back in step 1.  Gotta start somewhere...
             
             ###############
-            # N9, N10, etc...: ocean ages 2 ->10 (taking into account loss due to maturation rates of prior years)
+            # N9, N10, etc...: ocean ages 2 ->5 (taking into account loss due to maturation rates of prior years)
 
-            for (i in 8:16) {
+            for (i in 8:11) {
 
                   CandN_M = apply(N_FISH[k,i,t-1,,,1], 1, sum) * (1-Mat8Plus_M[k,i-7,t-1])
 			CandN_F = apply(N_FISH[k,i,t-1,,,2], 1, sum) * (1-Mat8Plus_F[k, i-7, t-1])
@@ -194,10 +196,10 @@ for (t in 2:(Tr-1)){
 				N_FISH[k,i+1,t,g,k,1]= MALE_PERCENT * Candidates 
 				N_FISH[k,i+1,t,g,k,2]= (1-MALE_PERCENT) * Candidates 
                   } 
-            } # end of i in (8:16)
+            } # end of i in (8:11)
     
             ## Add back surviving spawners from before...      
-            for (i in 1:10){
+            for (i in 1:IO){
 
 			# Steelhead spawners can return to become adults and then spawn again.
 			#	Can screw up reconstruction.
@@ -207,8 +209,8 @@ for (t in 2:(Tr-1)){
 
             
             ############
-            # NT: Mature Fish (ready to Spawn, calc's as % of ocean ages 1-10)
-          	for (i in 8:17) {
+            # NT: Mature Fish (ready to Spawn, calc's as % of ocean ages 1-IO)
+          	for (i in 8:I) {
 
                   CandN_M = apply(N_FISH[k,i,t,,,1],1,sum) * (Mat8Plus_M[k,i-7,t]) 
                   CandN_F = apply(N_FISH[k,i,t,,,2],1,sum) * (Mat8Plus_M[k,i-7,t])
@@ -229,7 +231,7 @@ for (t in 2:(Tr-1)){
 
 		# remove fish leaving ocean from our adult array
 		for (g in 1:G) {
-			for (i in 8:17) {
+			for (i in 8:I) {
 				N_ADULTS[k,,t,g,,i-7] = N_ADULTS[k,,t,g,,i-7] * (Mat8Plus_M[k,i-7,t])
 			}
 		}
@@ -251,7 +253,7 @@ for (t in 2:(Tr-1)){
       ### Except for the spawners...they're allowed to re-imprint, by definition
       #####################
 
-	NT_FISH_MIGRATE = array(rep(0, K*10*G*2),c(K, 10, G, 2))
+	NT_FISH_MIGRATE = array(rep(0, K*IO*G*2),c(K, IO, G, 2))
       
       for (k1 in 1:K) {
             for (k2 in 1:K){
@@ -339,7 +341,7 @@ for (t in 2:(Tr-1)){
             # Calculate fish that will return after surviving trip to spawn (SR * Rel_Surv) and then surviving the actual spawning and return journy (PSSA and PSSR)
             # And add them back into the current year at OnePlus stages (for rainbow) and adult stages(for anadromous)
                       
-            for (i in 1:9){
+            for (i in 1:4){
                   Post_Spawn_Returns_Anadromous[k,i+1,,1]=   NT_FISH[k, i, t,,1] *  (Sr[k,2,t])* Rel_Surv[k,1,t,] * Post_Spawn_Survival_Anadromous_M[k,i,t,] 
                   Post_Spawn_Returns_Anadromous[k,i+1,,2]=   NT_FISH[k, i, t,,2] *  (Sr[k,2,t])* Rel_Surv[k,1,t,] * Post_Spawn_Survival_Anadromous_F[k,i,t,] 
             }
@@ -376,11 +378,11 @@ for (t in 2:(Tr-1)){
             Rainbow.Cand.Egg.N = Cand.Egg.N*0
       
             # Speed Improvement
-            # could take out for (i in 1:10) and for (i5 in 1:I5), below, easily
+            # could take out for (i in 1:IO) and for (i5 in 1:I5), below, easily
             #for (k in 1:K) {
             for (g1 in 1:11) {
                   for (g2 in 1:11) {
-                        for (i in 1:10) {    # cycle through all adult ages possible
+                        for (i in 1:IO) {    # cycle through all adult ages possible
                               Cand.Egg.N[g.index[g1,g2]]= Cand.Egg.N[g.index[g1,g2]]+
                               	Female_Fecundity[k,i, t,g1]*NT_FISH[k,i,t,g1,2]*Male_GDist[g2] 
                         }
@@ -567,7 +569,7 @@ for (t in 2:(Tr-1)){
       # OnePlus 
       # N5 (OnePlus)
       # N5 is complicated because of steelhead
-      # N5 is based on number of pass entering system and number of prior
+      # N5 is based on number of pars entering system and number of prior
       # year's OnePlus, at each age, staying for another year
       # Capacity is weighted based on age distribution and survival probability
       # of fish trying to occupy given space (older fish require more space)
@@ -855,7 +857,7 @@ for (t in 2:(Tr-1)){
       # N8: Adult (Ocean age 1) Fish, based on prior year's ocean year 
       
 	# Age all the adults in the adult array. y=adult age
-	for (y in 2:10) {
+	for (y in 2:IO) {
 		N_ADULTS[,,t+1,,,y] = N_ADULTS[,,t,,,y-1]
 	}
 
