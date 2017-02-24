@@ -266,7 +266,7 @@ N5.cap.rate = SR5.mu
 
 
 # Adult (ocean) fish by ocean age parameters (track up to 5 ocean years)
-	Mat8Plus_Female.mu = array(rep(0,K*5*Tr), c(K, 5, Tr))
+	Mat8Plus_Female.mu = array(rep(0,K*6*Tr), c(K, 6, Tr))
 	Mat8Plus_Female.alphaR.N = Mat8Plus_Female.mu
 	Mat8Plus_Female.alphaT.N = Mat8Plus_Female.mu
 	Mat8Plus_Female.alphaS.N = Mat8Plus_Female.mu
@@ -274,7 +274,7 @@ N5.cap.rate = SR5.mu
 	Mat8Plus_Female.target = Mat8Plus_Female.mu
 	Mat8Plus_Female.rate = Mat8Plus_Female.mu
 
-	Mat8Plus_Male.mu = array(rep(0,K*5*Tr), c(K, 5, Tr))
+	Mat8Plus_Male.mu = array(rep(0,K*6*Tr), c(K, 6, Tr))
 	Mat8Plus_Male.alphaR.N = Mat8Plus_Female.mu
 	Mat8Plus_Male.alphaT.N = Mat8Plus_Female.mu
 	Mat8Plus_Male.alphaS.N = Mat8Plus_Female.mu
@@ -303,7 +303,7 @@ N5.cap.rate = SR5.mu
 
 
 # frac
-	frac.mu = array(rep(0, K*5*(J)*Tr), c(K, 5, (J), Tr))
+	frac.mu = array(rep(0, K*6*(J)*Tr), c(K, 6, (J), Tr))
 	frac.sigmaR = frac.mu
 	frac.sigmaT = frac.mu
 	frac.sigmaS = frac.mu
@@ -360,7 +360,7 @@ Post_Spawn_Survival_Rainbow_F.mu =  array(rep(0, K*5*Tr*G), c(K,5,Tr,G))
 
 
 #Fecundity of Female Spawners by Ocean Age)
-Female_Fecundity = array(rep(0, K*5*Tr*G), c(K,5,Tr,G))
+Female_Fecundity = array(rep(0, K*6*Tr*G), c(K,6,Tr,G))
 
 
 
@@ -739,7 +739,7 @@ rm(PSinputs)
 #          colIndex=4:24, header=F)
 
 o.inputs = read.csv(Watershed.Input.File, header=F,
-         skip=113, nrow=5)[, 4:24]
+         skip=113, nrow=6)[, 4:24]
 o.inputs
 for (t in T.lo:T.hi) {
 	Mat8Plus_Female.mu[k, ,t] = o.inputs[,1]
@@ -779,7 +779,7 @@ rm(o.inputs)
 #          colIndex=4:87, header=F)
 
 fractions = read.csv(Watershed.Input.File, header=F,
-          skip=123, nrows = 5)[,4:87]
+          skip=123, nrows = 6)[,4:87]
 
 fractions
 #dim(frac.mu)
@@ -904,7 +904,7 @@ rm(Rel_Surv_Inputs)
 
 
 Fecund_Inputs = read.csv(Watershed.Input.File, header=F,
-        skip=161, nrow=11)[, 4:8]
+        skip=161, nrow=11)[, 4:9]
 Fecund_Inputs
 for (t in T.lo:T.hi) {
      Female_Fecundity[k,,t,] = t(Fecund_Inputs)

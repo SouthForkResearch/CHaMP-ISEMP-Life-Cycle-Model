@@ -720,7 +720,7 @@ if ((R > 1)* (MCsim3==1)) {
 		R.unif=runif(2)
 	for (t in 1:Tr) {
 	for (k in 1:K) {		
-      for (i in 1:I5) {
+      for (i in 1:6) {
 	# using a gamma than then taking %'s in this way will generate
 	# a random but correted beta distribution.
 # Females
@@ -778,7 +778,7 @@ if ((MCsim3 ==1)*(MCsim4==1)) {
 	# Here's the shared random bit
 		T.unif=runif(2)
 	for (k in 1:K) {		
-      for (i in 1:I5) {
+      for (i in 1:6) {
 	# using a gamma than then taking %'s in this way will generate
 	# a random but correted beta distribution.
 # Females
@@ -809,7 +809,7 @@ if ((MCsim3 ==1)*(MCsim4==1)) {
 
 
 # SR5    
-  for (i in 1:I5) {
+  for (i in 1:6) {
    y.i = round(qgamma(S.unif,shape=c(Mat8Plus_F.alphaS[k,i,t]+.00001, 
          (Mat8Plus_Female.alphaS.N[k,i,t]-Mat8Plus_F.alphaS[k,i,t]+.000001)),1),5)
 	 Mat8Plus_F[k,i,t]= y.i[1] / sum(y.i)
@@ -832,7 +832,7 @@ if ((MCsim3 ==1)*(MCsim4==1)) {
 	for (k in 1:K) {	
 
 # for Females
-      for (i in 1:I5) {
+      for (i in 1:6) {
 	withinS.unif=runif(2)
 	# using a gamma than then taking %'s in this way will generate
 	# a random corrletation beta distribution.
@@ -1092,7 +1092,7 @@ if ((R>1)* (MCsim2==1)) {
    for (t in 1:Tr) {
 	 for (k in 1:K) {
 		for (j in 1:(J)) 
-             for (i in 1:5) {
+             for (i in 1:6) {
      	frac[k,i,j,t] =   max(0.0, 
    (frac[k,i,j,t] +
         qnorm(R.unif, 0, frac.sigma[k,i,j,t])))
