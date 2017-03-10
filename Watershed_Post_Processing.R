@@ -20,7 +20,7 @@ dir.create("Output Files", showWarnings = FALSE)
 # Round off all global results data to nearest integer value
 	NR = round(NR)
 	N5R = round(N5R)
-  Female_Spawners_NR = round(Female_Spawners_NR)
+   	Female_Spawners_NR = round(Female_Spawners_NR)
 	Spawners_NR = round(Spawners_NR)
 	Escapement_NR = round(Escapement_NR)
 	Female_Escapement_NR = round(Female_Escapement_NR)
@@ -38,8 +38,8 @@ dir.create("Output Files", showWarnings = FALSE)
 
 
 
-NRFinal = array(0, c(K, I,G))
-N5Final = array(0, c(K, I5,G))
+NRFinal = array(0, c(K, 17,G))
+N5Final = array(0, c(K, 10,G))
 k=1
 margin=c(1,2)
 
@@ -52,15 +52,16 @@ for (k in 1:K) {
 
 	N5Final[k,,] = apply(N5R[k,,(header$Tr-2),,], margin, mean)
 
-	NRFinalNames=c("Adult Escapement","Egg","Fry","Par","OnePlus",
+	NRFinalNames=c("Adult Escapement","Egg","Fry","Par","PreSmolt",
 	"Smolt","Adult_Y0","Adult_Y1","Adult_Y2","Adult_Y3","Adult_Y4",
-	"Adult_Y5")
+	"Adult_Y5","Adult_Y6","Adult_Y7","Adult_Y8","Adult_Y9", "Adult_Y10")
 
 }
 #	rownames(NRFinal)=c(as.character(seq(1:header$K)))
 
-	N5FinalNames = c("OnePlusY1","OnePlusY2","OnePlusY3",
-	"OnePlusY4","OnePlusY5")
+	N5FinalNames = c("Pre-SmoltY1","Pre-SmoltY2","Pre-SmoltY3",
+	"Pre-SmoltY4","Pre-SmoltY5","Pre-SmoltY6","Pre-SmoltY7","Pre-SmoltY8",
+	"Pre-SmoltY9","Pre-SmoltY10")
 
 
 #	rownames(N5Final)=c(as.character(seq(1:header$K)))
@@ -71,8 +72,8 @@ for (k in 1:K) {
 	
 	for (k in 1:K) {
 
-	NRout.data=t(NRFinal[k,2:I,])
-	colnames(NRout.data)=NRFinalNames[2:I]
+	NRout.data=t(NRFinal[k,2:17,])
+	colnames(NRout.data)=NRFinalNames[2:17]
 	N5out.data=t(N5Final[k,,])
 	colnames(N5out.data)=N5FinalNames
 
@@ -99,36 +100,29 @@ for (k in 1:K) {
 ##############################################
 # Write full output file of results
 
-LifeStageMeans = array(rep(0, header$Tr * I*G), c(header$Tr,I*G))
-LifeStageSds = array(rep(0, header$Tr * I*G), c(header$Tr,I*G))
+LifeStageMeans = array(rep(0, header$Tr * 17*G), c(header$Tr,17*G))
+LifeStageSds = array(rep(0, header$Tr * 17*G), c(header$Tr,17*G))
 
 
-N1 = rep(subpop.names[1],I)
-for (g in 2:G) {N1= c(N1, rep(subpop.names[g],I))}
+N1 = rep(subpop.names[1],17)
+for (g in 2:G) {N1= c(N1, rep(subpop.names[g],17))}
 
 colnames(LifeStageMeans) = paste(rep(NRFinalNames,G),"_",N1,"_Mean",sep="")
 colnames(LifeStageSds)= paste(rep(NRFinalNames,G),"_",N1,"_sd",sep="")
 
 for (k in 1:header$K) {
 
-for (n in 1:I) {
+for (n in 1:17) {
 for (g in 1:G)  {
 for (t in 1:Tr) {
-LifeStageMeans[t,(g-1)*I +n] = mean(NR[k,n,t,g,])
-LifeStageSds[t,(g-1)*I +n] = sd(NR[k,n,t,g,])
+LifeStageMeans[t,(g-1)*17 +n] = mean(NR[k,n,t,g,])
+LifeStageSds[t,(g-1)*17 +n] = sd(NR[k,n,t,g,])
 }}}
-#Old way
-# write.csv(
-# as.data.frame(list("year"=seq(1:header$Tr), LifeStageMeans[,],
-#     LifeStageSds[,])), 
-#    paste("Output Files/Results_",Site.Names[k],".csv",sep=""))
-#New way
-year<-seq(1:header$Tr)
-write.csv(
-  cbind(year, LifeStageMeans[,],
-                     LifeStageSds[,]), 
-  paste("Output Files/Results_",Site.Names[k],".csv",sep=""))
 
+write.csv(
+as.data.frame(list("year"=seq(1:header$Tr), LifeStageMeans[,],
+    LifeStageSds[,])), 
+   paste("Output Files/Results_",Site.Names[k],".csv",sep=""))
 }  # end of sites
 
 
@@ -136,12 +130,13 @@ write.csv(
 
 
 ##############################################
-# Write full output file of results for all OnePlus all ages of OnePlus
+# Write full output file of results for all pre-smolts all ages of pre-smolts
 
 PS.LifeStageMeans = array(rep(0, header$Tr * I5*G), c(header$Tr,I5*G))
 PS.LifeStageSds = array(rep(0, header$Tr * I5*G), c(header$Tr,I5*G))
 
-NR5Names = c("PS.1", "PS.2", "PS.3","PS.4","PS.5")
+NR5Names = c("PS.1", "PS.2", "PS.3","PS.4","PS.5","PS.6",
+"PS.7","PS.8","PS.9","PS.10")
 
 
 N1 = rep(subpop.names[1],I5)
@@ -169,20 +164,13 @@ PS.LifeStageSds[t,(g-1)*I5 +n5] = sd(N5R[k,n5,t,g,])
 #mean(N5R[k,n5,t,g,])
 #mean(N5R[3,1,3,1,])
 #dim(PS.LifeStageMeans)
-#PS.LifeStageMeans[3,1:I5]
+#PS.LifeStageMeans[3,1:10]
 #dim(N5R)
-#Old way
-# write.csv(
-# as.data.frame(list("year"=seq(1:header$Tr), PS.LifeStageMeans[,],
-#     PS.LifeStageSds[,])), 
-#    paste("Output Files/OnePlus_Results_",Site.Names[k],".csv",sep=""))
-# New Way
-year<-seq(1:header$Tr)
-write.csv(
-  cbind(year, PS.LifeStageMeans[,],
-                     PS.LifeStageSds[,]), 
-  paste("Output Files/OnePlus_Results_",Site.Names[k],".csv",sep=""))
 
+write.csv(
+as.data.frame(list("year"=seq(1:header$Tr), PS.LifeStageMeans[,],
+    PS.LifeStageSds[,])), 
+   paste("Output Files/PreSmolt_Results_",Site.Names[k],".csv",sep=""))
 }  # end of sites
 
 
@@ -192,39 +180,30 @@ write.csv(
 
 
 # Write file for  All Sites Combined
-Total_by_LS_gtype_r = array(0,c(I,Tr,G,R))
-Total_by_LS_gtype_mean = array(0,c(Tr,I*G))
-Total_by_LS_gtype_sd = array(0,c(Tr,I*G))
-
-#Pete Fix Feb 2016
-N1 = rep(subpop.names[1],I)
-for (g in 2:G) {N1= c(N1, rep(subpop.names[g],I))}
+Total_by_LS_gtype_r = array(0,c(17,Tr,G,R))
+Total_by_LS_gtype_mean = array(0,c(Tr,17*G))
+Total_by_LS_gtype_sd = array(0,c(Tr,17*G))
 
 
 
 for (t in 1:Tr){
 for (g in 1:G){
-for (n in 1:I) {
+for (n in 1:17) {
 for (r in 1:R) {
 Total_by_LS_gtype_r[n,t,g,r] =sum(NR[,n,t,g,r]) }
-Total_by_LS_gtype_mean[t,(g-1)*I+n] = mean(Total_by_LS_gtype_r[n,t,g,])
-Total_by_LS_gtype_sd[t,(g-1)*I +n] = sd(Total_by_LS_gtype_r[n,t,g,])
+Total_by_LS_gtype_mean[t,(g-1)*17+n] = mean(Total_by_LS_gtype_r[n,t,g,])
+Total_by_LS_gtype_sd[t,(g-1)*17 +n] = sd(Total_by_LS_gtype_r[n,t,g,])
 }}}
 
 
 
 colnames(Total_by_LS_gtype_mean) = paste(rep(NRFinalNames,G),"_",N1,"_Mean",sep="")
 colnames(Total_by_LS_gtype_sd)= paste(rep(NRFinalNames,G),"_",N1,"_sd",sep="")
-year<-seq(1:Tr)
-out<-cbind(year,Total_by_LS_gtype_mean,Total_by_LS_gtype_sd)
-#Old Way
-#write.csv(
-# as.data.frame(list("year"=seq(1:header$Tr),Total_by_LS_gtype_mean[,],
-#    Total_by_LS_gtype_sd[,])), 
-#    paste("Output Files/Results_All_Sites_Combined.csv",sep=""))
-#Pete New Way [Feb 2016]
-write.csv(out, 
-  paste("Output Files/Results_All_Sites_Combined.csv",sep=""))
+
+write.csv(
+as.data.frame(list("year"=seq(1:header$Tr),Total_by_LS_gtype_mean[,],
+   Total_by_LS_gtype_sd[,])), 
+   paste("Output Files/Results_All_Sites_Combined.csv",sep=""))
 
 
 
@@ -255,25 +234,16 @@ colnames(Smolt.Sd.by.Subpop) = paste(rep("Sd.",11), c("Nat", "H1", "N-H2", "H2",
          "N.H3-H2","H3-H2", "H3", "N.H3-N-H3"), sep="")
 
 
-# Old way
-# Spawners.by.Subpop = data.frame("Year"=seq(1:Tr), Spawner.Mean.by.Subpop, 
-# Spawner.Sd.by.Subpop)
 
-#New way
-year<-seq(1:Tr)
-Spawners.by.Subpop = cbind(year, Spawner.Mean.by.Subpop, 
-                                Spawner.Sd.by.Subpop)
+Spawners.by.Subpop = data.frame("Year"=seq(1:Tr), Spawner.Mean.by.Subpop, 
+Spawner.Sd.by.Subpop)
 
 write.csv(Spawners.by.Subpop, 
 paste("Output Files/Spawners_by_Subpop",Site.Names[k],".csv",sep=""))
 
-# Old way
-# Smolts.by.Subpop = data.frame("Year"=seq(1:Tr), Smolt.Mean.by.Subpop, 
-# Smolt.Sd.by.Subpop)
-#New way
-Smolts.by.Subpop = cbind(year, Smolt.Mean.by.Subpop, 
-                              Smolt.Sd.by.Subpop)
 
+Smolts.by.Subpop = data.frame("Year"=seq(1:Tr), Smolt.Mean.by.Subpop, 
+Smolt.Sd.by.Subpop)
 
 write.csv(Smolts.by.Subpop, 
 paste("Output Files/Smolts_by_Subpop",Site.Names[k],".csv",sep=""))
@@ -329,13 +299,20 @@ if (p==1)
 
 # Find Upper Limit for plot
 if (R>1) {
-ploty= apply(apply(NR[k,1,1:Tr,,],c(1,3),sum),1, mean)
-UL =1.2*(max((apply(apply(NR[k,1,1:Tr,,],c(1,3),sum),1, mean)+
-    1.96* apply(apply(NR[k,1,1:Tr,,],c(1,3),sum), 1, sd))[2:(Tr-1)]))} else {
-ploty= apply(NR[k,1,1:Tr,,],c(1),sum)
-UL= max(ploty)
-}
+#ploty= apply(apply(NR[k,1,1:Tr,,],c(1,3),sum),1, mean)
+#UL =1.2*(max((apply(apply(NR[k,1,1:Tr,,],c(1,3),sum),1, mean)+
+#    1.96* apply(apply(NR[k,1,1:Tr,,],c(1,3),sum), 1, sd))[2:(Tr-1)]))} else {
+#ploty= apply(NR[k,1,1:Tr,,],c(1),sum)
+#UL= max(ploty)
 
+ploty= apply(apply(Spawners_NR[k,1:Tr,,],c(1,3),sum),1, mean)
+UL =1.2*(max((apply(apply(Spawners_NR[k,1:Tr,,],c(1,3),sum),1, mean)+
+    1.96* apply(apply(Spawners_NR[k,1:Tr,,],c(1,3),sum), 1, sd))[2:(Tr-1)]))} else {
+ploty= apply(SpawnersNR[k,1:Tr,,],c(1),sum)
+UL= max(ploty)
+
+
+}
 
 
 
@@ -347,14 +324,29 @@ ploty[2:(Tr-1)], type="l",ylab="Spawning Fish",main=
 
 if (R >1){
 
+#lines(seq(2:(Tr-1)), 
+#(apply(apply(NR[k,1,1:Tr,,],c(1,3),sum),1, mean)+
+#    1.96* apply(apply(NR[k,1,1:Tr,,],c(1,3),sum), 1, sd))[2:(Tr-1)]
+#, lt=2, col="red")
+#
+
+#lines(seq(2:(Tr-1)), 
+#(apply(apply(NR[k,1,1:Tr,,],c(1,3),sum),1, mean)+
+#    -1.96* apply(apply(NR[k,1,1:Tr,,],c(1,3),sum), 1, sd))[2:(Tr-1)]
+#, lt=2, col="red")
+
+#k=1
+#dim(Spawners_NR[k, 1:Tr,,])
+#dim(apply(Spawners_NR[k, 1:Tr,,], c(1,3),sum))
+
 lines(seq(2:(Tr-1)), 
-(apply(apply(NR[k,1,1:Tr,,],c(1,3),sum),1, mean)+
-    1.96* apply(apply(NR[k,1,1:Tr,,],c(1,3),sum), 1, sd))[2:(Tr-1)]
+(apply(apply(Spawners_NR[k,1:Tr,,],c(1,3),sum),1, mean)+
+    1.96* apply(apply(Spawners_NR[k,1:Tr,,],c(1,3),sum), 1, sd))[2:(Tr-1)]
 , lt=2, col="red")
 
 lines(seq(2:(Tr-1)), 
-(apply(apply(NR[k,1,1:Tr,,],c(1,3),sum),1, mean)+
-    -1.96* apply(apply(NR[k,1,1:Tr,,],c(1,3),sum), 1, sd))[2:(Tr-1)]
+(apply(apply(Spawners_NR[k,1:Tr,,],c(1,3),sum),1, mean)+
+    -1.96* apply(apply(Spawners_NR[k,1:Tr,,],c(1,3),sum), 1, sd))[2:(Tr-1)]
 , lt=2, col="red")
 
 legend("topright", c("Mean of MC Simulations", "95% Limits"), lt=c(1,2),
