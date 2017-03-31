@@ -98,7 +98,7 @@ for (r in 1:header$R) {
 }
 
 
-print (N_SPAWNER_RECRUIT_NR)
+#print (N_SPAWNER_RECRUIT_NR)
 
 Reconstruction(header)
 

@@ -1,7 +1,5 @@
 Reconstruction <- function(header.data) {
 
-print("Hello")
-
 #RUNS <- 500 #
 #YEARS <- 50 # years modeled
 #QET <- 100 # Quasi Extinction Threshold
@@ -33,31 +31,21 @@ print("Hello")
 #where  Pnob is the proportion pf natural-origin fish in the broodstock and 
 #Phos  is the proportion of hatchery-origin fish on the spawning grounds.
 
-
 RUNS = header$R
 YEARS = header$Tr-20
 QET = 100
 ALTS = 1
 
 x = array(0, c(RUNS*4, YEARS, ALTS))
-dim(x)
+
 for (run in 1:RUNS) {
 	for (year in 1:YEARS) {
-		x[run,year,1] = N_SPAWNER_RECRUIT_NR[year+10,1,run] #+ runif(1,0,10)     # spawners
-		x[RUNS+run,year,1] = N_SPAWNER_RECRUIT_NR[year+10,2,run]# + runif(1,0,10) # recruits
+		x[run,year,1] = N_SPAWNER_RECRUIT_NR[year+10,1,run]      # spawners
+		x[RUNS+run,year,1] = N_SPAWNER_RECRUIT_NR[year+10,2,run] # recruits
 		x[2*RUNS+run,year,1] = 0                              # Phos=0 ?
 		x[3*RUNS+run,year,1] = 1                              # Pnob=1 ?          
 	}
 }
-
-dim(x)
-print(paste("RUNS=",RUNS))
-print(paste("YEARS=",YEARS))
-print("x=")
-print(x[1:5,1:80,1])
-print(x[21:35,1:80,1])
-#print(xp
-print("hello")
 
 #  x is a 3 dimensional matrix; each row represents an individual trajectory referenced
 #  to brood year and has dimension YEARS;  There are RUNS trajectories that represent 
@@ -82,24 +70,19 @@ for (j in 1:ALTS){  #1:6
 		A[k] <- mean(as.numeric(log(N[26:50]))) # Geomean spawners years 26-50
 		
 		R <- x[RUNS+i,,j] # Recruits for iteration i in alt j
-
+	
 		fit <- glm(log(R) ~ log(N)) # Gompertz fit for a single model iteration
-#summary(fit)
 		# Productivity is measure as productivity (via Gompertz model) at 
 		# 50 spawners
 		P[k] <- as.numeric(fit$coeff[1]) + log(50)*as.numeric(fit$coeff[2])
-#print(paste("P[k]=",(P[k])))
-
 		# Determine whether iteration went extinct -- Did pop'n fall below mean QET
 		# for 4 years in a row
 		for (yr in 1:(YEARS-3)){
 			S <- sum(N[yr:(yr+3)])
-                  S
 			if (S < 4*QET) # if yes, mark X.vec[i] as 1, otherwise it stays as 0
 				X.array[k] <- 1
-            
-             X.array[k]
-             Ph <- x[((2*RUNS)+i),,j]
+				
+		Ph <- x[((2*RUNS)+i),,j]
 		Phos[k] <- mean(Ph)  # mean Phos for the iteration
 		
 		Pn <- x[((3*RUNS)+i),,j]
@@ -109,9 +92,6 @@ for (j in 1:ALTS){  #1:6
 }
 
 
-P
-A
-#X.array= c(1,0,0,1)
 # Diagnostics
 print(cor(P,A))
 print(cor(P,X.array))
@@ -135,7 +115,6 @@ LY <- length(Y)
 #  Matrix to store predicted extinction probabiliites
 Z <- matrix(0,LX,LY)
 i <- 0
-summary(fit)
 for(x in X){
 	i <- i+1
 	j <- 0
@@ -143,19 +122,15 @@ for(x in X){
 		j <- j+1
 		new.x <- data.frame(P = x, A = y)
 		# Predict extinction probabilities under the model
-		pred <- predict(fit, newdata=new.x, type = "link") #+ runif(1,-10,10)
-            summary(fit)
-            print(pred)
+		pred <- predict(fit, newdata=new.x, type = "link")
 		# Anti-logit
 		Z[i,j] <- as.numeric(exp(pred)/(1+exp(pred)))
 	}
 }
 
-
 # Produce a plot of the contour surface
 pdf("contourPlot.pdf", width = 6, height = 6)
 par(oma=c(2,2,1,1))
-
 contour(exp(X), exp(Y), Z, levels = c(0,0.01,0.05, 0.1,0.25,0.5,0.75,0.9,0.95, 0.99,1.0),
 		xlab = "",
 		ylab = "")
@@ -165,22 +140,17 @@ mtext("Mean Abundance", side = 2, line = 1, outer = T, cex = 1.0)
 # Now produce a plot for each alternative with points representing individual iterations
 pdf("RiskPlot.pdf", width = 7, height = 8.5)
 par(mfrow=c(3,2), mar=c(3,3,1,1), oma=c(6,4,1,1))
-exp(X)
-exp(Y)
-Z
+
 for(k in 1:ALTS){  # loop through alternatives
 	contour(exp(X), exp(Y), Z, levels = c(0,0.01,0.05, 0.1,0.25,0.5,0.75,0.9,0.95, 0.99,1.0),
 		xlab = "",
 		ylab = "")
-
 	
 	#  Extract points from the kth alternative
-	p <- P[((k-1)*RUNS+1):((k-1)*RUNS+RUNS)] #HERE
+	p <- P[((k-1)*RUNS+1):((k-1)*RUNS+RUNS)] 
 	a <- A[((k-1)*RUNS+1):((k-1)*RUNS+RUNS)]
 	x <- X.array[((k-1)*RUNS+1):((k-1)*RUNS+RUNS)]
-RUNS
-exp(p)
-exp(a)
+	
 	print(mean(x))
 	points(exp(p),exp(a))
 	points(median(exp(p)), median(exp(a)), col = "red", pch = 16, cex = 1.2)
@@ -198,9 +168,9 @@ for(j in 1:ALTS){
 	V <- array(0,RUNS)
 	X.r <- array(0,RUNS)
 	
-	p <- P[((j-1)*RUNS+1):((j-1)*RUNS+500)]
-	a <- A[((j-1)*RUNS+1):((j-1)*RUNS+500)]
-	x <- X.array[((j-1)*RUNS+1):((j-1)*RUNS+500)]
+	p <- P[((j-1)*RUNS+1):((j-1)*RUNS+RUNS)]
+	a <- A[((j-1)*RUNS+1):((j-1)*RUNS+RUNS)]
+	x <- X.array[((j-1)*RUNS+1):((j-1)*RUNS+RUNS)]
 	
 	for(r in 1:RUNS){
 			new.x <- data.frame(P = p[r], A = a[r])
@@ -225,7 +195,7 @@ par(mfrow=c(3,2), mar=c(3,3,1,1), oma=c(6,4,1,1))
 
 for(j in 1:ALTS){
 	
-	p <- Phos[((j-1)*RUNS+1):((j-1)*RUNS+500)]
+	p <- Phos[((j-1)*RUNS+1):((j-1)*RUNS+RUNS)]
 	hist(p, breaks <- seq(0,1.0,0.1),
 		main = "")
 }
@@ -242,7 +212,6 @@ for(j in 1:ALTS){
 	hist(p, breaks <- seq(0,1.0,0.1),
 		main = "")
 }
-p
 mtext("PNI", side =1, line = 1, outer = T, cex = 1.0)
 mtext("Frequency", side = 2, line = 1, outer = T, cex = 1.0)	
 dev.off()
@@ -251,3 +220,4 @@ dev.off()
 dev.off()
 
 }
+
