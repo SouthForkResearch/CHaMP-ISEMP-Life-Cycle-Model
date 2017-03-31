@@ -23,12 +23,11 @@ Candidate_Smolt=array(rep(0,K*Tr*G), c(K,Tr,G))
 Rainbow_Spawners = array(rep(0, K*Tr*G), c(K,Tr,G))
 Rainbow_Female_Spawners  = array(rep(0, K*Tr*G),c(K,Tr,G))
 
-# Maximum number of ocean years (actually years 0-5, totalling six years)
-IO = 6
-
-# ###***Pete May 2015 Addition***
- Candidate_Smolt_Age=array(rep(0,K*I5*Tr*G), c(K,I5,Tr,G))
-# ###***Pete May 2015 Addition***
+# Maximum number of ocean years (0-5, totalling six years)
+OCEAN_AGES = 6
+# Maximum number of fresh water years (0-5, totalling six years)
+FRESH_AGES = 6
+AGE = FRESH_AGES+OCEAN_AGES-1
 
 N_FISH = array(0, c(K,I,Tr,G,K,2)) 
 N_RAINBOW = array(0, c(K,I,Tr,G,K,2))
@@ -36,12 +35,16 @@ N_SPAWNERS = array(0, c(K,Tr,G,2))
 N_RAINBOW_SPAWNERS = array(0, c(K,I5,Tr,G,2))
 N_ESCAPEMENT = array(0, c(K,Tr,G,2))
 
-# For all adults, store distribution of ocean age and true age
-N_ADULTS = array(0, c(K,I5,Tr,G,2,IO+I5)) 
-N_SMOLTS = array(0, c(K,I5,Tr,G,2))
+# ** AGE RECONSTRUCTION.  Smolts array is only needed to construct Adults array.
+# For all adults, store distribution of fresh water age and true age
+N_ADULTS = array(0, c(K,FRESH_AGES,Tr,G,2,OCEAN_AGES)) 
+# For smolts, keep track of years in fresh water (1 for Chinook, 1-6 for Rainbow)
+N_SMOLTS = array(0, c(K,FRESH_AGES,Tr,G,2))
+# For adults that make it back to spawn, keep track of them all by true
+N_RECRUITS = array(0, c(Tr,AGE))
 
 N5_FISH = array(0, c(K,I5,Tr,G,K,2)) 
-NT_FISH = array(0, c(K,IO,Tr,G,2))
+NT_FISH = array(0, c(K,OCEAN_AGES,Tr,G,2))
  
 #Initialize new array
 for (k in 1:K) {
@@ -50,7 +53,7 @@ for (k in 1:K) {
 }
 
 #Initialize these
-Post_Spawn_Returns_Anadromous = array(0, c(K,IO,G,2))
+Post_Spawn_Returns_Anadromous = array(0, c(K,OCEAN_AGES,G,2))
 Post_Spawn_Returns_Rainbow = array(0, c(K,I5,G,2))
 
 #######################################################
@@ -65,17 +68,21 @@ for (k in 1:K) {
 }
 
 # For year one, ocean age 0-5, smolt-year 1 <- fish at stage 7-12
+for (t in 1:Tr) {
 for (k in 1:K) {
 	for (g in 1:G) {
-		for (y in 1:IO ) {  # need to handle Year 0 returnees
-			N_ADULTS[k,1,1,g,1,y] = sum(N_FISH[k,y+6,1,g,,1])
-			N_ADULTS[k,1,1,g,2,y] = sum(N_FISH[k,y+6,1,g,,2])
+		for (y in 1:OCEAN_AGES ) {  # need to handle Year 0 returnees
+			# ** AGE RECONSTRUCTION. We will guess that all ocean fish spent
+			#    one year in fresh water (fresh age=2)and their ocean age is 1-6 (depending on ocean stage)
+			N_ADULTS[k,2,t,g,1,y] = sum(N_FISH[k,y+6,t,g,,1])
+			N_ADULTS[k,2,t,g,2,y] = sum(N_FISH[k,y+6,t,g,,2])
 		}
 	}
 }
+}
 
 t=2
-#for (t in 2:6) {
+#for (t in 2:5) {
 for (t in 2:(Tr-1)){
   
       print(paste("t=",t))
@@ -143,24 +150,35 @@ for (t in 2:(Tr-1)){
       ##############################################################
       # Cycle through sites
       ##############################################################
-      
+   
       k=1
       for (k in 1:K) { 
 
             # starting at time step 2.... so I'm going to start at adult, mature fish
             # from time step 1 to calculate number of spawners and adjust adult
             # fish counts from back in step 1.  Gotta start somewhere...
-            
+
+
+ADULTS1 = array(0, 6)
+ADULTS2 = array(0, 6)
+if (0) {
+print("START")
+for (jj in 1:5) {
+	ADULTS1[jj] = sum(N_FISH[,jj+7,t-1,,,])
+	ADULTS2[jj] = sum(N_ADULTS[,,t-1,,,jj+1])
+}
+print(ADULTS1)
+print(ADULTS2)
+}           
             ###############
             # N8 through N12: ocean ages 1 ->5 (taking into account loss due to maturation rates of prior years)
 
             for (i in 7:11) {
-
                   CandN_M = apply(N_FISH[k,i,t-1,,,1], 1, sum) * (1-Mat8Plus_M[k,i-6,t-1])
 			CandN_F = apply(N_FISH[k,i,t-1,,,2], 1, sum) * (1-Mat8Plus_F[k,i-6,t-1])
 
 			# Mat8Plus_M/F -- user specified input for the fraction of M or F fish that mature 
-			#   (i.e. are going to try to spawn)at each adult age.  The adult age is i-7, but we the
+			#   (i.e. are going to try to spawn)at each adult age.  The adult age is i-7, but the
 			#   array needs to handle values 0-5, indexes 1-6.
 			# CandN_M/F -- The number of fish trying to remain as adults for another year
 			#   the number of adult fish of each age times (1-%fish that are leaving to spawn)
@@ -184,19 +202,52 @@ for (t in 2:(Tr-1)){
 
 				N_FISH[k,i+1,t,g,k,1]= MALE_PERCENT * Candidates 
 				N_FISH[k,i+1,t,g,k,2]= (1-MALE_PERCENT) * Candidates 
+
+				# For reconstruction, maintain "fresh water age" distribution
+				for (jj in 1:FRESH_AGES) {
+					FWA_DISTRIBUTION = sum(N_ADULTS[k,jj,t-1,g,,])/sum(N_ADULTS[k,,t-1,g,,])
+					FWA_DISTRIBUTION[is.na(FWA_DISTRIBUTION)] = 0
+					N_ADULTS[k,jj,t,g,1,i-5] = MALE_PERCENT * Candidates * FWA_DISTRIBUTION
+					N_ADULTS[k,jj,t,g,2,i-5] = (1-MALE_PERCENT) * Candidates * FWA_DISTRIBUTION					
+				}
                   } 
             } # end of i in (7:11)
-    
+
+if (0) {
+print("Stayers")
+for (jj in 1:5) {
+	ADULTS1[jj] = sum(N_FISH[,jj+7,t,,,])
+	ADULTS2[jj] = sum(N_ADULTS[,,t,,,jj+1])
+}
+print(ADULTS1)
+print(ADULTS2)
+}
             ## Add back surviving spawners from before...      
-            for (i in 1:IO){
+            for (i in 1:OCEAN_AGES){
 
 			# Steelhead spawners can return to become adults and then spawn again.
-			#	Can screw up reconstruction.
+			# ** AGE RECONSTRUCTION. Ignore 
 
 			N_FISH[k,i+6,t,,k,] = N_FISH[k,i+6,t,,k,] + Post_Spawn_Returns_Anadromous[k,i,,]
+			for (jj in 1:FRESH_AGES) {
+				FWA_DISTRIBUTION = sum(N_ADULTS[k,jj,t-1,g,,])/sum(N_ADULTS[k,,t-1,g,,])
+				FWA_DISTRIBUTION[is.na(FWA_DISTRIBUTION)] = 0
+				for (gg in 1:G) {
+					for (z in 1:2) {
+						N_ADULTS[k,jj,t,g,z,i-5] = N_ADULTS[k,jj,t,g,z,i-5] + (Post_Spawn_Returns_Anadromous[k,i,g,z]* FWA_DISTRIBUTION)
+					}
+				}				
+			}
             }     
-
-            
+if (0) {
+print("Add returners")
+for (jj in 1:5) {
+	ADULTS1[jj] = sum(N_FISH[,jj+7,t,,,])
+	ADULTS2[jj] = sum(N_ADULTS[,,t,,,jj+1])
+}
+print(ADULTS1)
+print(ADULTS2)
+}           
             ############
             # NT: Mature Fish (ready to Spawn, calc's as % of ocean ages 0-5, indexes 1-6)
           	for (i in 7:I) {
@@ -213,14 +264,6 @@ for (t in 2:(Tr-1)){
 				NT_FISH[k,i-6,t,g,2] = CandN_F[g] * Rel_Surv[k, i,t,g]
                   }
             }
-
-		# remove fish leaving ocean from our adult array
-		for (g in 1:G) {
-			for (i in 7:I) {
-				N_ADULTS[k,,t,g,,i-6] = N_ADULTS[k,,t,g,,i-6] * (Mat8Plus_M[k,i-6,t])
-			}
-		}
-
       } # End of cycle through K's for mature fish....
 
 	N_FISH[is.na(N_FISH)] = 0 
@@ -231,7 +274,7 @@ for (t in 2:(Tr-1)){
       ### Except for the spawners...they're allowed to re-imprint, by definition
       #####################
 
-	NT_FISH_MIGRATE = array(rep(0, K*IO*G*2),c(K, IO, G, 2))
+	NT_FISH_MIGRATE = array(rep(0, K*OCEAN_AGES*G*2),c(K, OCEAN_AGES, G, 2))
       
       for (k1 in 1:K) {
             for (k2 in 1:K){
@@ -242,6 +285,19 @@ for (t in 2:(Tr-1)){
      
 	NT_FISH[,,t,,] = apply(NT_FISH_MIGRATE[,,,], c(1,2,3,4), sum)
 
+	# calculate recruits for reconstruction
+	for (jj in 1:FRESH_AGES) {
+		FWA_DISTRIBUTION = sum(N_ADULTS[,jj,t-1,,,])/sum(N_ADULTS[,,t-1,,,])
+		FWA_DISTRIBUTION[is.na(FWA_DISTRIBUTION)] = 0
+		for (kk in 1:OCEAN_AGES) {
+			N_RECRUITS[t,jj+kk-1] = N_RECRUITS[t,jj+kk-1] +
+							sum(NT_FISH[,kk,t,,] * FWA_DISTRIBUTION)
+		}				
+	}
+if (0) {
+print(apply(NT_FISH[,,t,,],2,sum))
+print(N_RECRUITS[t,])
+}	
       #### OK, now I've got NT_FISH - the fish attempting to spawn by age and G-type
       #### I should be able to figure out fecundity for each group and come up
       #### eggs by G-type
@@ -316,7 +372,7 @@ for (t in 2:(Tr-1)){
             # Calculate fish that will return after surviving trip to spawn (SR * Rel_Surv) and then surviving the actual spawning and return journy (PSSA and PSSR)
             # And add them back into the current year at OnePlus stages (for rainbow) and adult stages(for anadromous)
                       
-            for (i in 1:(IO-1)){
+            for (i in 1:(OCEAN_AGES-1)){
                   Post_Spawn_Returns_Anadromous[k,i+1,,1]=   NT_FISH[k, i, t,,1] *  (Sr[k,2,t])* Rel_Surv[k,1,t,] * Post_Spawn_Survival_Anadromous_M[k,i,t,] 
                   Post_Spawn_Returns_Anadromous[k,i+1,,2]=   NT_FISH[k, i, t,,2] *  (Sr[k,2,t])* Rel_Surv[k,1,t,] * Post_Spawn_Survival_Anadromous_F[k,i,t,] 
             }
@@ -353,11 +409,11 @@ for (t in 2:(Tr-1)){
             Rainbow.Cand.Egg.N = Cand.Egg.N*0
       
             # Speed Improvement
-            # could take out for (i in 1:IO) and for (i5 in 1:I5), below, easily
+            # could take out for (i in 1:OCEAN_AGES) and for (i5 in 1:I5), below, easily
             #for (k in 1:K) {
             for (g1 in 1:11) {
                   for (g2 in 1:11) {
-                        for (i in 1:IO) {    # cycle through all adult ages possible
+                        for (i in 1:OCEAN_AGES) {    # cycle through all adult ages possible
                               Cand.Egg.N[g.index[g1,g2]]= Cand.Egg.N[g.index[g1,g2]]+
                               	Female_Fecundity[k,i,t,g1]*NT_FISH[k,i,t,g1,2]*Male_GDist[g2] 
                         }
@@ -396,7 +452,6 @@ for (t in 2:(Tr-1)){
 			N_RAINBOW[k,2,t,g,k,] = .5 * Candidates 
             }
       } # end K
-      
       
 	############
 	#N3 (fry, based on prior year's eggs) 
@@ -471,7 +526,6 @@ for (t in 2:(Tr-1)){
             }
       } # end of x-site-migrate
       
-      
       ###########
       #N4 (par, based on same year's fry)
       ###########
@@ -503,7 +557,6 @@ for (t in 2:(Tr-1)){
       #Move X Site Migration of Parr here for OnePlus
       ################ Move X Site Fry Migration Here for Parr##############
       ################### apply Cross-Site Migration for Par #############
-      #print(paste("t=",t,"e1"))
       
       ################## apply Cross-Site Migration for Fry #############
       #Par.x.siteMigration[, ,t] = t(array(c(.9,.1,0,0,.95, .05, 0, .3, .7), c(3,3)))
@@ -532,8 +585,6 @@ for (t in 2:(Tr-1)){
             }
 
       } # end of x-site migrate
-      
-      #print(paste("t=",t,"e2"))
       
       ###############################################################
       ###############################################################
@@ -693,7 +744,7 @@ for (t in 2:(Tr-1)){
       } # end of Steelhead-only block
       
       ###########
-      #N6 (smolt, based on same year's OnePlus that decide to smolt )
+      # N6 (smolt, based on same year's OnePlus that decide to smolt )
       # Also complicated slightly by N5's are a mixture of mutiple ages 
       # of OnePlus, at least in the Steelhead case
       
@@ -701,78 +752,69 @@ for (t in 2:(Tr-1)){
       	CandN6_Imprint_M = array(0, c(K,I5,G,K))
       	CandN6_Imprint_F = array(0, c(K,I5,G,K))
       
-      	for (k in 1:K) {
-            	for (i5 in 1:I5) {
-                  	for (g in 1:G) {
-                        	CandN6_Imprint_M[,i5,g,]=N5_FISH[,i5,t,g,,1]*N5.Psmolt_M[,i5,t]
-                        	CandN6_Imprint_F[,i5,g,]=N5_FISH[,i5,t,g,,2]*N5.Psmolt_F[,i5,t]
-                  	}
-            	}
-      	}
+		CandidateN6 = array(rep(0,(K*I5*G)), c(K,I5,G))
 
 		# CandN6_Imprint_M/F - fish trying to advance from N5 to N6 life stage.
 		# N5.Psmolt_F/M - probability of smolting (as opposed to staying or spawning as rainbow spanwers).  
-		## They are user defined and read from the input fies         
-		# if i5=0, the fish is two years old.  Each additional year increments i5.
+		# They are user defined and read from the input fies         
 
-      	for (k in 1:K) {
+		for (k in 1:K) {
 			for (i5 in 1:I5) {
 				for (g in 1:G) {
-					Candidate_Smolt_Age[k,i5,t,g] = 
-						CandN6_Imprint_F[k,i5,g,k]+CandN6_Imprint_M[k,i5,g,k]
-					Candidate_Smolt_Age[k,i5,t,g] = 
-						Candidate_Smolt_Age[k,i5,t,g]*Sr[k,6,t] #to get them into JDA equivalents
-					N_SMOLTS[k,i5,t,g,1] = CandN6_Imprint_M[k,i5,g,k] *Sr[k,6,t]
-					N_SMOLTS[k,i5,t,g,2] = CandN6_Imprint_F[k,i5,g,k] *Sr[k,6,t]
-				}
+					CandN6_Imprint_M[k,i5,g,]=N5_FISH[k,i5,t,g,,1]*N5.Psmolt_M[k,i5,t]
+					CandN6_Imprint_F[k,i5,g,]=N5_FISH[k,i5,t,g,,2]*N5.Psmolt_F[k,i5,t]
+
+					CandidateN6[k,i5,g] = sum((CandN6_Imprint_M+CandN6_Imprint_F)[k,i5,g,])
+					Candidate_Smolt[k,t,g] = sum((CandN6_Imprint_M+CandN6_Imprint_F)[k,,g,])
+            	}
 			}
       	}
 
-      	CandidateN6= array(rep(0,(K*G)), c(K,G))
-      
-      	for (k in 1:K) {
-            	for (g in 1:G) {
-                  	CandidateN6[k,g] = sum((CandN6_Imprint_M+CandN6_Imprint_F)[k,,g,])
-            	}
-      	}
-      
-      	Candidate_Smolt[,t,]=CandidateN6
-      	SmoltSurvivors = array(0, c(K,I,Tr,G))
-      
-      	## why is pn5 used below????  Need to fix this in case all OnePlus smolt
-      	## should address smolting fish, not fish that remained unsmolted!!
-      	## add code here!!!!
-      	for (k in 1:K) {
-            	for (g in 1:G) {
-				SmoltSurvivors[k,6,t,g] = (CandidateN6[k,g]*Rel_Surv[k,5,t,g]) / 
-                  		(1/Sr[k,6,t]+ 1/c[k,5,t] * sum(Rel_Surv[k,5,t,]*CandidateN6[k,]))
-				N_SMOLTS[k,,t,g,1] = N_SMOLTS[k,,t,g,1] *Rel_Surv[k,5,t,g]
-				N_SMOLTS[k,,t,g,2] = N_SMOLTS[k,,t,g,2] *Rel_Surv[k,5,t,g]
-            	}
-      	} # end of K
-      
+      	SmoltSurvivors = array(0, c(K,I5,Tr,G))
       	# Assign Imprints and M/F in same ratios as incoming candidate smolts
       	ImprintShare =apply((CandN6_Imprint_M+CandN6_Imprint_F),c(1,3,4),sum)
       	FemaleImprintShare = apply((CandN6_Imprint_F),c(1,3,4),sum)
-      
+      	FemaleShare = apply(CandN6_Imprint_F,c(1,3),sum)
+ 		TotalShare = apply((CandN6_Imprint_M+CandN6_Imprint_F),c(1,3),sum)
+
+      	for (k in 1:K) {
+            	for (g in 1:G) {
+				for (i5 in 1:I5) {
+					SmoltSurvivors[k,i5,t,g] = (CandidateN6[k,i5,g]*Rel_Surv[k,5,t,g]) / 
+                  			(1/Sr[k,6,t]+ 1/c[k,5,t] * sum(Rel_Surv[k,5,t,]*CandidateN6[k,i5,]))
+
+					# AGE RECONSTRUCTION
+					FemaleRatio = FemaleShare[k,g]/TotalShare[k,g] 
+					N_SMOLTS[k,i5,t,g,1] = SmoltSurvivors[k,i5,t,g] * (1-FemaleRatio)
+					N_SMOLTS[k,i5,t,g,2] = SmoltSurvivors[k,i5,t,g] * FemaleRatio
+				}
+            	}
+      	} # end of K
+		N_SMOLTS[is.na(N_SMOLTS)] = 0
+
+		# sum over the i5 term for this t (leaving k, g)
+		TotalSmoltSurvivors = apply(SmoltSurvivors[,,t,],c(1,3),sum)
+     
       	for (k2 in 1:K) {
 			if (K==1) {
-				N_FISH[,6,t,,k2,1] = ImprintShare[,,k2] * SmoltSurvivors[,6,t,]/ as.vector(ImprintShare ) -
-                               FemaleImprintShare [,,k2] * SmoltSurvivors[,6,t,]/ as.vector(ImprintShare )
-				N_FISH[,6,t,,k2,2] = FemaleImprintShare[,,k2] * SmoltSurvivors[,6,t,]/ as.vector(ImprintShare )
+				N_FISH[,6,t,,k2,1] = ImprintShare[,,k2] * TotalSmoltSurvivors[,] / as.vector(ImprintShare ) -
+                               FemaleImprintShare [,,k2] * TotalSmoltSurvivors[,]/ as.vector(ImprintShare )
+				N_FISH[,6,t,,k2,2] = FemaleImprintShare[,,k2] * TotalSmoltSurvivors[,]/ as.vector(ImprintShare )
      			} 
 			else 
 			{
-				N_FISH[,6,t,,k2,1] = ImprintShare[,,k2] * SmoltSurvivors[,6,t,]/  apply(ImprintShare [,,],c(1,2),sum) -
-                               FemaleImprintShare[,,k2] * SmoltSurvivors[,6,t,]/  apply(ImprintShare [,,],c(1,2),sum)
-				N_FISH[,6,t,,k2,2] = FemaleImprintShare[,,k2] * SmoltSurvivors[,6,t,]/ apply(ImprintShare [,,],c(1,2),sum)
+				N_FISH[,6,t,,k2,1] = ImprintShare[,,k2] * TotalSmoltSurvivors[,]/  apply(ImprintShare [,,],c(1,2),sum) -
+                               FemaleImprintShare[,,k2] * TotalSmoltSurvivors[,]/  apply(ImprintShare [,,],c(1,2),sum)
+				N_FISH[,6,t,,k2,2] = FemaleImprintShare[,,k2] * TotalSmoltSurvivors[,]/ apply(ImprintShare [,,],c(1,2),sum)
 			}
 		}
-		N_FISH[is.na(N_FISH)] = 0  
-      
+		N_FISH[is.na(N_FISH)] = 0      
+			
       	for (k in 1:K) {
 			N_FISH[k,6,t,2,k,1] = N_FISH[k,6,t,2,k,1] + 0.5*Hatch_Fish[k,6,t]
 			N_FISH[k,6,t,2,k,2] = N_FISH[k,6,t,2,k,2] + 0.5*Hatch_Fish[k,6,t]
+
+			# ** AGE RECONSTRUCTION.  Pretend hatchery fish are all two years old?
 			N_SMOLTS[k,2,t,2,1] = N_SMOLTS[k,2,t,2,1] + 0.5*Hatch_Fish[k,6,t]
 			N_SMOLTS[k,2,t,2,2] = N_SMOLTS[k,2,t,2,2] + 0.5*Hatch_Fish[k,6,t]
      		}
@@ -829,10 +871,22 @@ for (t in 2:(Tr-1)){
                   		if (is.na(PORTION)) PORTION  = 0
             			N_FISH[k,6,t,,kk,2] = N_FISH[k,6,t,,kk,2] + YearlingN6Survivors * PORTION 
 				}
+
+				# AGE RECONSTRUCTION.  All rainbow smolt are 1 year old.
+				# Used to create N_ADULTS, which is used for age reconstruction
+				N_SMOLTS[k,1,t,g,1] = sum(N_FISH[k,6,t,g,,1])
+				N_SMOLTS[k,1,t,g,2] = sum(N_FISH[k,6,t,g,,2])
 			}
 		}
 	}
-    
+
+if (0) {
+	print("6E")
+	TOTAL_SMOLTS1 = sum(N_FISH[1,6,t,,,])
+	TOTAL_SMOLTS2 = sum(N_SMOLTS[1,,t,,])
+	print(TOTAL_SMOLTS1)
+	print(TOTAL_SMOLTS2)
+}
       ###########
       # N7:  Smolt to Adult 0 (Dam survival rate dependent only, c[k,6,t] assumed negligible (Eq 4)
       ### For Adjust Stages, Move Everybody Back to site of Imprint
@@ -843,18 +897,35 @@ for (t in 2:(Tr-1)){
 
       for(k in 1:K) {
             for (g in 1:G) {
+
 			N_FISH[k,7,t,g,,] = 0  
 			N_FISH[k,7,t,g,k,1] = tempN_M[k,g] /  (1/Sr[k,7,t] ) * Rel_Surv[k,6,t,g]
 			N_FISH[k,7,t,g,k,2] = tempN_F[k,g] /  (1/Sr[k,7,t] ) * Rel_Surv[k,6,t,g]	
+
+			# AGE RECONSTRUCTION.  
+			# new adults from smolts. fresh water age is smolt age, ocean age = 1.
+			for (i5 in 1:I5) {
+			 	N_ADULTS[k,i5,t,g,1,1] = N_SMOLTS[k,i5,t,g,1] /  (1/Sr[k,7,t] ) * Rel_Surv[k,6,t,g]
+			 	N_ADULTS[k,i5,t,g,2,1] = N_SMOLTS[k,i5,t,g,2] /  (1/Sr[k,7,t] ) * Rel_Surv[k,6,t,g]
+			}
            }
       }
+if (0) {
+	print("7A")
+	NEW_ADULTS1 = sum(N_FISH[1,7,t,,,])
+	NEW_ADULTS2 = sum(N_ADULTS[1,,t,,,1])
+	print(NEW_ADULTS1)
+	print(NEW_ADULTS2)
+}
 
       ######################################
       # end of cycle through watersheds
       ######################################
-      
+
 } 
 
+
+#print(N_RECRUITS)     
 	N_FISH[is.na(N_FISH)] = 0
 
 ###################################
@@ -885,12 +956,12 @@ return(list(
   "Spawners" = Spawners,
   "Female_Escapement" = Female_Escapement,
   "Escapement" = Escapement,
+  "N_RECRUITS" = N_RECRUITS,
   "p"=p, "c"=c,
   "Candidate_Smolt"=Candidate_Smolt
 #   ###***Pete May 2015 Addition***
   ,"Male_Spawners"=Male_Spawners,
   "NT"=NT,
-  "CandSmoltsByAge"=Candidate_Smolt_Age,
   "RainbowSpawners"=Rainbow_Spawners,
   "RainbowFemSpawners"=Rainbow_Female_Spawners
 #   ###***Pete May 2015 Addition***

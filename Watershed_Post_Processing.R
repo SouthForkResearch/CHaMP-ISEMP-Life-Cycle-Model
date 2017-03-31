@@ -38,8 +38,8 @@ dir.create("Output Files", showWarnings = FALSE)
 
 
 
-NRFinal = array(0, c(K, 17,G))
-N5Final = array(0, c(K, 10,G))
+NRFinal = array(0, c(K, 12,G))
+N5Final = array(0, c(K, 5,G))
 k=1
 margin=c(1,2)
 
@@ -54,14 +54,13 @@ for (k in 1:K) {
 
 	NRFinalNames=c("Adult Escapement","Egg","Fry","Par","PreSmolt",
 	"Smolt","Adult_Y0","Adult_Y1","Adult_Y2","Adult_Y3","Adult_Y4",
-	"Adult_Y5","Adult_Y6","Adult_Y7","Adult_Y8","Adult_Y9", "Adult_Y10")
+	"Adult_Y5")
 
 }
 #	rownames(NRFinal)=c(as.character(seq(1:header$K)))
 
 	N5FinalNames = c("Pre-SmoltY1","Pre-SmoltY2","Pre-SmoltY3",
-	"Pre-SmoltY4","Pre-SmoltY5","Pre-SmoltY6","Pre-SmoltY7","Pre-SmoltY8",
-	"Pre-SmoltY9","Pre-SmoltY10")
+	"Pre-SmoltY4","Pre-SmoltY5")
 
 
 #	rownames(N5Final)=c(as.character(seq(1:header$K)))
@@ -72,8 +71,8 @@ for (k in 1:K) {
 	
 	for (k in 1:K) {
 
-	NRout.data=t(NRFinal[k,2:17,])
-	colnames(NRout.data)=NRFinalNames[2:17]
+	NRout.data=t(NRFinal[k,2:12,])
+	colnames(NRout.data)=NRFinalNames[2:12]
 	N5out.data=t(N5Final[k,,])
 	colnames(N5out.data)=N5FinalNames
 
@@ -100,23 +99,23 @@ for (k in 1:K) {
 ##############################################
 # Write full output file of results
 
-LifeStageMeans = array(rep(0, header$Tr * 17*G), c(header$Tr,17*G))
-LifeStageSds = array(rep(0, header$Tr * 17*G), c(header$Tr,17*G))
+LifeStageMeans = array(rep(0, header$Tr * 12*G), c(header$Tr,12*G))
+LifeStageSds = array(rep(0, header$Tr * 12*G), c(header$Tr,12*G))
 
 
-N1 = rep(subpop.names[1],17)
-for (g in 2:G) {N1= c(N1, rep(subpop.names[g],17))}
+N1 = rep(subpop.names[1],12)
+for (g in 2:G) {N1= c(N1, rep(subpop.names[g],12))}
 
 colnames(LifeStageMeans) = paste(rep(NRFinalNames,G),"_",N1,"_Mean",sep="")
 colnames(LifeStageSds)= paste(rep(NRFinalNames,G),"_",N1,"_sd",sep="")
 
 for (k in 1:header$K) {
 
-for (n in 1:17) {
+for (n in 1:12) {
 for (g in 1:G)  {
 for (t in 1:Tr) {
-LifeStageMeans[t,(g-1)*17 +n] = mean(NR[k,n,t,g,])
-LifeStageSds[t,(g-1)*17 +n] = sd(NR[k,n,t,g,])
+LifeStageMeans[t,(g-1)*12 +n] = mean(NR[k,n,t,g,])
+LifeStageSds[t,(g-1)*12 +n] = sd(NR[k,n,t,g,])
 }}}
 
 write.csv(
@@ -135,8 +134,7 @@ as.data.frame(list("year"=seq(1:header$Tr), LifeStageMeans[,],
 PS.LifeStageMeans = array(rep(0, header$Tr * I5*G), c(header$Tr,I5*G))
 PS.LifeStageSds = array(rep(0, header$Tr * I5*G), c(header$Tr,I5*G))
 
-NR5Names = c("PS.1", "PS.2", "PS.3","PS.4","PS.5","PS.6",
-"PS.7","PS.8","PS.9","PS.10")
+NR5Names = c("PS.1", "PS.2", "PS.3","PS.4","PS.5")
 
 
 N1 = rep(subpop.names[1],I5)
@@ -164,7 +162,7 @@ PS.LifeStageSds[t,(g-1)*I5 +n5] = sd(N5R[k,n5,t,g,])
 #mean(N5R[k,n5,t,g,])
 #mean(N5R[3,1,3,1,])
 #dim(PS.LifeStageMeans)
-#PS.LifeStageMeans[3,1:10]
+#PS.LifeStageMeans[3,1:5]
 #dim(N5R)
 
 write.csv(
@@ -180,19 +178,19 @@ as.data.frame(list("year"=seq(1:header$Tr), PS.LifeStageMeans[,],
 
 
 # Write file for  All Sites Combined
-Total_by_LS_gtype_r = array(0,c(17,Tr,G,R))
-Total_by_LS_gtype_mean = array(0,c(Tr,17*G))
-Total_by_LS_gtype_sd = array(0,c(Tr,17*G))
+Total_by_LS_gtype_r = array(0,c(12,Tr,G,R))
+Total_by_LS_gtype_mean = array(0,c(Tr,12*G))
+Total_by_LS_gtype_sd = array(0,c(Tr,12*G))
 
 
 
 for (t in 1:Tr){
 for (g in 1:G){
-for (n in 1:17) {
+for (n in 1:12) {
 for (r in 1:R) {
 Total_by_LS_gtype_r[n,t,g,r] =sum(NR[,n,t,g,r]) }
-Total_by_LS_gtype_mean[t,(g-1)*17+n] = mean(Total_by_LS_gtype_r[n,t,g,])
-Total_by_LS_gtype_sd[t,(g-1)*17 +n] = sd(Total_by_LS_gtype_r[n,t,g,])
+Total_by_LS_gtype_mean[t,(g-1)*12+n] = mean(Total_by_LS_gtype_r[n,t,g,])
+Total_by_LS_gtype_sd[t,(g-1)*12 +n] = sd(Total_by_LS_gtype_r[n,t,g,])
 }}}
 
 
@@ -308,7 +306,7 @@ if (R>1) {
 ploty= apply(apply(Spawners_NR[k,1:Tr,,],c(1,3),sum),1, mean)
 UL =1.2*(max((apply(apply(Spawners_NR[k,1:Tr,,],c(1,3),sum),1, mean)+
     1.96* apply(apply(Spawners_NR[k,1:Tr,,],c(1,3),sum), 1, sd))[2:(Tr-1)]))} else {
-ploty= apply(SpawnersNR[k,1:Tr,,],c(1),sum)
+ploty= apply(Spawners_NR[k,1:Tr,,],c(1),sum)
 UL= max(ploty)
 
 
@@ -668,7 +666,7 @@ spf_sd = apply(spf,1,sd)
 UL = max(1.2*(spf_mean + 1.96* spf_sd)[10:(Tr-1)])
 }
 
-
+if (is.na(UL)) {UL=100}
 if (p==1)
  {jpeg(paste("Output Plots/","Smolts per Female Spawner Sum of All Sites.jpg",sep="")
 , 8,6, units='in', res=300)}
