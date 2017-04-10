@@ -65,6 +65,7 @@ for (r in 1:header$R) {
 	cat(paste('Iteration #',r), "\n")
 		variables=Initialize.Variables(header)
 		parameters=MonteCarlo(Inputs, variables, header)
+names(parameters)
 		results= BevHolt(parameters, variables, header) 
 
   	# Store results for Each Iteration
@@ -81,7 +82,6 @@ for (r in 1:header$R) {
   } # End of Loop through MC Iteration
 ################################################################
 
-PostProcessing(header, NR, N5R, Female_Spawners_NR) 
 
 for (r in 1:header$R) {
 	# in second dimension: spawner=1, recruit=2 
@@ -101,6 +101,10 @@ for (r in 1:header$R) {
 #print (N_SPAWNER_RECRUIT_NR)
 
 Reconstruction(header)
+dev.off()
+
+PostProcessing(header, NR, N5R, Female_Spawners_NR) 
+
 
 ####################################################################
 # Generate plot for coefficient of variation vs number of MC iterations

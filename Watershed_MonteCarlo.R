@@ -103,8 +103,8 @@ Frac.Subyear.F= Frac.Subyear.F.mu
 	Mat8Plus_F=Mat8Plus_Female.mu
 	Mat8Plus_M=Mat8Plus_Male.mu
 
-
-      C_ocean = C_ocean.mu
+# Removed 4/10/2017
+#      C_ocean = C_ocean.mu
 
 	D=D.mu
 	Prod_Scalar=Prod_Scalar.mu
@@ -1203,55 +1203,53 @@ if (N.input.files==1) {T.lo=1; T.hi=Tr+1} else {
 #
 
 
-
-### C_ocean  #############
-
- C_ocean.targetR = C_ocean.target
-
-
-# run to run variation (uncertainty in estimates)
-if ((R>1)* (MCsim2==1)) {
-R.unif = runif(1)
-	for (t in 1:Tr) {
-	 for (k in 1:K) {
-		    for (i in 1:5) { # only 5 ocean life stages now
-	  C_ocean[k,i,t] =   max(0.0, 
-   (C_ocean[k,i,t] +
-          qnorm(R.unif, 0, C_ocean.sigma[k,i,t]))) 
-	  C_ocean.targetR[k,i,t] =   max(0.0, 
-   (C_ocean.target[k,i,t] +
-          qnorm(R.unif, 0, C_ocean.sigma[k,i,t]))) 
-# within-site
-	 }}}
-} # close run to run variability if R > 1
-
-
-#  temporal trends, and if including temporal variation
-	for (g in 1:N.input.files) {
-if (N.input.files==1) {T.lo=1; T.hi=Tr+1} else {
-           if (g==N.input.files) {
-		  T.lo=T.step.change[g]
-	 	  T.hi= Tr+1 } else {
-              T.lo=T.step.change[g]
-		  T.hi=T.step.change[g+1]}}
-
-	for (t in (T.lo+1):T.hi) {
-	 T.unif = runif(1)
-		 for (k in 1:K) {
-		   S.unif = runif(1)
-             for (i in 1:5) { #only 5 ocean stages now
-	   withinS.unif=runif(1)
-     	C_ocean[k,i,t-1] =   max(0.0, 
-   (C_ocean[k,i,t-1] +
-  (C_ocean.targetR[k,i,t-1]-C_ocean[k,i,t-1])*
-        exp(-1/((t-T.lo)*(.0000000001+C_ocean.rate[k,i,t-1]))) +
-        ((MCsim2 ==1)*(MCsim4==1)) * (
-          qnorm(T.unif, 0 ,C_ocean.sigmaT[k,i,t-1]) + #year to year
-            qnorm(S.unif, 0, C_ocean.sigmaS[k,i,t-1]) + # site-to-site
-              qnorm(withinS.unif, 0, C_ocean.sigma[k,i,t-1]))
-)) # within-site
-	 }}
-}}
+# Removed 4/10/2017
+#### C_ocean  #############
+#
+# C_ocean.targetR = C_ocean.target
+## run to run variation (uncertainty in estimates)
+#if ((R>1)* (MCsim2==1)) {
+#R.unif = runif(1)
+#	for (t in 1:Tr) {
+#	 for (k in 1:K) {
+#		    for (i in 1:5) { # only 5 ocean life stages now
+#	  C_ocean[k,i,t] =   max(0.0, 
+#  (C_ocean[k,i,t] +
+#          qnorm(R.unif, 0, C_ocean.sigma[k,i,t]))) 
+#	  C_ocean.targetR[k,i,t] =   max(0.0, 
+#   (C_ocean.target[k,i,t] +
+#          qnorm(R.unif, 0, C_ocean.sigma[k,i,t]))) 
+## within-site
+#	 }}}
+#} # close run to run variability if R > 1
+#
+#
+##  temporal trends, and if including temporal variation
+#	for (g in 1:N.input.files) {
+#if (N.input.files==1) {T.lo=1; T.hi=Tr+1} else {
+#           if (g==N.input.files) {
+#		  T.lo=T.step.change[g]
+#	 	  T.hi= Tr+1 } else {
+#              T.lo=T.step.change[g]
+#		  T.hi=T.step.change[g+1]}}
+#
+#	for (t in (T.lo+1):T.hi) {
+#	 T.unif = runif(1)
+#		 for (k in 1:K) {
+#		   S.unif = runif(1)
+#             for (i in 1:5) { #only 5 ocean stages now
+#	   withinS.unif=runif(1)
+#     	C_ocean[k,i,t-1] =   max(0.0, 
+#   (C_ocean[k,i,t-1] +
+#  (C_ocean.targetR[k,i,t-1]-C_ocean[k,i,t-1])*
+#        exp(-1/((t-T.lo)*(.0000000001+C_ocean.rate[k,i,t-1]))) +
+#        ((MCsim2 ==1)*(MCsim4==1)) * (
+#          qnorm(T.unif, 0 ,C_ocean.sigmaT[k,i,t-1]) + #year to year
+#            qnorm(S.unif, 0, C_ocean.sigmaS[k,i,t-1]) + # site-to-site
+#              qnorm(withinS.unif, 0, C_ocean.sigma[k,i,t-1]))
+#)) # within-site
+#	 }}
+#}}
 
 ##plot(C_ocean[1,1,])
 ##cor(C_ocean[1,1,], C_ocean[2,1,])
@@ -1679,7 +1677,8 @@ data = list(
       "N5.Pspawn_M" = N5.Pspawn_M,
 
 	"N5.cap"= N5.cap,
-	"C_ocean"=C_ocean,
+# Removed 4/10/2017
+#	"C_ocean"=C_ocean,
 	"Mat8Plus_F"=Mat8Plus_F,
 	"Mat8Plus_M"=Mat8Plus_M,
 

@@ -292,14 +292,14 @@ N5.cap.rate = SR5.mu
 #	Fc.by.O.Age.target = Fc.by.O.Age.mu
 #	Fc.by.O.Age.rate = Fc.by.O.Age.mu
 
-
-	C_ocean.mu = Mat8Plus_Female.mu 
-	C_ocean.sigmaR = Mat8Plus_Female.mu
-	C_ocean.sigmaT = Mat8Plus_Female.mu
-	C_ocean.sigmaS = Mat8Plus_Female.mu
-	C_ocean.sigma = Mat8Plus_Female.mu
-	C_ocean.target = C_ocean.mu
-	C_ocean.rate = C_ocean.mu
+#removed 4/10/2017
+#	C_ocean.mu = Mat8Plus_Female.mu 
+#	C_ocean.sigmaR = Mat8Plus_Female.mu
+#	C_ocean.sigmaT = Mat8Plus_Female.mu
+#	C_ocean.sigmaS = Mat8Plus_Female.mu
+#	C_ocean.sigma = Mat8Plus_Female.mu
+#	C_ocean.target = C_ocean.mu
+#	C_ocean.rate = C_ocean.mu
 
 
 # frac
@@ -739,7 +739,7 @@ rm(PSinputs)
 #          colIndex=4:24, header=F)
 
 o.inputs = read.csv(Watershed.Input.File, header=F,
-         skip=113, nrow=6)[, 4:24]
+         skip=113, nrow=6)[, 4:17]
 o.inputs
 for (t in T.lo:T.hi) {
 	Mat8Plus_Female.mu[k, ,t] = o.inputs[,1]
@@ -747,25 +747,25 @@ for (t in T.lo:T.hi) {
 	Mat8Plus_Female.alphaT.N[k, ,t] = o.inputs[,3]
 	Mat8Plus_Female.alphaS.N[k, ,t] = o.inputs[,4]
 	Mat8Plus_Female.alpha.N[k, ,t] = o.inputs[,5]
-	Mat8Plus_Female.target[k, ,t] = o.inputs[,16]
-	Mat8Plus_Female.rate[k, ,t] = o.inputs[,17]
+	Mat8Plus_Female.target[k, ,t] = o.inputs[,11]
+	Mat8Plus_Female.rate[k, ,t] = o.inputs[,12]
 
 	Mat8Plus_Male.mu[k, ,t] = o.inputs[,6]
 	Mat8Plus_Male.alphaR.N[k, ,t] = o.inputs[,7]
 	Mat8Plus_Male.alphaT.N[k, ,t] = o.inputs[,8]
 	Mat8Plus_Male.alphaS.N[k, ,t] = o.inputs[,9]
 	Mat8Plus_Male.alpha.N[k, ,t] = o.inputs[,10]
-	Mat8Plus_Male.target[k, ,t] = o.inputs[,18]
-	Mat8Plus_Male.rate[k, ,t] = o.inputs[,19]
+	Mat8Plus_Male.target[k, ,t] = o.inputs[,13]
+	Mat8Plus_Male.rate[k, ,t] = o.inputs[,14]
 
-
-	C_ocean.mu[k, ,t] = o.inputs[,11]
-	C_ocean.sigmaR[k, ,t] = o.inputs[,12]
-	C_ocean.sigmaT[k, ,t] = o.inputs[,13]
-	C_ocean.sigmaS[k, ,t] = o.inputs[,14]
-	C_ocean.sigma[k, ,t] = o.inputs[,15]
-	C_ocean.target[k, ,t] = o.inputs[, 20]
-	C_ocean.rate[k, ,t] = o.inputs[,21]
+#Removed 4/10/2017
+#	C_ocean.mu[k, ,t] = o.inputs[,11]
+#	C_ocean.sigmaR[k, ,t] = o.inputs[,12]
+#	C_ocean.sigmaT[k, ,t] = o.inputs[,13]
+#	C_ocean.sigmaS[k, ,t] = o.inputs[,14]
+#	C_ocean.sigma[k, ,t] = o.inputs[,15]
+#	C_ocean.target[k, ,t] = o.inputs[, 20]
+#	C_ocean.rate[k, ,t] = o.inputs[,21]
 
 }
 
@@ -1075,10 +1075,10 @@ list(
 
 
 
-"C_ocean.mu" = C_ocean.mu, "C_ocean.sigmaR" = C_ocean.sigmaR, 
- "C_ocean.sigmaT" = C_ocean.sigmaT,
- "C_ocean.sigmaS" = C_ocean.sigmaS, "C_ocean.sigma" = C_ocean.sigma,
-  "C_ocean.target"  =  C_ocean.target, "C_ocean.rate" = C_ocean.rate,
+#"C_ocean.mu" = C_ocean.mu, "C_ocean.sigmaR" = C_ocean.sigmaR, 
+# "C_ocean.sigmaT" = C_ocean.sigmaT,
+# "C_ocean.sigmaS" = C_ocean.sigmaS, "C_ocean.sigma" = C_ocean.sigma,
+#  "C_ocean.target"  =  C_ocean.target, "C_ocean.rate" = C_ocean.rate,
 
 "SR5.mu" = SR5.mu, "SR5.alphaR.N" = SR5.alphaR,  "SR5.alphaT.N" = SR5.alphaT,
  "SR5.alphaS.N" = SR5.alphaS, "SR5.alpha.N" = SR5.alpha,
