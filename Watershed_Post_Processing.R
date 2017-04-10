@@ -555,13 +555,20 @@ NHS_Total_by_Site = array(0, c(K, Tr))
 NHS_Total_by_Site_by_Run = array(0, c(K,Tr,R))
 for (k in 1:K) {
  for (r in 1:R) {
-NHS_Total_by_Site_by_Run[k,,R] = 
-apply(NR[k,6,,c(1,3:11),r],1  , sum)
+NHS_Total_by_Site_by_Run[k,,r] = 
+apply(
+NR[k,6,,c(1,3:11),r]
+,1  , sum)
  }
-NHS_Total_by_Site[k,] = 
-apply(NHS_Total_by_Site_by_Run[k,,,drop=F]
-,2,mean)
+
+NHS_Total_by_Site[k,] = apply(NHS_Total_by_Site_by_Run[k,,,drop=F],2,mean)
+
 }
+
+dim(NR)
+NR[k,6,,1,5]
+NHS_Total_by_Site[k,]
+
 
 UL = max(NHS_Total_by_Site)
 
@@ -623,49 +630,62 @@ for (r in 1:R) {
 smolts_sum_all_locations[t,r] = sum(NR[,6,t,c(1,3:11),r])
 f.spawners_sum_all_locations[t,r] = sum(Female_Spawners_NR[,t,c(1,3:11),r])
 
-
 }}
 
-f.spawners_sum_all_locations
+
+#print(smolts_sum_all_locations)
+#print(f.spawners_sum_all_locations)
+
 spf = smolts_sum_all_locations *0
 temp = spf
-len = length(spf)
+dim(temp)
+
+len = nrow(spf)
+
+for (r in 1:R) {
 for (l in 6:(len-5)) {
-   temp[l] = mean(f.spawners_sum_all_locations[(l-5):(l+5)])
+   temp[l,r] = mean(
+f.spawners_sum_all_locations[(l-5):(l+5),r]
+)
 }
 
-temp[1] = mean(f.spawners_sum_all_locations[1:10])
-temp[2] = mean(f.spawners_sum_all_locations[1:10])
-temp[3] = mean(f.spawners_sum_all_locations[1:10])
-temp[4] = mean(f.spawners_sum_all_locations[1:10])
-temp[5] = mean(f.spawners_sum_all_locations[1:10])
+dim(f.spawners_sum_all_locations)
+f.spawners_sum_all_locations[1:10,r]
+temp[1,r] = mean(f.spawners_sum_all_locations[1:10,r])
+temp[2,r] = mean(f.spawners_sum_all_locations[1:10,r])
+temp[3,r] = mean(f.spawners_sum_all_locations[1:10,r])
+temp[4,r] = mean(f.spawners_sum_all_locations[1:10,r])
+temp[5,r] = mean(f.spawners_sum_all_locations[1:10,r])
 
 
-temp[len] = mean(f.spawners_sum_all_locations[(n-10):n])
-temp[(len-1)] = mean(f.spawners_sum_all_locations[(n-10):n])
-temp[(len-2)] = mean(f.spawners_sum_all_locations[(n-10):n])
-temp[(len-3)] = mean(f.spawners_sum_all_locations[(n-10):n])
-temp[(len-4)] = mean(f.spawners_sum_all_locations[(n-10):n])
+temp[len,r] = mean(f.spawners_sum_all_locations[(len-10):len,r])
+temp[(len-1),r] = mean(f.spawners_sum_all_locations[(len-10):len,r])
+temp[(len-2),r] = mean(f.spawners_sum_all_locations[(len-10):len,r])
+temp[(len-3),r] = mean(f.spawners_sum_all_locations[(len-10):len,r])
+temp[(len-4),r] = mean(f.spawners_sum_all_locations[(len-10):len,r])
 
-
-
+}
+#print(temp)
+dim(smolts_sum_all_locations)
 #print(temp)
 
 spf[3: length(spf)]
-spf = smolts_sum_all_locations/ temp # f.spawners_sum_all_locations
-spf_sd=0
-
-spf_mean=apply(spf,1,mean)
+spf = smolts_sum_all_locations/ (temp+.1) # f.spawners_sum_all_locations
 spf
-
+spf_sd=0
+dim(spf)
+spf_mean=apply(spf,1,mean)
+spf_mean
+#print(spf_mean)
 UL = max(spf_mean[10:(Tr-1)])
-UL
+print(paste("UL=",UL))
 
 if (R >1) {
 spf_sd = apply(spf,1,sd)
 UL = max(1.2*(spf_mean + 1.96* spf_sd)[10:(Tr-1)])
 }
 
+if (UL > 100) {UL=100}
 if (is.na(UL)) {UL=100}
 if (p==1)
  {jpeg(paste("Output Plots/","Smolts per Female Spawner Sum of All Sites.jpg",sep="")
