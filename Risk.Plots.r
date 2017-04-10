@@ -35,9 +35,8 @@ RUNS = header$R
 YEARS = header$Tr-20
 QET = 100
 ALTS = 1
-
 x = array(0, c(RUNS*4, YEARS, ALTS))
-
+RUNS
 for (run in 1:RUNS) {
 	for (year in 1:YEARS) {
 		x[run,year,1] = N_SPAWNER_RECRUIT_NR[year+10,1,run]      # spawners
@@ -139,7 +138,9 @@ mtext("Mean Abundance", side = 2, line = 1, outer = T, cex = 1.0)
 
 # Now produce a plot for each alternative with points representing individual iterations
 pdf("RiskPlot.pdf", width = 7, height = 8.5)
-par(mfrow=c(3,2), mar=c(3,3,1,1), oma=c(6,4,1,1))
+#par(mfrow=c(3,2), mar=c(3,3,1,1), oma=c(6,4,1,1))
+par(mfrow=c(1,1), mar=c(3,3,1,1), oma=c(6,4,1,1))
+
 
 for(k in 1:ALTS){  # loop through alternatives
 	contour(exp(X), exp(Y), Z, levels = c(0,0.01,0.05, 0.1,0.25,0.5,0.75,0.9,0.95, 0.99,1.0),
@@ -162,7 +163,8 @@ mtext("Mean Abundance", side = 2, line = 1, outer = T, cex = 1.0)
 
 # Convert Extinction probs to VSP score for P&A, and then barplot
 pdf("VSP.plot.pdf", width = 9, height = 8.5)
-par(mfrow=c(3,2), mar=c(3,3,1,1), oma=c(6,4,1,1))
+#par(mfrow=c(3,2), mar=c(3,3,1,1), oma=c(6,4,1,1))
+par(mfrow=c(1,1), mar=c(3,3,1,1), oma=c(6,4,1,1))
 
 for(j in 1:ALTS){
 	V <- array(0,RUNS)
@@ -191,7 +193,8 @@ mtext("Frequency", side = 2, line = 1, outer = T, cex = 1.0)
 
 # Barplot of Phos
 pdf("Phos.plot.pdf", width = 9, height = 8.5)
-par(mfrow=c(3,2), mar=c(3,3,1,1), oma=c(6,4,1,1))
+#par(mfrow=c(3,2), mar=c(3,3,1,1), oma=c(6,4,1,1))
+par(mfrow=c(1,1), mar=c(3,3,1,1), oma=c(6,4,1,1))
 
 for(j in 1:ALTS){
 	
@@ -204,7 +207,8 @@ mtext("Frequency", side = 2, line = 1, outer = T, cex = 1.0)
 
 # Barplot of PNI
 pdf("PNI.plot.pdf", width = 9, height = 8.5)
-par(mfrow=c(3,2), mar=c(3,3,1,1), oma=c(6,4,1,1))
+#par(mfrow=c(3,2), mar=c(3,3,1,1), oma=c(6,4,1,1))
+par(mfrow=c(1,1), mar=c(3,3,1,1), oma=c(6,4,1,1))
 
 for(j in 1:ALTS){
 	
