@@ -92,13 +92,13 @@ for (j in 1:ALTS){  #1:6
 
 
 # Diagnostics
-print(cor(P,A))
-print(cor(P,X.array))
-print(cor(A, X.array))
+#print(cor(P,A))
+#print(cor(P,X.array))
+#print(cor(A, X.array))
 
 # Fit Response Surface for Productivity and Abundance
 fit <- glm(X.array ~ P + A, family = binomial)
-print(summary(fit))
+#print(summary(fit))
 
 # Ranges for Responce Surface Plot
 x.min <- 0
@@ -135,6 +135,7 @@ contour(exp(X), exp(Y), Z, levels = c(0,0.01,0.05, 0.1,0.25,0.5,0.75,0.9,0.95, 0
 		ylab = "")
 mtext("R/S at Low Abundance", side =1, line = 1, outer = T, cex = 1.0)
 mtext("Mean Abundance", side = 2, line = 1, outer = T, cex = 1.0)
+dev.off("contourPlot.pdf")
 
 # Now produce a plot for each alternative with points representing individual iterations
 pdf("RiskPlot.pdf", width = 7, height = 8.5)
@@ -160,6 +161,7 @@ for(k in 1:ALTS){  # loop through alternatives
 }
 mtext("R/S at Low Abundance", side =1, line = 1, outer = T, cex = 1.0)
 mtext("Mean Abundance", side = 2, line = 1, outer = T, cex = 1.0)
+dev.off()
 
 # Convert Extinction probs to VSP score for P&A, and then barplot
 pdf("VSP.plot.pdf", width = 9, height = 8.5)
@@ -190,6 +192,7 @@ for(j in 1:ALTS){
 }
 mtext("VSP (Productivity & Abundance)", side =1, line = 1, outer = T, cex = 1.0)
 mtext("Frequency", side = 2, line = 1, outer = T, cex = 1.0)
+dev.off()
 
 # Barplot of Phos
 pdf("Phos.plot.pdf", width = 9, height = 8.5)
@@ -204,10 +207,11 @@ for(j in 1:ALTS){
 }
 mtext("Phos", side =1, line = 1, outer = T, cex = 1.0)
 mtext("Frequency", side = 2, line = 1, outer = T, cex = 1.0)
+dev.off()
 
 # Barplot of PNI
 pdf("PNI.plot.pdf", width = 9, height = 8.5)
-#par(mfrow=c(3,2), mar=c(3,3,1,1), oma=c(6,4,1,1))
+
 par(mfrow=c(1,1), mar=c(3,3,1,1), oma=c(6,4,1,1))
 
 for(j in 1:ALTS){
@@ -217,11 +221,8 @@ for(j in 1:ALTS){
 		main = "")
 }
 mtext("PNI", side =1, line = 1, outer = T, cex = 1.0)
-mtext("Frequency", side = 2, line = 1, outer = T, cex = 1.0)	
+mtext("Frequency", side = 2, line = 1, outer = T, cex = 1.0)
 dev.off()
-dev.off()
-dev.off()
-dev.off()
-
+	
 }
 

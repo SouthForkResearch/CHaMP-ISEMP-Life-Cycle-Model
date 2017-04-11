@@ -1,12 +1,14 @@
 #
 ####################################################
 # ISEMP Watershed Production Model
-# R-Code Written by Matt Nahorniak, South-Fork Research
+# R-Code Written by Matt Nahorniak, Mark Armour, South-Fork Research
 # matt@southforkresearch.org
 # (541) 740-5487
-# Pete McHugh's John Day 2015-2016 tweaks are included
-# peter.a.mchugh@gmail.com 
+# markarmour04@gmail.com
+# (541-760-8085
+# 
 #####################################################
+
 rm(list = ls(all=TRUE)) #Clean up shop before beginning
 
 	library(MCMCpack, quietly=T) # for Dirichlet (multivariable beta) distributions
@@ -17,7 +19,6 @@ rm(list = ls(all=TRUE)) #Clean up shop before beginning
 	source("Watershed_MonteCarlo.r")
 	source("Watershed_BevHolt.r")
 	source("Watershed_Post_Processing.r")
-#  source("Watershed_JohnDayOutputs.r") #Only use this if you're interested; it's only been vetted well for single pop/G-type situations
 
 	# Reconstruction
 	source("Risk.Plots.r")
@@ -28,12 +29,6 @@ rm(list = ls(all=TRUE)) #Clean up shop before beginning
 	Inputs<-Read.Input.File(header)
 
 # Initialze some Global Variables
-# NR is global variable containing all counts N in run R
-#NR = Abundance for site k, stage i, time t, life stage g, run R
-#NR_F = fraction of NR that are females
-#N5R = NR except just for OnePlus
-#N5R_F = fraction of N5R that are females (a fraction)
-#SmoltsR = OnePlus attempting to smolt (# pre Bev-Holt survival)
 	NR=with(header, {array(rep(0,K*I*Tr*G*R),c(K,I,Tr,G,R))})
       NR_F=with(header, {array(rep(0,K*I*Tr*G*R),c(K,I,Tr,G,R))}) 
       N5R=with(header, {array(rep(0,K*I5*Tr*G*R), c(K,I5,Tr,G,R))})
@@ -60,12 +55,12 @@ rm(list = ls(all=TRUE)) #Clean up shop before beginning
 # Here we loop through the code one for each monte-carlo simulation
 # First we set the variables, then we add stochasticity via a monte-
 # carlo code, then run the Beverton-Holt algorithm
+
 r=1
 for (r in 1:header$R) {
 	cat(paste('Iteration #',r), "\n")
 		variables=Initialize.Variables(header)
 		parameters=MonteCarlo(Inputs, variables, header)
-names(parameters)
 		results= BevHolt(parameters, variables, header) 
 
   	# Store results for Each Iteration
@@ -82,7 +77,6 @@ names(parameters)
   } # End of Loop through MC Iteration
 ################################################################
 
-
 for (r in 1:header$R) {
 	# in second dimension: spawner=1, recruit=2 
 	for (t in 1:header$Tr) {
@@ -97,11 +91,7 @@ for (r in 1:header$R) {
 	}	
 }
 
-
-#print (N_SPAWNER_RECRUIT_NR)
-
 Reconstruction(header)
-dev.off()
 
 PostProcessing(header, NR, N5R, Female_Spawners_NR) 
 
@@ -130,15 +120,3 @@ if (header$R > 1) {
   lines(r.range, OnePlus_Cand_COV_by_r, lt=2)
   legend("topright", c("Escapement", "Smolts (Pre-Dam Passage)"), lt=c(1,2))
 }
-
-# results$Rainbow_N[1,,1:25,1]
-# results$Rainbow_N_F[1,,1:25,1]
-
-
-
-
-
-
-
-
-

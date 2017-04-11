@@ -565,10 +565,6 @@ NHS_Total_by_Site[k,] = apply(NHS_Total_by_Site_by_Run[k,,,drop=F],2,mean)
 
 }
 
-dim(NR)
-NR[k,6,,1,5]
-NHS_Total_by_Site[k,]
-
 
 UL = max(NHS_Total_by_Site)
 
@@ -678,7 +674,7 @@ spf_mean=apply(spf,1,mean)
 spf_mean
 #print(spf_mean)
 UL = max(spf_mean[10:(Tr-1)])
-print(paste("UL=",UL))
+#print(paste("UL=",UL))
 
 if (R >1) {
 spf_sd = apply(spf,1,sd)
