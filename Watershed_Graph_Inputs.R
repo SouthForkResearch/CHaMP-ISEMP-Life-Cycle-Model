@@ -158,7 +158,7 @@ xlab="time", ylab="SR5")
 
 
 for (r in 1:R) {
- for (i in c(1:10)) {
+ for (i in c(1:5)) {
      lines(c(1:Tr), 
 parametersNR[r,]$SR5[k,i,]
 ,        col=i, lt=c(rep(1,5), rep(2,5)))
@@ -269,7 +269,7 @@ xlab="time", ylab="D")
 
 
 for (r in 1:R) {
-  for (i5 in 1:10) {
+  for (i5 in 1:5) {
      lines(c(1:Tr), parametersNR[r,]$N5.Psmolt_F[k,i5,],
         col=color[i5], lt=lt[i5])}}
 
@@ -306,7 +306,7 @@ xlab="time", ylab="D")
 
 
 for (r in 1:R) {
-  for (i5 in 1:10) {
+  for (i5 in 1:5) {
      lines(c(1:Tr), parametersNR[r,]$N5.Psmolt_M[k,i5,],
         col=color[i5], lt=lt[i5])}}
 
@@ -343,7 +343,7 @@ xlab="time", ylab="D")
 
 
 for (r in 1:R) {
-  for (i5 in 1:10) {
+  for (i5 in 1:5) {
      lines(c(1:Tr), parametersNR[r,]$N5.Psmolt_F[k,i5,],
         col=color[i5], lt=lt[i5])}}
 
@@ -378,7 +378,7 @@ xlab="time", ylab="D")
 
 
 for (r in 1:R) {
-  for (i5 in 1:10) {
+  for (i5 in 1:5) {
      lines(c(1:Tr), parametersNR[r,]$N5.Psmolt_M[k,i5,],
         col=color[i5], lt=lt[i5])}}
 
@@ -414,7 +414,7 @@ xlab="time", ylab="D")
 
 
 for (r in 1:R) {
-  for (i5 in 1:10) {
+  for (i5 in 1:5) {
      lines(c(1:Tr), parametersNR[r,]$N5.Pspawn_F[k,i5,],
         col=color[i5], lt=lt[i5])}}
 
@@ -447,7 +447,7 @@ xlab="time", ylab="D")
 
 
 for (r in 1:R) {
-  for (i5 in 1:10) {
+  for (i5 in 1:5) {
      lines(c(1:Tr), parametersNR[r,]$N5.Pspawn_M[k,i5,],
         col=color[i5], lt=lt[i5])}}
 
@@ -489,36 +489,6 @@ lt=lt, col=color,cex=.8, ncol=3)
 } # end of sites
 
 ############################################
-#C_ocean
-for (k in 1:K) {
-
-ul = rep(0,R)
-ll = rep(0,R)
-for (r in 1:R) {
-ul[r] = max(parametersNR[r,]$C_ocean[k,,])
-ll[r] = min(parametersNR[r,]$C_ocean[k,,])}
-
-minD = min(ll)
-maxD = max(ul)
-minD
-maxD
-lt = c(1,1,1,1,1,2,2,2,2,2)
-color = c(1,2,3,4,5,1,2,3,4,5)
-
-plot(c(1:Tr), parametersNR[1,]$C_ocean[k,1,], 
-main=paste("Site",k,"Ocean Capacity by Years as Adult"),
-ylim=c(0,  1.4*maxD), type="l",xlab="time", ylab="D")
-
-
-for (r in 1:R) {
-  for (i in 1:10) {
-     lines(c(1:Tr), parametersNR[r,]$C_ocean[k,i,],
-        col=color[i], lt=lt[i])}}
-
-
-legend("topright",paste(rep("Years=", ) ,1:I5),
-lt=lt, col=color,cex=.8, ncol=3)
-} # end of sites
 
 ############################################
 ############################################
@@ -546,7 +516,7 @@ ylim=c(0,  1.4*maxD), type="l",xlab="time", ylab="D")
 
 
 for (r in 1:R) {
-  for (i in 1:10) {
+  for (i in 1:6) {
      lines(c(1:Tr), parametersNR[r,]$Mat8Plus_F[k,i,],
         col=color[i], lt=lt[i])}}
 
@@ -580,7 +550,7 @@ ylim=c(0,  1.4*maxD), type="l",xlab="time", ylab="D")
 
 
 for (r in 1:R) {
-  for (i in 1:10) {
+  for (i in 1:6) {
      lines(c(1:Tr), parametersNR[r,]$Mat8Plus_M[k,i,],
         col=color[i], lt=lt[i])}}
 
@@ -679,7 +649,7 @@ legend("topright",c("N","H1","N.H2","H2","N-N.H3","N-H3","N.H3-H3","N.H3-H2","H3
 
 #######################################
 # Female_Fecundity
-for (i in 1:10) {
+for (i in 1:6) {
 for (k in 1:K) {
 
 ul = rep(0,R)
