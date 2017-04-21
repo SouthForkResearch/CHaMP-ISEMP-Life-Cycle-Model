@@ -228,7 +228,7 @@ for (t in 2:(Tr-1)){
           	for (i in 7:I) {
 
                   CandN_M = apply(N_FISH[k,i,t,,,1],1,sum) * (Mat8Plus_M[k,i-6,t]) 
-                  CandN_F = apply(N_FISH[k,i,t,,,2],1,sum) * (Mat8Plus_M[k,i-6,t])
+                  CandN_F = apply(N_FISH[k,i,t,,,2],1,sum) * (Mat8Plus_F[k,i-6,t])
                   CandN = CandN_M+ CandN_F
   
 			# CandN are the fish leaving the ocean.
@@ -639,11 +639,14 @@ for (t in 2:(Tr-1)){
       	for (k in 1:K) {
             	for (i5 in 1:I5) {
                   	for (g in 1:G) {
+                          
 					N5_FISH[k,i5,t+1,g,,1] = temp.Cand_M[k,g,,i5] * Correction[k]
                         	N5_FISH[k,i5,t+1,g,,2] = temp.Cand_F[k,g,,i5] * Correction[k]
 
 					N_FISH[k,5,t+1,g,,1] = apply(N5_FISH[k,,t+1,g,,1],2,sum) 
 					N_FISH[k,5,t+1,g,,2] = apply(N5_FISH[k,,t+1,g,,2],2,sum)
+
+
                   	}
             	}
       	}
@@ -817,28 +820,28 @@ for (t in 2:(Tr-1)){
 					# subyearling males imprinted at kk
                   		PORTION = sum(TempSubYearlingN6[kk,1])/sum(TempSubYearlingN6[,])
                   		if (is.na(PORTION)) PORTION  = 0
-            			N_FISH[k,6,t,,kk,1] = SubYearlingN6Survivors * PORTION 
+            			N_FISH[k,6,t+1,,kk,1] = SubYearlingN6Survivors * PORTION 
 
 					# subyearling females imprinted at kk
                   		PORTION = sum(TempSubYearlingN6[kk,2])/sum(TempSubYearlingN6[,])
                   		if (is.na(PORTION)) PORTION  = 0
-            			N_FISH[k,6,t,,kk,2] = SubYearlingN6Survivors * PORTION 
+            			N_FISH[k,6,t+1,,kk,2] = SubYearlingN6Survivors * PORTION 
 
 					# yearling males imprinted at kk
                   		PORTION = sum(TempYearlingN6[kk,1])/sum(TempYearlingN6[,])
                   		if (is.na(PORTION)) PORTION  = 0
-            			N_FISH[k,6,t,,kk,1] = N_FISH[k,6,t,,kk,1] + YearlingN6Survivors * PORTION 
+            			N_FISH[k,6,t+1,,kk,1] = N_FISH[k,6,t+1,,kk,1] + YearlingN6Survivors * PORTION 
 
 					# yearling females imprinted at kk
                   		PORTION = sum(TempYearlingN6[kk,2])/sum(TempYearlingN6[,])
                   		if (is.na(PORTION)) PORTION  = 0
-            			N_FISH[k,6,t,,kk,2] = N_FISH[k,6,t,,kk,2] + YearlingN6Survivors * PORTION 
+            			N_FISH[k,6,t+1,,kk,2] = N_FISH[k,6,t+1,,kk,2] + YearlingN6Survivors * PORTION 
 				}
 
 				# AGE RECONSTRUCTION.  All rainbow smolt are 1 year old.
 				# Used to create N_ADULTS, which is used for age reconstruction
-				N_SMOLTS[k,1,t,g,1] = sum(N_FISH[k,6,t,g,,1])
-				N_SMOLTS[k,1,t,g,2] = sum(N_FISH[k,6,t,g,,2])
+				N_SMOLTS[k,1,t+1,g,1] = sum(N_FISH[k,6,t+1,g,,1])
+				N_SMOLTS[k,1,t+1,g,2] = sum(N_FISH[k,6,t+1,g,,2])
 			}
 		}
 	}
