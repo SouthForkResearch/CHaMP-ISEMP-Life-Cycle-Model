@@ -1,6 +1,6 @@
 BevHolt <- function(Parameter.data, Var.data, header.data) {
 
-# for debugging uncomment out these two)
+# for debugging uncomment out thees two)
 #attach(variables) 
 #attach(parameters)
 #attach(header)
@@ -13,15 +13,20 @@ attach(Var.data)
 attach(Parameter.data)
 attach(header.data)
 
+# This fix is to handle R issue where it does not properly handle array
+#    array dimension of 1
+KK=K
+if (KK==1) KK=2
+
 # Move to initialization section
-Fry_Migrate.T=rep(0,K)
-Par_Migrate.T=rep(0,K)
-OnePlus_Migrate.T=rep(0,K)
-OnePlusN5_Migrate.T = array(rep(0, K*I5), c(K, I5))
+Fry_Migrate.T=rep(0,KK)
+Par_Migrate.T=rep(0,KK)
+OnePlus_Migrate.T=rep(0,KK)
+OnePlusN5_Migrate.T = array(rep(0, KK*I5), c(KK, I5))
 Candidate_Smolt=array(rep(0,K*Tr*G), c(K,Tr,G))
 
-Rainbow_Spawners = array(rep(0, K*Tr*G), c(K,Tr,G))
-Rainbow_Female_Spawners  = array(rep(0, K*Tr*G),c(K,Tr,G))
+Rainbow_Spawners = array(rep(0, KK*Tr*G), c(KK,Tr,G))
+Rainbow_Female_Spawners  = array(rep(0, KK*Tr*G),c(KK,Tr,G))
 
 # Maximum number of ocean years (0-5, totalling six years)
 OCEAN_AGES = 6
@@ -29,22 +34,22 @@ OCEAN_AGES = 6
 FRESH_AGES = 6
 AGE = FRESH_AGES+OCEAN_AGES-1
 
-N_FISH = array(0, c(K,I,Tr,G,K,2)) 
-N_RAINBOW = array(0, c(K,I,Tr,G,K,2))
-N_SPAWNERS = array(0, c(K,Tr,G,2))
-N_RAINBOW_SPAWNERS = array(0, c(K,I5,Tr,G,2))
-N_ESCAPEMENT = array(0, c(K,Tr,G,2))
+N_FISH = array(0, c(KK,I,Tr,G,KK,2)) 
+N_RAINBOW = array(0, c(KK,I,Tr,G,KK,2))
+N_SPAWNERS = array(0, c(KK,Tr,G,2))
+N_RAINBOW_SPAWNERS = array(0, c(KK,I5,Tr,G,2))
+N_ESCAPEMENT = array(0, c(KK,Tr,G,2))
 
 # ** AGE RECONSTRUCTION.  Smolts array is only needed to construct Adults array.
 # For all adults, store distribution of fresh water age and true age
-N_ADULTS = array(0, c(K,FRESH_AGES,Tr,G,2,OCEAN_AGES)) 
+N_ADULTS = array(0, c(KK,FRESH_AGES,Tr,G,2,OCEAN_AGES)) 
 # For smolts, keep track of years in fresh water (1 for Chinook, 1-6 for Rainbow)
-N_SMOLTS = array(0, c(K,FRESH_AGES,Tr,G,2))
+N_SMOLTS = array(0, c(KK,FRESH_AGES,Tr,G,2))
 # For adults that make it back to spawn, keep track of them all by true
 N_RECRUITS = array(0, c(Tr,AGE))
 
-N5_FISH = array(0, c(K,I5,Tr,G,K,2)) 
-NT_FISH = array(0, c(K,OCEAN_AGES,Tr,G,2))
+N5_FISH = array(0, c(KK,I5,Tr,G,K,2)) 
+NT_FISH = array(0, c(KK,OCEAN_AGES,Tr,G,2))
  
 #Initialize new array
 for (k in 1:K) {
@@ -53,8 +58,14 @@ for (k in 1:K) {
 }
 
 #Initialize these
-Post_Spawn_Returns_Anadromous = array(0, c(K,OCEAN_AGES,G,2))
-Post_Spawn_Returns_Rainbow = array(0, c(K,I5,G,2))
+Post_Spawn_Returns_Anadromous = array(0, c(KK,OCEAN_AGES,G,2))
+Post_Spawn_Returns_Rainbow = array(0, c(KK,I5,G,2))
+
+#######################################################
+#######################################################
+###################################################
+# Start Time Loops (t=1 to Tr) for each MC iteration
+####################################################
 
 for (k in 1:K) {
       N_FISH[k,,,,k,1]=N[k,,,] *.5
@@ -74,10 +85,6 @@ for (k in 1:K) {
 	}
 }
 }
-
-###################################################
-# Start Time Loops 
-####################################################
 
 t=2
 #for (t in 2:5) {
@@ -156,11 +163,8 @@ for (t in 2:(Tr-1)){
             # from time step 1 to calculate number of spawners and adjust adult
             # fish counts from back in step 1.  Gotta start somewhere...
 
-
             ###############
-            # N8 through N12
-            # Ocean ages 0-5 (taking into account loss due to maturation rates of prior years)
-		###############
+            # N8 through N12: ocean ages 1 ->5 (taking into account loss due to maturation rates of prior years)
 
             for (i in 7:11) {
                   CandN_M = apply(N_FISH[k,i,t-1,,,1], 1, sum) * (1-Mat8Plus_M[k,i-6,t-1])
@@ -221,10 +225,7 @@ for (t in 2:(Tr-1)){
             }     
 
             ############
-            # NT
-            # Mature Fish (ready to Spawn, calc's as % of ocean ages 0-5, indexes 1-6)
-		############
-
+            # NT: Mature Fish (ready to Spawn, calc's as % of ocean ages 0-5, indexes 1-6)
           	for (i in 7:I) {
 
                   CandN_M = apply(N_FISH[k,i,t,,,1],1,sum) * (Mat8Plus_M[k,i-6,t]) 
@@ -249,7 +250,7 @@ for (t in 2:(Tr-1)){
       ### Except for the spawners...they're allowed to re-imprint, by definition
       #####################
 
-	NT_FISH_MIGRATE = array(rep(0, K*OCEAN_AGES*G*2),c(K, OCEAN_AGES, G, 2))
+	NT_FISH_MIGRATE = array(rep(0, KK*OCEAN_AGES*G*2),c(KK, OCEAN_AGES, G, 2))
       
       for (k1 in 1:K) {
             for (k2 in 1:K){
@@ -269,7 +270,7 @@ for (t in 2:(Tr-1)){
 							sum(NT_FISH[,kk,t,,] * FWA_DISTRIBUTION)
 		}				
 	}
-
+	
       #### OK, now I've got NT_FISH - the fish attempting to spawn by age and G-type
       #### I should be able to figure out fecundity for each group and come up
       #### eggs by G-type
@@ -326,8 +327,17 @@ for (t in 2:(Tr-1)){
             Male_GDist=apply(NT_FISH[k,,t,,1],2,sum)/(sum(NT_FISH[k,,t,,1])+.00001)
             Male_GDist[is.na(Male_GDist)] = 0
       
+             #####################################################################################
+             ##### Begin Pete Feb 2016 Meddling
+             #####################################################################################      
+
             Rainbow.Male_GDist = 
             		apply(N_RAINBOW_SPAWNERS[k,,t,,1],2,sum)/(sum(N_RAINBOW_SPAWNERS[k,,t,,1])+.00001)
+
+             #####################################################################################
+             ##### End Pete Feb 2016 Meddling
+             #####################################################################################      
+
             Rainbow.Male_GDist[is.na(Rainbow.Male_GDist)] = 0
             
             
@@ -340,7 +350,7 @@ for (t in 2:(Tr-1)){
                   Post_Spawn_Returns_Anadromous[k,i+1,,2]=   NT_FISH[k, i, t,,2] *  (Sr[k,2,t])* Rel_Surv[k,1,t,] * Post_Spawn_Survival_Anadromous_F[k,i,t,] 
             }
       
-            for (i5 in 1:I5){       
+            for (i5 in 1:I5){       #Pete Nov 2015
                   Post_Spawn_Returns_Rainbow[k,i5,,1]=   N_RAINBOW_SPAWNERS[k, i5, t-1,,1] *  (Sr[k,2,t])* Rel_Surv[k,1,t,]* Post_Spawn_Survival_Rainbow_M[k,i5,t,] 
                   Post_Spawn_Returns_Rainbow[k,i5,,2]=   N_RAINBOW_SPAWNERS[k, i5, t-1,,2] *  (Sr[k,2,t])* Rel_Surv[k,1,t,]* Post_Spawn_Survival_Rainbow_F[k,i5,t,] 
                   
@@ -415,10 +425,10 @@ for (t in 2:(Tr-1)){
 			N_RAINBOW[k,2,t,g,k,] = .5 * Candidates 
             }
       } # end K
-      
+
+
 	############
-	# N3 
-	# Fry, based on prior year's eggs 
+	#N3 (fry, based on prior year's eggs) 
 	###########
 
       for (k in 1:K) {
@@ -471,7 +481,7 @@ for (t in 2:(Tr-1)){
       
       if (K >1) {
             # Initialize Migration matrics: to k1 from k2 imprinted to k3
-		N_FRY_Migrate = array(0, c(K,K,K,G,2)) # to k1 from k2 imprinted to k3
+		N_FRY_Migrate = array(0, c(KK,KK,KK,G,2)) # to k1 from k2 imprinted to k3
             
             for (k1 in 1:K) {
                   for (k2 in 1:K){
@@ -489,10 +499,10 @@ for (t in 2:(Tr-1)){
                   }
             }
       } # end of x-site-migrate
-      
+
+
       ###########
-      # N4 
-	# Par, based on same year's fry
+      #N4 (par, based on same year's fry)
       ###########
       
 	ParSurvivors = array(0, G)
@@ -529,9 +539,9 @@ for (t in 2:(Tr-1)){
       if (K >1) {
             
             # Initialize Migrattion matrics: to k1 from k2 imprinted to k3
-            Par_Migrate = array(0, c(K,K,K,G)) # to k1 from k2 imprinted to k3
-            Par_Migrate_F = array(0, c(K,K,K,G)) # to k1 from k2 imprinted to k3
-            N_Par_Migrate = array(0, c(K,K,K,G,2)) # to k1 from k2 imprinted to k3
+            Par_Migrate = array(0, c(KK,KK,KK,G)) # to k1 from k2 imprinted to k3
+            Par_Migrate_F = array(0, c(KK,KK,KK,G)) # to k1 from k2 imprinted to k3
+            N_Par_Migrate = array(0, c(KK,KK,KK,G,2)) # to k1 from k2 imprinted to k3
             
             for (k1 in 1:K) {
                   #for (g in 1:G) {
@@ -550,17 +560,21 @@ for (t in 2:(Tr-1)){
             }
 
       } # end of x-site migrate
-      
-      ###########
-      # N5 
-	# OnePlus -- Steelhead only, based on number of pars entering system and 
-	#	number of prior year's OnePlus, at each age, staying for another year
+
+
+      ###############################################################
+      ###############################################################
+      # OnePlus -- Steelhead only
+      # N5 (OnePlus)
+      # N5 is complicated because of steelhead
+      # N5 is based on number of pars entering system and number of prior
+      # year's OnePlus, at each age, staying for another year
       # Capacity is weighted based on age distribution and survival probability
       # of fish trying to occupy given space (older fish require more space)
       ###########
 
 	if (species == "steelhead") {		
-      	Cand_M = array(rep(0, K*G*K*I5), c(K,G,K,I5)) #in K1, G, imprint K2, i5, Sr, Cap_Scale)
+      	Cand_M = array(rep(0, KK*G*KK*I5), c(KK,G,KK,I5)) #in K1, G, imprint K2, i5, Sr, Cap_Scale)
       	Cand_F = Cand_M
 		Cand_M[,,,1] = N_FISH[,4,t,,,1]
       	Cand_F[,,,1] = N_FISH[,4,t,,,2]
@@ -572,6 +586,7 @@ for (t in 2:(Tr-1)){
             	}
       	}
 
+
       	### Figure out Candidate Equivalent First Year Fish (i.e. adjusted by cap scalar)
       	### Note:  the (3-1*(K==1)) garbage is due to the fact that R has the
       	### annoying "feature" of dropping a dimension if it's of length 1
@@ -579,8 +594,8 @@ for (t in 2:(Tr-1)){
       	Cand_Y1_Equivalent = rep(0, K)
       	for (k in 1:K) {
             	Cand_Y1_Equivalent[k] = sum(
-            		apply(Cand_M[k,,,],(3-1*(K==1)), sum)*N5.cap[k,,t] +
-            		apply(Cand_F[k,,,],(3-1*(K==1)), sum)*N5.cap[k,,t] )
+            		apply(Cand_M[k,,,],(3-1*(KK==1)), sum)*N5.cap[k,,t] +
+            		apply(Cand_F[k,,,],(3-1*(KK==1)), sum)*N5.cap[k,,t] )
       	}
       
       	### Figure out Candidate Fish Weight Survival Probability Average and Productivity
@@ -594,7 +609,7 @@ for (t in 2:(Tr-1)){
       
       	temp.Cand_M = Cand_M*0
       	temp.Cand_F = Cand_F*0
-      
+
       	for (k in 1:K) {
             	dim(Cand_M)
             	# Weighted average for Survival (SR5.Candidate)
@@ -614,8 +629,7 @@ for (t in 2:(Tr-1)){
             	# Productivity for use in stage 5
             	pN5[k] = SR5.Candidate[k]*(sum(Prod_Scalar[k,,5,t]*L[k,,t])/sum(L[k,,t]))
       	}
-      
-      
+
       	### Figure out Equivalent First Year fish at time t+1
       
       	# Equivalent first year fish
@@ -632,30 +646,30 @@ for (t in 2:(Tr-1)){
       	# Equvialent 1st year fish of Temp.Cand.Fish # which are in correct relative proportion
       	Y1_Equiv_Temp = rep(0,K)
       	for (k in 1:K) {
-            	Y1_Equiv_Temp[k] = sum(apply(((temp.Cand_M+temp.Cand_F)*1)[k,,,],(3-1*(K==1)),sum)*N5.cap[k,,t])
+            	Y1_Equiv_Temp[k] = sum(apply(((temp.Cand_M+temp.Cand_F)*1)[k,,,],(3-1*(KK==1)),sum)*N5.cap[k,,t])
       	}
      
 		Correction = N_Equiv/(Y1_Equiv_Temp+.000000000001)
       	for (k in 1:K) {
             	for (i5 in 1:I5) {
                   	for (g in 1:G) {
-                          
-					N5_FISH[k,i5,t+1,g,,1] = temp.Cand_M[k,g,,i5] * Correction[k]
-                        	N5_FISH[k,i5,t+1,g,,2] = temp.Cand_F[k,g,,i5] * Correction[k]
+					for (kk in 1:K) {
+						N5_FISH[k,i5,t+1,g,kk,1] = temp.Cand_M[k,g,kk,i5] * Correction[k]
+                        		N5_FISH[k,i5,t+1,g,kk,2] = temp.Cand_F[k,g,kk,i5] * Correction[k]
 
-					N_FISH[k,5,t+1,g,,1] = apply(N5_FISH[k,,t+1,g,,1],2,sum) 
-					N_FISH[k,5,t+1,g,,2] = apply(N5_FISH[k,,t+1,g,,2],2,sum)
-
-
+						N_FISH[k,5,t+1,g,kk,1] = sum(N5_FISH[k,,t+1,g,kk,1]) 
+						N_FISH[k,5,t+1,g,kk,2] = sum(N5_FISH[k,,t+1,g,kk,2])
+					}
                   	}
             	}
       	}
 
-      	# Get Rainbow trout/Resident fish maturation & spawning
+      	# Pete Feb 2016 Attempt to get Rainbow trout/Resident fish maturation & spawning
       	# to occur in the same time step; previously there was a one-year lag which did 
-      	# not mesh well with the biology of the fish; fingers crossed...  
- 
+      	# not mesh well with the biology of the fish; fingers crossed...   
+
 		TempRBS = N5_FISH*0
+
       	for (k in 1:K) {
 			TempRBS[k,,t,,,1] = N5_FISH[k,,t+1,,,1] * N5.Pspawn_M[k,,t+1]
 			TempRBS[k,,t,,,2] = N5_FISH[k,,t+1,,,2] * N5.Pspawn_F[k,,t+1]
@@ -663,8 +677,8 @@ for (t in 2:(Tr-1)){
   
       	for (k2 in 1:K) {
 			# Here's the problem when there's only one site - TempRBS_F and TempRBS_M
-			N_RAINBOW_SPAWNERS[k2, , t+1, ,1] = apply(TempRBS[,,t,,k2,1],c((1+1*(K>1)),(2+1*(K>1))),sum)
-			N_RAINBOW_SPAWNERS[k2, , t+1, ,2] = apply(TempRBS[,,t,,k2,2],c((1+1*(K>1)),(2+1*(K>1))),sum)
+			N_RAINBOW_SPAWNERS[k2, , t+1, ,1] = apply(TempRBS[,,t,,k2,1],c((1+1*(KK>1)),(2+1*(KK>1))),sum)
+			N_RAINBOW_SPAWNERS[k2, , t+1, ,2] = apply(TempRBS[,,t,,k2,2],c((1+1*(KK>1)),(2+1*(KK>1))),sum)
       	}
 
       	# Add Hatchery Introductions
@@ -673,11 +687,11 @@ for (t in 2:(Tr-1)){
 			N5_FISH[k,1,t+1,2,k,] = N5_FISH[k,1,t+1,2,k,] + 0.5*(Hatch_Fish[k,5,t+1])
 			N_FISH[k,5,t+1,2,k,] = apply(N5_FISH[k,,t+1,2,k,],2,sum)
       	} # end of K for OnePlus
-      
-      	if (K >1) {
+
+      	if (K>1) {
       
             	# Initialize Migrattion matrics: to k1 from k2 imprinted to k3
-			N_PS_Migrate =  array(0, c(K,K,K,I5,G,2)) # to k1 from k2 imprinted to k3
+			N_PS_Migrate =  array(0, c(KK,KK,KK,I5,G,2)) # to k1 from k2 imprinted to k3
          
             	for (k1 in 1:K) {
                   	for (k2 in 1:K){
@@ -700,25 +714,26 @@ for (t in 2:(Tr-1)){
                   	}
             	}
       	} # end of x-site migrate
-      
+
       	for (k in 1:K) {
-			N_FISH[k,5,t+1,,,] = apply(N5_FISH[k,,t+1,,,],c(2,3,4),sum)
+	      	for (kk in 1:K) {
+				N_FISH[k,5,t+1,,kk,] = apply(N5_FISH[k,,t+1,,kk,],c(2,3),sum)
+			}
       	}
       
       } # end of Steelhead-only block
-      
+
+
       ###########
-      # N6 
-	# Smolt, based on same year's OnePlus that decide to smolt or (for non-steelhead) this year's par
+      # N6 (smolt, based on same year's OnePlus that decide to smolt )
       # Also complicated slightly by N5's are a mixture of mutiple ages 
       # of OnePlus, at least in the Steelhead case
-      ###########
-
-	if (species == "steelhead") {	
-      	CandN6_Imprint_M = array(0, c(K,I5,G,K))
-      	CandN6_Imprint_F = array(0, c(K,I5,G,K))
       
-		CandidateN6 = array(rep(0,(K*I5*G)), c(K,I5,G))
+	if (species == "steelhead") {	
+      	CandN6_Imprint_M = array(0, c(KK,I5,G,KK))
+      	CandN6_Imprint_F = array(0, c(KK,I5,G,KK))
+      
+		CandidateN6 = array(rep(0,(KK*I5*G)), c(KK,I5,G))
 
 		# CandN6_Imprint_M/F - fish trying to advance from N5 to N6 life stage.
 		# N5.Psmolt_F/M - probability of smolting (as opposed to staying or spawning as rainbow spanwers).  
@@ -736,7 +751,7 @@ for (t in 2:(Tr-1)){
 			}
       	}
 
-      	SmoltSurvivors = array(0, c(K,I5,Tr,G))
+      	SmoltSurvivors = array(0, c(KK,I5,Tr,G))
       	# Assign Imprints and M/F in same ratios as incoming candidate smolts
       	ImprintShare =apply((CandN6_Imprint_M+CandN6_Imprint_F),c(1,3,4),sum)
       	FemaleImprintShare = apply((CandN6_Imprint_F),c(1,3,4),sum)
@@ -762,7 +777,7 @@ for (t in 2:(Tr-1)){
 		TotalSmoltSurvivors = apply(SmoltSurvivors[,,t,],c(1,3),sum)
      
       	for (k2 in 1:K) {
-			if (K==1) {
+			if (KK==1) {
 				N_FISH[,6,t,,k2,1] = ImprintShare[,,k2] * TotalSmoltSurvivors[,] / as.vector(ImprintShare ) -
                                FemaleImprintShare [,,k2] * TotalSmoltSurvivors[,]/ as.vector(ImprintShare )
 				N_FISH[,6,t,,k2,2] = FemaleImprintShare[,,k2] * TotalSmoltSurvivors[,]/ as.vector(ImprintShare )
@@ -787,8 +802,8 @@ for (t in 2:(Tr-1)){
 
 	} else {
 		# Chinook
-		TempSubYearlingN6 = array(0, c(K,2))  # imprint location and sex
-		TempYearlingN6 = array(0, c(K,2))  # imprint location and sex
+		TempSubYearlingN6 = array(0, c(KK,2))  # imprint location and sex
+		TempYearlingN6 = array(0, c(KK,2))  # imprint location and sex
 		SubYearlingN6Candidates  = array(0, c(G)) 
 		YearlingN6Candidates = array(0, c(G))
 		SubYearlingN6Survivors = array(0, c(G))
@@ -846,13 +861,12 @@ for (t in 2:(Tr-1)){
 		}
 	}
 
-      ###########
-      # N7
-	# Adult 0 (Dam survival rate dependent only, c[k,6,t] assumed negligible (Eq 4)
-	###########
 
-      # Move Everybody Back to site of Imprint
+      ###########
+      # N7:  Smolt to Adult 0 (Dam survival rate dependent only, c[k,6,t] assumed negligible (Eq 4)
+      ### For Adjust Stages, Move Everybody Back to site of Imprint
     	# sum across sites, assign (via c(3,2) to imprinted site
+
 	tempN_M = apply(N_FISH[,6,t,,,1],c(3,2),sum)
 	tempN_F = apply(N_FISH[,6,t,,,2],c(3,2),sum)
 
@@ -872,7 +886,6 @@ for (t in 2:(Tr-1)){
            }
       }
 
-
       ######################################
       # end of cycle through watersheds
       ######################################
@@ -885,16 +898,26 @@ for (t in 2:(Tr-1)){
 # end of cycle through years (t)
 ###################################
 
-N = apply(N_FISH[,,,,,], c(1,2,3,4), sum)
-Rainbow_N = apply(N_RAINBOW[,,,,,], c(1,2,3,4), sum)
-Rainbow_N_F = apply(N_RAINBOW[,,,,,2], c(1,2,3,4), sum)
-Spawners = apply(N_SPAWNERS[,,,], c(1,2,3), sum)
-Male_Spawners = apply(N_SPAWNERS[,,,1], c(1,2,3), sum)
-Female_Spawners = apply(N_SPAWNERS[,,,2], c(1,2,3), sum)
-Escapement = apply(N_ESCAPEMENT[,,,], c(1,2,3), sum)
-Female_Escapement = apply(N_ESCAPEMENT[,,,2], c(1,2,3), sum)
-NT = apply(NT_FISH[,,,,], c(1,2,3,4), sum)
-N5 = apply(N5_FISH[,,,,,], c(1,2,3,4), sum)
+Spawners = array(0, c(K,Tr,G))
+Female_Spawners = array(0, c(K,Tr,G))
+Male_Spawners = array(0, c(K,Tr,G))
+Escapement = array(0, c(K,Tr,G))
+Female_Escapement = array(0, c(K,Tr,G))
+Rainbow_N = array(0, c(K,I,Tr,G))
+Rainbow_N_F = array(0, c(K,I,Tr,G))
+for(k in 1:K) {
+	N[k,,,] = apply(N_FISH[k,,,,,], c(1,2,3), sum)
+	N5[k,,,] = apply(N5_FISH[k,,,,,], c(1,2,3), sum)
+	Spawners[k,,] = apply(N_SPAWNERS[k,,,], c(1,2), sum)
+	Female_Spawners[k,,] = N_SPAWNERS[k,,,2]
+	Male_Spawners[k,,] = N_SPAWNERS[k,,,1]
+	Escapement[k,,] = apply(N_ESCAPEMENT[k,,,], c(1,2), sum)
+	Female_Escapement[k,,] = N_ESCAPEMENT[k,,,2]
+	Rainbow_N[k,,,] = apply(N_RAINBOW[k,,,,,], c(1,2,3), sum)
+	Rainbow_N_F[k,,,] = apply(N_RAINBOW[k,,,,,2], c(1,2,3), sum)
+	NT = apply(NT_FISH[,,,,], c(1,2,3,4), sum)
+#	NT[k,,,] = apply(NT_FISH[k,,,,], c(1,2,3), sum)
+}
 
 detach(Var.data)
 detach(Parameter.data)
@@ -911,11 +934,13 @@ return(list(
   "Escapement" = Escapement,
   "N_RECRUITS" = N_RECRUITS,
   "p"=p, "c"=c,
-  "Candidate_Smolt"=Candidate_Smolt,
-  "Male_Spawners"=Male_Spawners,
-  "NT"=NT,
+  "Candidate_Smolt"=Candidate_Smolt
+#   ###***Pete May 2015 Addition***
+  ,"Male_Spawners"=Male_Spawners,
+#  "NT"=NT,
   "RainbowSpawners"=Rainbow_Spawners,
   "RainbowFemSpawners"=Rainbow_Female_Spawners
+#   ###***Pete May 2015 Addition***
 )
 )
 
