@@ -1,5 +1,6 @@
 Reconstruction <- function(header.data) {
 
+BURN_IN=40
 #RUNS <- 500 #
 #YEARS <- 50 # years modeled
 #QET <- 100 # Quasi Extinction Threshold
@@ -31,20 +32,24 @@ Reconstruction <- function(header.data) {
 #where  Pnob is the proportion pf natural-origin fish in the broodstock and 
 #Phos  is the proportion of hatchery-origin fish on the spawning grounds.
 
+
 RUNS = header$R
-YEARS = header$Tr-20
-QET = 100
+YEARS = header$Tr-BURN_IN-10 # Was 20
+QET = 10
 ALTS = 1
+YEARS
 x = array(0, c(RUNS*4, YEARS, ALTS))
 RUNS
 for (run in 1:RUNS) {
 	for (year in 1:YEARS) {
-		x[run,year,1] = N_SPAWNER_RECRUIT_NR[year+10,1,run]      # spawners
-		x[RUNS+run,year,1] = N_SPAWNER_RECRUIT_NR[year+10,2,run] # recruits
+		x[run,year,1] = N_SPAWNER_RECRUIT_NR[year+BURN_IN,1,run]      # spawners
+		x[RUNS+run,year,1] = N_SPAWNER_RECRUIT_NR[year+BURN_IN,2,run] # recruits
 		x[2*RUNS+run,year,1] = 0                              # Phos=0 ?
 		x[3*RUNS+run,year,1] = 1                              # Pnob=1 ?          
 	}
 }
+
+
 
 #  x is a 3 dimensional matrix; each row represents an individual trajectory referenced
 #  to brood year and has dimension YEARS;  There are RUNS trajectories that represent 
@@ -57,7 +62,8 @@ A <- array(0,ALTS*RUNS)  # Vector to store Abundance
 Phos <- array(0,ALTS*RUNS)  # Vector to store Phos
 PNI <- array(0,ALTS*RUNS)  # Vector to store PNI
 X.array <- array(0,ALTS*RUNS) # Vector to store Extinction (0 or 1)
-
+RUNS
+X.array
 # First, go through all aternatives to create Response Surface
 k <- 0
 for (j in 1:ALTS){  #1:6
@@ -70,7 +76,7 @@ for (j in 1:ALTS){  #1:6
 		
 		R <- x[RUNS+i,,j] # Recruits for iteration i in alt j
 	
-		fit <- glm(log(R) ~ log(N)) # Gompertz fit for a single model iteration
+		fit <- glm(log(R+.1) ~ log(N+.1)) # Gompertz fit for a single model iteration
 		# Productivity is measure as productivity (via Gompertz model) at 
 		# 50 spawners
 		P[k] <- as.numeric(fit$coeff[1]) + log(50)*as.numeric(fit$coeff[2])
@@ -78,9 +84,11 @@ for (j in 1:ALTS){  #1:6
 		# for 4 years in a row
 		for (yr in 1:(YEARS-3)){
 			S <- sum(N[yr:(yr+3)])
-			if (S < 4*QET) # if yes, mark X.vec[i] as 1, otherwise it stays as 0
+#            	      print(S)	
+        	if (S < 4*QET) # if yes, mark X.vec[i] as 1, otherwise it stays as 0
 				X.array[k] <- 1
-				
+#		print(X.array[k])
+
 		Ph <- x[((2*RUNS)+i),,j]
 		Phos[k] <- mean(Ph)  # mean Phos for the iteration
 		
@@ -90,7 +98,8 @@ for (j in 1:ALTS){  #1:6
 	}
 }
 
-
+X.array
+YEARS
 # Diagnostics
 #print(cor(P,A))
 #print(cor(P,X.array))
