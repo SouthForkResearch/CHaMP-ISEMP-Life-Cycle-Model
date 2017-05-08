@@ -151,7 +151,7 @@ for (t in 2:(Tr-1)){
                 p[k,i,t] = Sr[k,(i+1),t]*(sum(Prod_Scalar[k,,i,t]*L[k,,t])/(sum(L[k,,t])+.0000000000001))
             }	
       }
-      
+    
       ##############################################################
       # Cycle through sites
       ##############################################################
@@ -614,11 +614,12 @@ for (t in 2:(Tr-1)){
             	dim(Cand_M)
             	# Weighted average for Survival (SR5.Candidate)
             	# And future relative proportion of candidate fish after Bev-Holt application
+                  # Correctio - changed Rel_Surv[k,5,t,g] to Rel_Surv[k,6,t,g]
             	SR_Sum = 0
             	for (i5 in 1:I5) {
                   	for (g in 1:G) {
-                        	temp.Cand_M[k,g,,i5]= Cand_M[k,g,,i5]* SR5[k,i5,t]*Rel_Surv[k,5,t,g]
-                        	temp.Cand_F[k,g,,i5]= Cand_F[k,g,,i5]* SR5[k,i5,t]*Rel_Surv[k,5,t,g]
+                        	temp.Cand_M[k,g,,i5]= Cand_M[k,g,,i5]* SR5[k,i5,t]*Rel_Surv[k,6,t,g]
+                        	temp.Cand_F[k,g,,i5]= Cand_F[k,g,,i5]* SR5[k,i5,t]*Rel_Surv[k,6,t,g]
                   	}
             	}
             
@@ -626,8 +627,9 @@ for (t in 2:(Tr-1)){
             	SR5.Candidate[k] = (SR_Sum / (sum((Cand_M+Cand_F)[k,,,])))
             	SR5.Candidate[is.na(SR5.Candidate)] = 0
             
-            	# Productivity for use in stage 5
-            	pN5[k] = SR5.Candidate[k]*(sum(Prod_Scalar[k,,5,t]*L[k,,t])/sum(L[k,,t]))
+            	# Productivity for use in stage 6
+                  # changed Prod_Scalar[k,,5,t] to Prod_Scalar[k,,6,t]
+            	pN5[k] = SR5.Candidate[k]*(sum(Prod_Scalar[k,,6,t]*L[k,,t])/sum(L[k,,t]))
       	}
 
       	### Figure out Equivalent First Year fish at time t+1
@@ -761,8 +763,9 @@ for (t in 2:(Tr-1)){
       	for (k in 1:K) {
             	for (g in 1:G) {
 				for (i5 in 1:I5) {
-					SmoltSurvivors[k,i5,t,g] = (CandidateN6[k,i5,g]*Rel_Surv[k,5,t,g]) / 
-                  			(1/Sr[k,6,t]+ 1/c[k,5,t] * sum(Rel_Surv[k,5,t,]*CandidateN6[k,i5,]))
+                    # Changed  c[k,5,t] to c[k,6,t] here, same for Rel_Surv, MTN 5/8/2017
+					SmoltSurvivors[k,i5,t,g] = (CandidateN6[k,i5,g]*Rel_Surv[k,6,t,g]) / 
+                  			(1/Sr[k,6,t]+ 1/c[k,6,t] * sum(Rel_Surv[k,6,t,]*CandidateN6[k,i5,]))
 
 					# AGE RECONSTRUCTION
 					FemaleRatio = FemaleShare[k,g]/TotalShare[k,g] 

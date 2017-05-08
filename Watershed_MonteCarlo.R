@@ -1024,7 +1024,8 @@ if ((R>1)* (MCsim2==1)) {
 	for (t in 1:Tr) {
 		 for (k in 1:K) {
 	  for (q in 1:Q) 
-             for (i in 1:5) {
+# Changed 5 to 6, below (MTN, 5/8/2017
+             for (i in 1:6) {
 
      	Prod_Scalar[k,q,i,t] =   max(0.0, 
    (Prod_Scalar[k,q,i,t] +

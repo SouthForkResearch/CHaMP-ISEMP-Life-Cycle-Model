@@ -591,9 +591,10 @@ Etable = read.csv(Watershed.Input.File, header=F,
         skip=62, nrows=Q)[,3:44]
 
 
-Etable
+
 for (t in T.lo:T.hi) {
-for (i in 1:5) {
+# Changed 5 to 6, below MTN 5/8/2017
+for (i in 1:6) {
 Prod_Scalar.mu[k,1:Q,i,t] = Etable[1:Q,i] 
 Prod_Scalar.sigmaR[k,1:Q,i,t] = Etable[1:Q,(i+6)] 
 Prod_Scalar.sigmaT[k,1:Q,i,t] = Etable[1:Q,(i+12)] 
