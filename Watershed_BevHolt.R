@@ -802,7 +802,7 @@ for (t in 2:(Tr-1)){
 	}
 
 
-## 4. ADD NEW HATCHERY CODE HERE - Add hatchery smolts here
+## 4.b. ADD NEW HATCHERY CODE HERE - Add hatchery smolts here
 
 
 
