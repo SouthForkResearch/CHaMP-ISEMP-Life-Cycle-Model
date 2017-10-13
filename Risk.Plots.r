@@ -46,7 +46,7 @@ for (run in 1:RUNS) {
 
 #		x[RUNS+run,year,1] = N_SPAWNER_RECRUIT_NR[year+BURN_IN,2,run] # recruits
 # Matt fixed 5/9/2017:  This is supposed to be recruits per spawner, not recruits		
-           x[RUNS+run,year,1] = N_SPAWNER_RECRUIT_NR[year+BURN_IN,2,run]/x[run,year,1] # recruits per spawner
+           x[RUNS+run,year,1] = N_SPAWNER_RECRUIT_NR[year+BURN_IN,2,run]/(x[run,year,1]+.0001) # recruits per spawner
          
 		x[2*RUNS+run,year,1] = 0                              # Phos=0 ?
 		x[3*RUNS+run,year,1] = 1                              # Pnob=1 ?          
@@ -70,16 +70,15 @@ RUNS
 X.array
 # First, go through all aternatives to create Response Surface
 k <- 0
+#i=14
 for (j in 1:ALTS){  #1:6
 	for (i in 1:RUNS){ #1:500
 		k <- k+1
-            x[1,,1]
-		
+            
 		N <- x[i,,j] # Abundance for iteration i in alt j
 		A[k] <- mean(as.numeric(log(N[26:50]))) # Geomean spawners years 26-50
-		
 		R <- x[RUNS+i,,j] # Recruits (per spawner) for iteration i in alt j
-	
+	    
 		fit <- glm(log(R+.1) ~ log(N+.1)) # Gompertz fit for a single model iteration
 		# Productivity is measure as productivity (via Gompertz model) at 
 		# 50 spawners
@@ -102,13 +101,15 @@ for (j in 1:ALTS){  #1:6
 	}
 }
 
+A[A==-Inf] = 0
+
+
 X.array
 YEARS
 # Diagnostics
 #print(cor(P,A))
 #print(cor(P,X.array))
 #print(cor(A, X.array))
-
 # Fit Response Surface for Productivity and Abundance
 fit <- glm(X.array ~ P + A, family = binomial)
 #print(summary(fit))
@@ -141,8 +142,8 @@ for(x in X){
 }
 
 # Produce a plot of the contour surface
-#pdf("contourPlot.pdf", width = 6, height = 6)
-jpeg("contourPlot.jpg", 3,3, units='in', res=300)
+pdf("contourPlot.pdf", width = 6, height = 6)
+#jpeg("contourPlot.jpg", 3,3, units='in', res=300)
 
 
 par(oma=c(2,2,1,1))
@@ -151,11 +152,12 @@ contour(exp(X), exp(Y), Z, levels = c(0,0.01,0.05, 0.1,0.25,0.5,0.75,0.9,0.95, 0
 		ylab = "")
 mtext("R/S at Low Abundance", side =1, line = 1, outer = T, cex = 1.0)
 mtext("Mean Abundance", side = 2, line = 1, outer = T, cex = 1.0)
-dev.off("contourPlot.pdf")
+#dev.off("contourPlot.jpg")
+dev.off()
 
 # Now produce a plot for each alternative with points representing individual iterations
-jpeg("RiskPlot.jpg", 3,3, units='in', res=300)
-#pdf("RiskPlot.pdf", width = 7, height = 8.5)
+#jpeg("RiskPlot.jpg", 3,3, units='in', res=300)
+pdf("RiskPlot.pdf", width = 7, height = 8.5)
 #par(mfrow=c(3,2), mar=c(3,3,1,1), oma=c(6,4,1,1))
 par(mfrow=c(1,1), mar=c(3,3,1,1), oma=c(6,4,1,1))
 
@@ -181,8 +183,8 @@ mtext("Mean Abundance", side = 2, line = 1, outer = T, cex = 1.0)
 dev.off()
 
 # Convert Extinction probs to VSP score for P&A, and then barplot
-#pdf("VSP.plot.pdf", width = 9, height = 8.5)
-jpeg("VSP.plot.jpg", 3,3, units='in', res=300)
+pdf("VSP.plot.pdf", width = 9, height = 8.5)
+#jpeg("VSP.plot.jpg", 3,3, units='in', res=300)
 
 #par(mfrow=c(3,2), mar=c(3,3,1,1), oma=c(6,4,1,1))
 par(mfrow=c(1,1), mar=c(3,3,1,1), oma=c(6,4,1,1))
@@ -214,8 +216,8 @@ mtext("Frequency", side = 2, line = 1, outer = T, cex = 1.0)
 dev.off()
 
 # Barplot of Phos
-#pdf("Phos.plot.pdf", width = 9, height = 8.5)
-jpeg("Phos.plot.jpg", 3,3, units='in', res=300)
+pdf("Phos.plot.pdf", width = 9, height = 8.5)
+#jpeg("Phos.plot.jpg", 3,3, units='in', res=300)
 
 #par(mfrow=c(3,2), mar=c(3,3,1,1), oma=c(6,4,1,1))
 par(mfrow=c(1,1), mar=c(3,3,1,1), oma=c(6,4,1,1))
@@ -231,7 +233,8 @@ mtext("Frequency", side = 2, line = 1, outer = T, cex = 1.0)
 dev.off()
 
 # Barplot of PNI
-pdf("PNI.plot.pdf", width = 9, height = 8.5)
+#pdf("PNI.plot.pdf", width = 9, height = 8.5)
+jpeg("PNI.plot.jpg", 3,3, units='in', res=300)
 
 par(mfrow=c(1,1), mar=c(3,3,1,1), oma=c(6,4,1,1))
 

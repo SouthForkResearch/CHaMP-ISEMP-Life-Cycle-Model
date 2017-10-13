@@ -22,7 +22,7 @@ k=1
 I
 for (k in 1:K) {
 
-inits = read.csv(Init.file.names[k], skip=1, header=F, nrows=11)[,3:19]
+inits = read.csv(Init.file.names[k], skip=1, header=F, nrows=G)[,3:19]
 inits
 N[k,1,1,] = rep(0, G)
 for (i in 2:I) {  
