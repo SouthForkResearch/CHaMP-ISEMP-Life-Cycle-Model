@@ -118,7 +118,6 @@ for (t in 2:(Tr-1)){
                   }
                   H[k,j,t]= A[k]*sum
             }
-      
       }
       
       # D is capacity per sq. meter
