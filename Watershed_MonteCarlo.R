@@ -495,10 +495,10 @@ N5.Pstay_M[,,] = N5P_M[,,3,]
 #
 # Calculate Sr[k,i,t]
 # Initialize some stuff
-	Sr.alphaR=array(rep(0,K*I*Tr), c(K,I,Tr))
-	Sr.alphaT=array(rep(0,K*I*Tr), c(K,I,Tr))
-	Sr.alphaS=array(rep(0,K*I*Tr), c(K,I,Tr))
-	Sr.alpha=array(rep(0,K*I*Tr), c(K,I,Tr))
+	Sr.alphaR=array(rep(0,K*(I+3)*Tr), c(K,(I+3),Tr))
+	Sr.alphaT=array(rep(0,K*(I+3)*Tr), c(K,(I+3),Tr))
+	Sr.alphaS=array(rep(0,K*(I+3)*Tr), c(K,(I+3),Tr))
+	Sr.alpha=array(rep(0,K*(I+3)*Tr), c(K,(I+3),Tr))
 	SR5.alphaR=array(rep(0,K*I5*Tr), c(K,I5,Tr))
 	SR5.alphaT=array(rep(0,K*I5*Tr), c(K,I5,Tr))
 	SR5.alphaS=array(rep(0,K*I5*Tr), c(K,I5,Tr))
@@ -531,7 +531,7 @@ if ((R>1)* (MCsim3==1)) {
 	for (k in 1:K) {		
 
 # Sr
-      for (i in 2:I) {
+      for (i in 2:(I+3)) {
 	# using a gamma than then taking %'s in this way will generate
 	# a random but correted beta distribution.
       if (i != 99) {
@@ -559,8 +559,6 @@ if ((R>1)* (MCsim3==1)) {
 } # close time loop
 } # close MC loop if R > 1
 
-Sr.mu[1,1:5,1:5]
-Sr[1,1:5,1:5]
 ##############################################3333
 # Temporal Drift - always include
 # need to track "T.hi-T.lo" as T in exponential decay
@@ -597,7 +595,7 @@ if ((MCsim3 ==1)*(MCsim4==1)) {
 	for (k in 1:K) {		
 
 # Sr
-      for (i in 2:I) {
+      for (i in 2:(I+3)) {
 	# using a gamma than then taking %'s in this way will generate
 	# a random but correted beta distribution.
       if (i != 99) {
@@ -631,7 +629,7 @@ if ((MCsim3 ==1)*(MCsim4==1)) {
 
 
 # Sr    
-  for (i in 2:I) {
+  for (i in 2:(I+3)) {
 	# using a gamma than then taking %'s in this way will generate
 	# a random corrletation beta distribution.
       if (i != 99) {
@@ -658,7 +656,7 @@ if ((MCsim3 ==1)*(MCsim4==1)) {
 	# Here's the shared random bit
 	for (k in 1:K) {	
 
-      for (i in 2:I) {
+      for (i in 2:(I+3)) {
 	withinS.unif=runif(2)
 	# using a gamma than then taking %'s in this way will generate
 	# a random corrletation beta distribution.
@@ -1199,159 +1197,19 @@ if (N.input.files==1) {T.lo=1; T.hi=Tr+1} else {
 	 }}
 }}
 
-##plot(N5.cap[1,1,])
-##cor(N5.cap[1,1,], N5.cap[2,1,])
-#
 
 
-# Removed 4/10/2017
-#### C_ocean  #############
-#
-# C_ocean.targetR = C_ocean.target
-## run to run variation (uncertainty in estimates)
-#if ((R>1)* (MCsim2==1)) {
-#R.unif = runif(1)
-#	for (t in 1:Tr) {
-#	 for (k in 1:K) {
-#		    for (i in 1:5) { # only 5 ocean life stages now
-#	  C_ocean[k,i,t] =   max(0.0, 
-#  (C_ocean[k,i,t] +
-#          qnorm(R.unif, 0, C_ocean.sigma[k,i,t]))) 
-#	  C_ocean.targetR[k,i,t] =   max(0.0, 
-#   (C_ocean.target[k,i,t] +
-#          qnorm(R.unif, 0, C_ocean.sigma[k,i,t]))) 
-## within-site
-#	 }}}
-#} # close run to run variability if R > 1
-#
-#
-##  temporal trends, and if including temporal variation
-#	for (g in 1:N.input.files) {
-#if (N.input.files==1) {T.lo=1; T.hi=Tr+1} else {
-#           if (g==N.input.files) {
-#		  T.lo=T.step.change[g]
-#	 	  T.hi= Tr+1 } else {
-#              T.lo=T.step.change[g]
-#		  T.hi=T.step.change[g+1]}}
-#
-#	for (t in (T.lo+1):T.hi) {
-#	 T.unif = runif(1)
-#		 for (k in 1:K) {
-#		   S.unif = runif(1)
-#             for (i in 1:5) { #only 5 ocean stages now
-#	   withinS.unif=runif(1)
-#     	C_ocean[k,i,t-1] =   max(0.0, 
-#   (C_ocean[k,i,t-1] +
-#  (C_ocean.targetR[k,i,t-1]-C_ocean[k,i,t-1])*
-#        exp(-1/((t-T.lo)*(.0000000001+C_ocean.rate[k,i,t-1]))) +
-#        ((MCsim2 ==1)*(MCsim4==1)) * (
-#          qnorm(T.unif, 0 ,C_ocean.sigmaT[k,i,t-1]) + #year to year
-#            qnorm(S.unif, 0, C_ocean.sigmaS[k,i,t-1]) + # site-to-site
-#              qnorm(withinS.unif, 0, C_ocean.sigma[k,i,t-1]))
-#)) # within-site
-#	 }}
-#}}
+### Harvest
+harvest.wild.minspawn = harvest.wild.minspawn.mu
+harvest.wild.minharvest = harvest.wild.minharvest.mu
+harvest.wild.maxharvest = harvest.wild.maxharvest.mu
+harvest.wild.ratepharvest = harvest.wild.ratepharvest.mu
 
-##plot(C_ocean[1,1,])
-##cor(C_ocean[1,1,], C_ocean[2,1,])
-#
+harvest.hatch.minspawn = harvest.hatch.minspawn.mu
+harvest.hatch.minharvest = harvest.hatch.minharvest.mu
+harvest.hatch.maxharvest = harvest.hatch.maxharvest.mu
+harvest.hatch.ratepharvest = harvest.hatch.ratepharvest.mu
 
-#######################################
-
-
-
-
-#######################################
-
-
-
-
-
-#harvest.hatch.sigmaS = harvest.wild.sigmaS
-#harvest.hatch.sigmaR = harvest.wild.sigmaR
-#harvest.hatch.sigmaT = harvest.wild.sigmaT
-#harvest.hatch.sigma = harvest.wild.sigma
-#harvest.hatch.target = harvest.wild.target
-#harvest.wild.rate
-#harvest.hatch.rate=harvest.wild.rate
-
-### Wild Harvest #############
-harvest.wild = harvest.wild.mu
-harvest.hatch = harvest.hatch.mu
-harvest.wild.targetR = harvest.wild.target
-harvest.hatch.targetR = harvest.hatch.target
-
-#harvest.wild.mu
-#harvest.wild
-# run to run variation (uncertainty in estimates)
-if ((R >1)* (MCsim3==1)) {
-R.unif = runif(1)
-	for (t in 1:Tr) {
-		 for (k in 1:K) {
-	
-       	harvest.wild[k,t] =   max(0.0, 
-   (harvest.wild[k,t] +
-                   qnorm(R.unif, 0, harvest.wild.sigma[k,t])))
-       	harvest.wild.targetR[k,t] =   max(0.0, 
-   (harvest.wild.target[k,t] +
-                   qnorm(R.unif, 0, harvest.wild.sigma[k,t])))
-
-     	harvest.hatch[k,t] =   max(0.0, 
-   (harvest.hatch[k,t] +
-      qnorm(R.unif, 0, harvest.hatch.sigma[k,t])))
-     	harvest.hatch.targetR[k,t] =   max(0.0, 
-   (harvest.hatch.target[k,t] +
-      qnorm(R.unif, 0, harvest.hatch.sigma[k,t])))
-	 }}
-} # close run to run variability
-
-
-# if including temporal variation
-	for (g in 1:N.input.files) {
-if (N.input.files==1) {T.lo=1; T.hi=Tr+1} else {
-           if (g==N.input.files) {
-		  T.lo=T.step.change[g]
-	 	  T.hi= Tr+1 } else {
-              T.lo=T.step.change[g]
-		  T.hi=T.step.change[g+1]}}
-
-	for (t in (T.lo+1):T.hi) {
-
-	 T.unif = runif(1)
-		 for (k in 1:K) {
-		   S.unif = runif(1)
-  	         withinS.wild.unif=runif(1)
-		  withinS.hatch.unif=runif(1)
-
-     	harvest.wild[k,t-1] =   max(0.0, 
-   (harvest.wild[k,t-1] +
- (harvest.wild.targetR[k,t-1]-harvest.wild[k,t-1])*
-        exp(-1/((t-T.lo)*(.000000000000000001+harvest.wild.rate[k,t-1]))) +
-        ((MCsim3==1)*(MCsim4==1))* (
-          qnorm(T.unif, 0 ,harvest.wild.sigmaT[k,t-1]) + #year to year
-            qnorm(S.unif, 0, harvest.wild.sigmaS[k,t-1]) + # site-to-site
-              qnorm(withinS.wild.unif, 0, harvest.wild.sigma[k,t-1]))
-        ))
-
-
-     	harvest.hatch[k,t-1] =   max(0.0, 
-   (harvest.hatch[k,t-1] +
- (harvest.hatch.targetR[k,t-1]-harvest.hatch[k,t-1])*
-        exp(-1/((t-T.lo)*(.000000000000000001+harvest.hatch.rate[k,t-1]))) +
-          ((MCsim3 == 1 )*(MCsim4==1)) * (
-          qnorm(T.unif, 0 ,harvest.hatch.sigmaT[k,t-1]) + #year to year
-            qnorm(S.unif, 0, harvest.hatch.sigmaS[k,t-1]) + # site-to-site
-              qnorm(withinS.hatch.unif, 0, harvest.hatch.sigma[k,t-1]))))
-
-	 }}
-}
-
-#plot(harvest.wild[1,])
-#plot(harvest.hatch[1,])
-
-
-
-######################################################
 ######################################################
 #Add stochasticity to cross site migration natrix
 
@@ -1629,39 +1487,12 @@ if ((R > 1) * (MCsim4==1)) {
 #plot(OnePlus.x.siteMigration[1,1,])
 #plot(Spawner.x.siteMigration[1,1,])
 
-################################################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-######################################################
-#Ak_x_Lqk
-#M
-#SR5
-#N5.Psmolt
 
 data = list(
 	"Ak_x_Lqk"=Ak_x_Lqk,
  	"M"=M,
 	"Sr"=Sr,
 	"SR5" =SR5,
-#	"FC.by.O.Age"=C_ocean,
 	
 	"D"=D,
  	"Prod_Scalar"=Prod_Scalar,
@@ -1678,22 +1509,13 @@ data = list(
       "N5.Pspawn_M" = N5.Pspawn_M,
 
 	"N5.cap"= N5.cap,
-# Removed 4/10/2017
-#	"C_ocean"=C_ocean,
 	"Mat8Plus_F"=Mat8Plus_F,
 	"Mat8Plus_M"=Mat8Plus_M,
 
-#	"C_ocean"= C_ocean,
       "frac" = frac,
-      "harvest.wild" = harvest.wild,
-      "harvest.hatch" = harvest.hatch,
 
 "Hatch_Fish" = Hatch_Fish,
 "Rel_Surv" = Rel_Surv,
-#"Rel_Comp" = Rel_Comp,
-#"Rel_Fecund" = Rel_Fecund,
-
-#"Female_Frac" = Female_Frac,
 "Female_Fecundity" = Female_Fecundity,
 
 "Fry.x.siteMigration"=Fry.x.siteMigration,
@@ -1706,7 +1528,16 @@ data = list(
 "Post_Spawn_Survival_Anadromous_F" = Post_Spawn_Survival_Anadromous_F,
 
 "Post_Spawn_Survival_Rainbow_M" = Post_Spawn_Survival_Rainbow_M,
-"Post_Spawn_Survival_Rainbow_F" = Post_Spawn_Survival_Rainbow_F
+"Post_Spawn_Survival_Rainbow_F" = Post_Spawn_Survival_Rainbow_F,
+
+"harvest.wild.minspawn"= harvest.wild.minspawn,
+ "harvest.wild.minharvest"= harvest.wild.minharvest,
+   "harvest.wild.maxharvest"= harvest.wild.maxharvest,
+      "harvest.wild.ratepharvest"= harvest.wild.ratepharvest,
+"harvest.hatch.minspawn"= harvest.hatch.minspawn,
+ "harvest.hatch.minharvest"= harvest.hatch.minharvest,
+   "harvest.hatch.maxharvest"= harvest.hatch.maxharvest,
+      "harvest.hatch.ratepharvest"= harvest.hatch.ratepharvest
 
 )
 

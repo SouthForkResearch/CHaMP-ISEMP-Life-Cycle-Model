@@ -154,7 +154,7 @@ Prod_Scalar.target = Prod_Scalar.mu
 Prod_Scalar.rate = Prod_Scalar.mu
 
 
-Sr.mu = array(rep(0, K*I*Tr), c(K,I,Tr))
+Sr.mu = array(rep(0, K*(I+3)*Tr), c(K,(I+3),Tr))
 Sr.alphaR.N= Sr.mu
 Sr.alphaT.N= Sr.mu
 Sr.alphaS.N= Sr.mu
@@ -246,22 +246,15 @@ N5.cap.rate = SR5.mu
 	frac.target = frac.mu
 	frac.rate = frac.mu
 
-harvest.wild.mu = array(rep(0,K*Tr), c(K, Tr))
-harvest.wild.sigmaR = harvest.wild.mu
-harvest.wild.sigmaT = harvest.wild.mu
-harvest.wild.sigmaS = harvest.wild.mu
-harvest.wild.sigma = harvest.wild.mu
+harvest.wild.minspawn.mu = array(rep(0,K*Tr), c(K, Tr))
+harvest.wild.minharvest.mu = harvest.wild.minspawn.mu
+harvest.wild.maxharvest.mu = harvest.wild.minspawn.mu
+harvest.wild.ratepharvest.mu = harvest.wild.minspawn.mu
 
-harvest.hatch.mu = harvest.wild.mu
-harvest.hatch.sigmaR = harvest.wild.mu
-harvest.hatch.sigmaT = harvest.wild.mu
-harvest.hatch.sigmaS = harvest.wild.mu
-harvest.hatch.sigma = harvest.wild.mu
-
-harvest.wild.target = harvest.wild.mu
-harvest.wild.rate = harvest.wild.mu
-harvest.hatch.target = harvest.wild.mu
-harvest.hatch.rate = harvest.wild.mu
+harvest.hatch.minspawn.mu = harvest.wild.minspawn.mu
+harvest.hatch.minharvest.mu = harvest.wild.minspawn.mu
+harvest.hatch.maxharvest.mu = harvest.wild.minspawn.mu
+harvest.hatch.ratepharvest.mu = harvest.wild.minspawn.mu
 
 Hatch_Fish.mu = array(rep(0, K*I*Tr), c(K, I, Tr))
 Hatch_Fish.sigmaR = Hatch_Fish.mu
@@ -462,18 +455,17 @@ for (t in T.lo:T.hi) {
 } # close t
 rm(Etable)
 
-
 SrTable = read.csv(Watershed.Input.File, header=F,
-        skip= 79, nrows = I-1)[,4:10]
+        skip= 79, nrows = I+2)[,4:10]
 
 for (t in T.lo:T.hi) {
-	Sr.mu[k,2:I ,t] = (SrTable[,1])
-	Sr.alphaR.N[k,2:I ,t]= SrTable[,2]
-	Sr.alphaT.N[k,2:I ,t]= SrTable[,3]
-	Sr.alphaS.N[k,2:I ,t]= SrTable[,4]
-	Sr.alpha.N[k,2:I ,t]= SrTable[,5]
-	Sr.target[k, 2:I, t] = SrTable[,6]
-	Sr.rate[k, 2:I, t] = SrTable[,7]
+	Sr.mu[k,2:(I+3) ,t] = (SrTable[,1])
+	Sr.alphaR.N[k,2:(I+3) ,t]= SrTable[,2]
+	Sr.alphaT.N[k,2:(I+3) ,t]= SrTable[,3]
+	Sr.alphaS.N[k,2:(I+3) ,t]= SrTable[,4]
+	Sr.alpha.N[k,2:(I+3) ,t]= SrTable[,5]
+	Sr.target[k, 2:(I+3), t] = SrTable[,6]
+	Sr.rate[k, 2:(I+3), t] = SrTable[,7]
 }
 rm(SrTable)
 
@@ -599,27 +591,20 @@ rm(fractions)
 ###################
 
 harvest = read.csv(Watershed.Input.File, header=F, 
-         skip = 132, nrows = 2)[, 3:9]
+         skip = 132, nrows = 2)[, 3:6]
 
 for (t in T.lo:T.hi) {
-	harvest.wild.mu[k,t] = harvest[1,1]
-	harvest.wild.sigmaR[k,t] = harvest[1,2]
-	harvest.wild.sigmaT[k,t] = harvest[1,3]
-	harvest.wild.sigmaS[k,t] = harvest[1,4]
-	harvest.wild.sigma[k,t] = harvest[1,5]
-	harvest.wild.target[k,t] = harvest[1,6]
-	harvest.wild.rate[k,t] = harvest[1,7]
+	harvest.wild.minspawn.mu[k,t] = harvest[1,1]
+	harvest.wild.minharvest.mu[k,t] = harvest[1,2]
+	harvest.wild.maxharvest.mu[k,t] = harvest[1,3]
+	harvest.wild.ratepharvest.mu[k,t] = harvest[1,4]
 
-	harvest.hatch.mu[k,t] = harvest[2,1]
-	harvest.hatch.sigmaR[k,t] = harvest[2,2]
-	harvest.hatch.sigmaT[k,t] = harvest[2,3]
-	harvest.hatch.sigmaS[k,t] = harvest[2,4]
-	harvest.hatch.sigma[k,t] = harvest[2,5]
-	harvest.hatch.target[k,t] = harvest[2,6]
-	harvest.hatch.rate[k,t] = harvest[2,7]
+	harvest.hatch.minspawn.mu[k,t] = harvest[2,1]
+	harvest.hatch.minharvest.mu[k,t] = harvest[2,2]
+	harvest.hatch.maxharvest.mu[k,t] = harvest[2,3]
+	harvest.hatch.ratepharvest.mu[k,t] = harvest[2,4]
 } # close t
 rm(harvest)
-
 
 ################################################
 
@@ -734,21 +719,14 @@ list(
 	"frac.target" = frac.target, "frac.rate" = frac.rate,
 
 
-"harvest.wild.mu"= harvest.wild.mu,
- "harvest.wild.sigmaR"= harvest.wild.sigmaR,
-   "harvest.wild.sigmaT"= harvest.wild.sigmaT,
-      "harvest.wild.sigmaS"= harvest.wild.sigmaS,
-        "harvest.wild.sigma"= harvest.wild.sigma,
-		"harvest.wild.target" = harvest.wild.target,
-			"harvest.wild.rate" = harvest.wild.rate,
-"harvest.hatch.mu"= harvest.hatch.mu,
- "harvest.hatch.sigmaR"= harvest.hatch.sigmaR,
-   "harvest.hatch.sigmaT"= harvest.hatch.sigmaT,
-      "harvest.hatch.sigmaS"= harvest.hatch.sigmaS,
-        "harvest.hatch.sigma"= harvest.hatch.sigma,
-		"harvest.hatch.target" = harvest.hatch.target,
-			"harvest.hatch.rate" = harvest.hatch.rate,
-
+"harvest.wild.minspawn.mu"= harvest.wild.minspawn.mu,
+ "harvest.wild.minharvest.mu"= harvest.wild.minharvest.mu,
+   "harvest.wild.maxharvest.mu"= harvest.wild.maxharvest.mu,
+      "harvest.wild.ratepharvest.mu"= harvest.wild.ratepharvest.mu,
+"harvest.hatch.minspawn.mu"= harvest.hatch.minspawn.mu,
+ "harvest.hatch.minharvest.mu"= harvest.hatch.minharvest.mu,
+   "harvest.hatch.maxharvest.mu"= harvest.hatch.maxharvest.mu,
+      "harvest.hatch.ratepharvest.mu"= harvest.hatch.ratepharvest.mu,
 
 "Prod_Scalar.mu"=Prod_Scalar.mu, "Prod_Scalar.sigmaR"=Prod_Scalar.sigmaR,
  "Prod_Scalar.sigmaT"=Prod_Scalar.sigmaT,

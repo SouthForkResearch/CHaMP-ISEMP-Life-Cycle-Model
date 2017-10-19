@@ -150,19 +150,6 @@ for (t in 2:(Tr-1)){
             	p[k,i,t] = Sr[k,(i+1),t]*(sum(Prod_Scalar[k,,i,t]*L[k,,t])/(sum(L[k,,t])+.0000000000001))
             }	
       }
-
-## MATT
-## 1. DENSITY-INDEPENDENT SURVIVAL STEP HERE - ENTERING MAINSTEM
-## OPERATE ON MAIN STRUCTURE N_FISH[]
-
-## 2. ADD NEW HARVEST CODE HERE
-
-## 3. DENSITY-INDEPENDENT SURVIVAL STEP HERE - POST HARVEST
-
-## 4. ADD NEW HATCHERY CODE HERE - to remove returning spawners for hatchery
-
-## 5. DENSITY-INDEPENDENT SURVIVAL STEP HERE -- ON SPAWNING GROUND
-
     
       ##############################################################
       # Cycle through sites
@@ -170,8 +157,6 @@ for (t in 2:(Tr-1)){
    
       k=1
       for (k in 1:K) { 
-
-
 
             # starting at time step 2.... so I'm going to start at adult, mature fish
             # from time step 1 to calculate number of spawners and adjust adult
@@ -290,38 +275,64 @@ for (t in 2:(Tr-1)){
       #### eggs by G-type
       ### apply harvest rates
       ### apply survival rates
-      ### go through one G-type at a time and figure out how many of each offspring 
-      ### type it'll make assuming males distributed according to their distribution,
-      ### then add up across all G-types
       ### Add in rainbow spawners
       ### That is all
       
-      #### Unlike below, we won't  use N1 by itself, as we need to keep track of
-      #### age and G-type.  
-      #### Re-Do all this below
-      
-                
-      
       ############################################################################
       for (k in 1:K) {
-            for (g in 1:G){
-                  if (g==2) { 
-				NT_FISH[k,,t,g,] = NT_FISH[k,,t,g,] * max(0,(1-harvest.hatch[k,t]))
-                  } else {
-				NT_FISH[k,,t,g,] = NT_FISH[k,,t,g,] * max(0,(1-harvest.wild[k,t]))
-                  }
 
-                  ##############################################
-                  #Now NT is represents spawners for anadromous - survived and will try to spawn and, in O.Mykiss, perhaps
-                  #even return to where they came from
-                  #
+		## 1. DENSITY-INDEPENDENT SURVIVAL - ENTERING MAINSTEM (=13)
+		## OPERATE ON NT_FISH 
+		##	(who have left ocean and are attempting to get to spawning grounds)
+
+		NT_FISH[k,,t,,] = NT_FISH[k,,t,,] * Sr[k,13,t]
+		NT_FISH[is.na(NT_FISH)] = 0
+
+
+		## 2. HARVEST
+            for (g in 1:G){			 
+			Escapement = sum(NT_FISH[k,,t,g,])
+			if (g==1) { # wild
+				HarvestRate_AfterMin = harvest.wild.minharvest[k,t] + 
+								(harvest.wild.maxharvest[k,t]-harvest.wild.minharvest[k,t]) *
+								(1-exp((-1*(Escapement-harvest.wild.minspawn[k,t]))
+									*harvest.wild.ratepharvest[k,t]))
+				HarvestTotal = HarvestRate_AfterMin * (Escapement - harvest.wild.minspawn[k,t])
+				HarvestTotal[(Escapement - HarvestTotal)< harvest.wild.minspawn[k,t]] = 0
+				EffectiveHarvestRate = HarvestTotal/(Escapement+.000001)
+
+				# apply effective harvest rate across sex/ocean-age
+				NT_FISH[k,,t,g,] = NT_FISH[k,,t,g,] * (1-EffectiveHarvestRate)
+			} else if (g==2){  # hatchery
+				HarvestRate_AfterMin = harvest.hatch.minharvest[k,t] + 
+								(harvest.hatch.maxharvest[k,t]-harvest.hatch.minharvest[k,t]) *
+								(1-exp((-1*(Escapement-harvest.hatch.minspawn[k,t]))
+									*harvest.hatch.ratepharvest[k,t]))
+				HarvestTotal = HarvestRate_AfterMin * (Escapement - harvest.hatch.minspawn[k,t])
+				HarvestTotal[(Escapement - HarvestTotal)< harvest.hatch.minspawn[k,t]] = 0
+				EffectiveHarvestRate = HarvestTotal/(Escapement+.0000001)
+
+				# apply effective harvest rate across sex/ocean-age
+				NT_FISH[k,,t,g,] = NT_FISH[k,,t,g,] * (1-EffectiveHarvestRate)
+			}
                   
 			N_ESCAPEMENT[k,t,g,1] =  sum(NT_FISH[k,,t,g,1])
 			N_ESCAPEMENT[k,t,g,2] =  sum(NT_FISH[k,,t,g,2])
 			N_FISH[k,1,t,g,k,1] = sum(NT_FISH[k,,t,g,1])
 			N_FISH[k,1,t,g,k,2] = sum(NT_FISH[k,,t,g,2])
+			NT_FISH[is.na(NT_FISH)] = 0 
             } # end of "for (g in...)"
+
+
       
+		## 3. POST HARVEST (=14) DENSITY-INDEPENDENT SURVIVAL
+		NT_FISH[k,,t,,] = NT_FISH[k,,t,,] * Sr[k,14,t]
+
+		## 4. HATCHERY EXTRACTION - to remove returning spawners for hatchery
+
+		## TBD
+
+
 		# Calculate distribution of male geno-types (hatch fish)
             Male_GDist=apply(NT_FISH[k,,t,,1],2,sum)/(sum(NT_FISH[k,,t,,1])+.00001)
             Male_GDist[is.na(Male_GDist)] = 0
@@ -346,7 +357,7 @@ for (t in 2:(Tr-1)){
 			N5_FISH[k,i5,t,,k,1] = N5_FISH[k,i5,t,,k,1] + Post_Spawn_Returns_Rainbow[k,i5,,1]
                   N5_FISH[k,i5,t,,k,2] = N5_FISH[k,i5,t,,k,2] + Post_Spawn_Returns_Rainbow[k,i5,,2]
             } # end i5
-     
+      
             #############################################
                       
             # Calculating These since they're an output later on.... not used in later calculations.
