@@ -293,20 +293,6 @@ ploty[2:(Tr-1)], type="l",ylab="Spawning Fish",main=
 
 if (R >1){
 
-#lines(seq(2:(Tr-1)), 
-#(apply(apply(NR[k,1,1:Tr,,],c(1,3),sum),1, mean)+
-#    1.96* apply(apply(NR[k,1,1:Tr,,],c(1,3),sum), 1, sd))[2:(Tr-1)]
-#, lt=2, col="red")
-#
-
-#lines(seq(2:(Tr-1)), 
-#(apply(apply(NR[k,1,1:Tr,,],c(1,3),sum),1, mean)+
-#    -1.96* apply(apply(NR[k,1,1:Tr,,],c(1,3),sum), 1, sd))[2:(Tr-1)]
-#, lt=2, col="red")
-
-#k=1
-#dim(Spawners_NR[k, 1:Tr,,])
-#dim(apply(Spawners_NR[k, 1:Tr,,], c(1,3),sum))
 
 lines(seq(2:(Tr-1)), 
 (apply(apply(Spawners_NR[k,1:Tr,,],c(1,3),sum),1, mean)+

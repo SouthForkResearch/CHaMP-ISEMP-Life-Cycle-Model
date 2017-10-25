@@ -1210,6 +1210,12 @@ harvest.hatch.minharvest = harvest.hatch.minharvest.mu
 harvest.hatch.maxharvest = harvest.hatch.maxharvest.mu
 harvest.hatch.ratepharvest = harvest.hatch.ratepharvest.mu
 
+### Two-sex model
+twosex.steelhead.spawncount = twosex.steelhead.spawncount
+twosex.rainbow.spawncount = twosex.rainbow.spawncount
+twosex.steelhead.xfertilize = twosex.steelhead.xfertilize
+twosex.rainbow.xfertilize = twosex.rainbow.xfertilize
+
 ######################################################
 #Add stochasticity to cross site migration natrix
 
@@ -1537,7 +1543,12 @@ data = list(
 "harvest.hatch.minspawn"= harvest.hatch.minspawn,
  "harvest.hatch.minharvest"= harvest.hatch.minharvest,
    "harvest.hatch.maxharvest"= harvest.hatch.maxharvest,
-      "harvest.hatch.ratepharvest"= harvest.hatch.ratepharvest
+      "harvest.hatch.ratepharvest"= harvest.hatch.ratepharvest,
+
+"twosex.steelhead.spawncount" = twosex.steelhead.spawncount,
+"twosex.rainbow.spawncount" = twosex.rainbow.spawncount,
+"twosex.steelhead.xfertilize" = twosex.steelhead.xfertilize,
+"twosex.rainbow.xfertilize" = twosex.rainbow.xfertilize
 
 )
 

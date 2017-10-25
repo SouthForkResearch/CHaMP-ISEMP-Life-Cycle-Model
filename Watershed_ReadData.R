@@ -265,6 +265,12 @@ Hatch_Fish.target = Hatch_Fish.mu
 Hatch_Fish.rate = Hatch_Fish.mu
 
 
+twosex.steelhead.spawncount = array(rep(0, K*Tr), c(K, Tr))
+twosex.rainbow.spawncount = twosex.steelhead.spawncount
+twosex.steelhead.xfertilize = twosex.steelhead.spawncount
+twosex.rainbow.xfertilize = twosex.steelhead.spawncount
+
+
 
 # Rel_Surv (G categories)
 Rel_Surv.mu = array(rep(0, K*I*Tr*G), c(K, I, Tr, G))
@@ -629,6 +635,23 @@ for (t in T.lo:T.hi) {
 }
 rm(Rel_Surv_Inputs)
 
+###################
+
+twosex= read.csv(Watershed.Input.File, header=F, 
+         skip = 169, nrows = 1)[, 3:6]
+
+for (t in T.lo:T.hi) {
+	twosex.steelhead.spawncount[k,t] = twosex[1,1]
+	twosex.rainbow.spawncount[k,t] = twosex[1,2]
+	twosex.steelhead.xfertilize[k,t] = twosex[1,3]
+	twosex.rainbow.xfertilize[k,t] = twosex[1,4]
+} # close t
+rm(twosex)
+
+			
+###################
+
+
 
 Fecund_Inputs = read.csv(Watershed.Input.File, header=F,
         skip=150, nrow=G)[, 4:9]
@@ -728,6 +751,11 @@ list(
    "harvest.hatch.maxharvest.mu"= harvest.hatch.maxharvest.mu,
       "harvest.hatch.ratepharvest.mu"= harvest.hatch.ratepharvest.mu,
 
+"twosex.steelhead.spawncount" = twosex.steelhead.spawncount,
+"twosex.rainbow.spawncount" = twosex.rainbow.spawncount,
+"twosex.steelhead.xfertilize" = twosex.steelhead.xfertilize,
+"twosex.rainbow.xfertilize" = twosex.rainbow.xfertilize,
+
 "Prod_Scalar.mu"=Prod_Scalar.mu, "Prod_Scalar.sigmaR"=Prod_Scalar.sigmaR,
  "Prod_Scalar.sigmaT"=Prod_Scalar.sigmaT,
  "Prod_Scalar.sigmaS"=Prod_Scalar.sigmaS,
@@ -739,7 +767,6 @@ list(
  "M.alphaT.N" = M.alphaT.N, "M.alphaS.N" = M.alphaS.N, 
    "M.alpha.N" = M.alpha.N,
 "M.target"=M.target, "M.rate" = M.rate,
-
 
 
 "Ak_x_Lqk.mu"=Ak_x_Lqk.mu, "Ak_x_Lqk.sigmaR"=Ak_x_Lqk.sigmaR,
@@ -768,12 +795,6 @@ list(
 "Frac.Subyear.F.alphaS.N" =  Frac.Subyear.F.alphaS.N,
 "Frac.Subyear.F.alpha.N" =  Frac.Subyear.F.alpha.N,
 
-
-
-#"C_ocean.mu" = C_ocean.mu, "C_ocean.sigmaR" = C_ocean.sigmaR, 
-# "C_ocean.sigmaT" = C_ocean.sigmaT,
-# "C_ocean.sigmaS" = C_ocean.sigmaS, "C_ocean.sigma" = C_ocean.sigma,
-#  "C_ocean.target"  =  C_ocean.target, "C_ocean.rate" = C_ocean.rate,
 
 "SR5.mu" = SR5.mu, "SR5.alphaR.N" = SR5.alphaR,  "SR5.alphaT.N" = SR5.alphaT,
  "SR5.alphaS.N" = SR5.alphaS, "SR5.alpha.N" = SR5.alpha,

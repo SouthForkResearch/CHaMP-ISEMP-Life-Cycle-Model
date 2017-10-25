@@ -70,7 +70,6 @@ for (k in 1:K) {
       N_FISH[k,,,,k,2]=N[k,,,] *.5
 }
 
-
 # For year one, ocean age 0-5, smolt-year 1 <- fish at stage 7-12
 for (t in 1:Tr) {
 for (k in 1:K) {
@@ -331,14 +330,6 @@ for (t in 2:(Tr-1)){
 
 		## TBD
 
-
-		# Calculate distribution of male geno-types (hatch fish)
-            Male_GDist=apply(NT_FISH[k,,t,,1],2,sum)/(sum(NT_FISH[k,,t,,1])+.00001)
-            Male_GDist[is.na(Male_GDist)] = 0
-      
-            Rainbow.Male_GDist = 
-            		apply(N_RAINBOW_SPAWNERS[k,,t,,1],2,sum)/(sum(N_RAINBOW_SPAWNERS[k,,t,,1])+.00001)
-            Rainbow.Male_GDist[is.na(Rainbow.Male_GDist)] = 0
             
             ################################
             # Calculate fish that will return after surviving trip to spawn (SR * Rel_Surv) and then surviving the actual spawning and return journy (PSSA and PSSR)
@@ -355,8 +346,7 @@ for (t in 2:(Tr-1)){
                   
 			N5_FISH[k,i5,t,,k,1] = N5_FISH[k,i5,t,,k,1] + Post_Spawn_Returns_Rainbow[k,i5,,1]
                   N5_FISH[k,i5,t,,k,2] = N5_FISH[k,i5,t,,k,2] + Post_Spawn_Returns_Rainbow[k,i5,,2]
-            } # end i5
-      
+            } # end i5     
             #############################################
                       
             # Calculating These since they're an output later on.... not used in later calculations.
@@ -373,50 +363,68 @@ for (t in 2:(Tr-1)){
                   Rainbow_Female_Spawners[k,t,g] = 
 				(apply(N_RAINBOW_SPAWNERS[k,,t,,2], 2, sum)[g]) * Sr[k,(2),t] * Rel_Surv[k,(1),t,g]
             }
-            
+           
             ######################################
             ## Now calculate "candidate eggs"
       
-      	Cand.Egg.N = 0
-		Rainbow.Cand.Egg.N = 0
+		# Raw totals of available spawners
+		F_SteelheadSpawners = sum(NT_FISH[k,,t,,2])
+		M_SteelheadSpawners = sum(NT_FISH[k,,t,,1])
+		F_RainbowSpawners = sum(N_RAINBOW_SPAWNERS[k,,t,,2])
+		M_RainbowSpawners = sum(N_RAINBOW_SPAWNERS[k,,t,,1])
 
-            # Speed Improvement
-            # could take out for (i in 1:OCEAN_AGES) and for (i5 in 1:I5), below, easily
-            for (g1 in 1:G) {
-                  for (g2 in 1:G) {
-                        for (i in 1:OCEAN_AGES) {    # cycle through all adult ages possible
-                              Cand.Egg.N = Cand.Egg.N+
-                              	Female_Fecundity[k,i,t,g1]*NT_FISH[k,i,t,g1,2]*Male_GDist[g2] 
-                        }
-                        for (i5 in 1:I5) { # cycle through all OnePlus spawner ages
-					Rainbow.Cand.Egg.N = Rainbow.Cand.Egg.N +
-						(N5.Rainbow.Fecundity[k,i5,t] * 
-						(N_RAINBOW_SPAWNERS[k,i5,t,g1,2])*Rainbow.Male_GDist[g2])
-                        }
-                  }
-            } # end of "for (g1, g2...)"
+		# Steelhead females preferentially mate with steelhead males (who
+		F_SH_WITH_M_SH = min(F_SteelheadSpawners, twosex.steelhead.spawncount*M_SteelheadSpawners)
 
-            ##############################################
-            # Assume eggs are equal size... distribute capacity equally across
-            # all g-types, and apply BH equation separately for each g-type to
-            # figure out number of eggs by g-type.
-            
-            # Added "divide by Sr[k,2,t] so spawner-egg survival isn't double counted (along with adult-to-spawner)
-            # Oops.  That was a screw up.  Rs[k,2,t] isn't used prior to this, since I don't
-            # use "spawners" but NT to calculate candidate eggs.
+		# rainbow trout females preferentially mate with rainbow trout males
+		F_RB_WITH_M_RB = min(F_RainbowSpawners, twosex.rainbow.spawncount*M_RainbowSpawners)
 
-            # Eggs!  Chinook Steelhead Only (TBD)
+		# Steelhead females mate with rainbows once all of steelhead males are ‘gone’ (i.e., spawned out)
+		F_SH_WITH_M_RB = min((F_SteelheadSpawners - F_SH_WITH_M_SH), 
+                                 (1.0/twosex.steelhead.xfertilize) * 
+						(twosex.rainbow.spawncount*M_RainbowSpawners - F_RB_WITH_M_RB))
+		
+		# ... then mate with steelhead once all of the rainbow males are ‘gone’ (i.e., spawned out)
+		F_RB_WITH_M_SH = min((F_RainbowSpawners- F_RB_WITH_M_RB), 
+                                 twosex.rainbow.xfertilize*
+						(twosex.steelhead.spawncount*M_SteelheadSpawners - F_SH_WITH_M_SH))
+#if 0
+print(paste("  SH Female Spawners=",F_SteelheadSpawners ))
+print(paste("  SH Male Spawners=",M_SteelheadSpawners ))
+print(paste("  RB Female Spawners=",F_RainbowSpawners ))
+print(paste("  RB Male Spawners=",M_RainbowSpawners))
+print(paste("  F_SH_WITH_M_SH=",F_SH_WITH_M_SH))
+print(paste("  F_SH_WITH_M_RB=",F_SH_WITH_M_RB))
+print(paste("  F_RB_WITH_M_RB=",F_RB_WITH_M_RB))
+print(paste("  F_RB_WITH_M_SH=",F_RB_WITH_M_SH))
+#endif
+		#calculate overall weighted "fecundity" values
+		Fecundity = 0
+		Rainbow_Fecundity = 0
+		for (g in 1:G) {
+			for (o in 1:OCEAN_AGES) {
+				Share = sum(NT_FISH[k,o,t,g,2])/sum(NT_FISH[k,,t,,2])
+				if (is.na(Share)) Share = 0
+				Fecundity = Fecundity + Female_Fecundity[k,o,t,g] * Share  
+			}
+			for (i5 in 1:I5) {
+				Share = sum(N_RAINBOW_SPAWNERS[k,i5,t,g,2])/sum(N_RAINBOW_SPAWNERS[k,,t,,2])
+				if (is.na(Share)) Share = 0
+				Rainbow_Fecundity = Rainbow_Fecundity + N5.Rainbow.Fecundity[k,i5,t] * Share  
+			}
+		}
+		SH_Spawners = F_SH_WITH_M_SH+F_SH_WITH_M_RB
+		RB_Spawners = F_RB_WITH_M_RB+F_RB_WITH_M_SH
+		Cand.Egg.N = SH_Spawners * Fecundity 
+		Rainbow.Cand.Egg.N = RB_Spawners * Rainbow_Fecundity
 
+            # Eggs! Steelhead
 		N_FISH[k,2,t,1,k,] = .5 * Cand.Egg.N*Rel_Surv[k,1,t,1] /
                   				(1/(p[k,1,t])+  1/c[k,1,t]* Rel_Surv[k,1,t,1]* Cand.Egg.N)     		
-
-            ##############################
-            # Eggs (Rainbow Spawners) # Don't yet compete for same space
-            # Eggs!  Steelhead Only (TBD)
-
+            # Eggs! Rainbow
             Candidates = Rainbow.Cand.Egg.N*Rel_Surv[k,1,t,1] /
                (1/(p[k,1,t]) + 1/c[k,1,t] * Rel_Surv[k,1,t,1]* Rainbow.Cand.Egg.N)
-            N_RAINBOW[k,2,t,g,k,] = .5 * Candidates
+            N_RAINBOW[k,2,t,1,k,] = .5 * Candidates
       } # end K
 
 
@@ -447,7 +455,8 @@ for (t in 2:(Tr-1)){
                  	(1/p[k,2,t]+ 1/c[k,2,t] * sum(Rel_Surv[k,2,t,] * apply(N_RAINBOW[k,2,t,,,], 1, sum))))
 		Candidates[is.na(Candidates)] = 0
 
-		MALE_PORTION = N_RAINBOW[k,3,t+1,1,k,1] / (sum(N_RAINBOW[k,3,t+1,1,k,]))
+#		MALE_PORTION = N_RAINBOW[k,3,t+1,1,k,1] / (sum(N_RAINBOW[k,3,t+1,1,k,]))
+		MALE_PORTION = N_RAINBOW[k,2,t,1,k,1] / (sum(N_RAINBOW[k,2,t,1,k,]))
 		MALE_PORTION[is.na(MALE_PORTION)] = 0
 
 		N_RAINBOW[k,3,t+1,1,k,1] = MALE_PORTION * Candidates
@@ -871,7 +880,6 @@ for(k in 1:K) {
 	Rainbow_N[k,,,] = apply(N_RAINBOW[k,,,,,], c(1,2,3), sum)
 	Rainbow_N_F[k,,,] = apply(N_RAINBOW[k,,,,,2], c(1,2,3), sum)
 	NT = apply(NT_FISH[,,,,], c(1,2,3,4), sum)
-#	NT[k,,,] = apply(NT_FISH[k,,,,], c(1,2,3), sum)
 }
 
 detach(Var.data)
@@ -890,12 +898,9 @@ return(list(
   "N_RECRUITS" = N_RECRUITS,
   "p"=p, "c"=c,
   "Candidate_Smolt"=Candidate_Smolt
-#   ###***Pete May 2015 Addition***
   ,"Male_Spawners"=Male_Spawners,
-#  "NT"=NT,
   "RainbowSpawners"=Rainbow_Spawners,
   "RainbowFemSpawners"=Rainbow_Female_Spawners
-#   ###***Pete May 2015 Addition***
 )
 )
 
