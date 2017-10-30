@@ -388,7 +388,7 @@ for (t in 2:(Tr-1)){
 		F_RB_WITH_M_SH = min((F_RainbowSpawners- F_RB_WITH_M_RB), 
                                  twosex.rainbow.xfertilize*
 						(twosex.steelhead.spawncount*M_SteelheadSpawners - F_SH_WITH_M_SH))
-#if 0
+if (0) {
 print(paste("  SH Female Spawners=",F_SteelheadSpawners ))
 print(paste("  SH Male Spawners=",M_SteelheadSpawners ))
 print(paste("  RB Female Spawners=",F_RainbowSpawners ))
@@ -397,7 +397,7 @@ print(paste("  F_SH_WITH_M_SH=",F_SH_WITH_M_SH))
 print(paste("  F_SH_WITH_M_RB=",F_SH_WITH_M_RB))
 print(paste("  F_RB_WITH_M_RB=",F_RB_WITH_M_RB))
 print(paste("  F_RB_WITH_M_SH=",F_RB_WITH_M_SH))
-#endif
+}
 		#calculate overall weighted "fecundity" values
 		Fecundity = 0
 		Rainbow_Fecundity = 0
@@ -476,7 +476,7 @@ print(paste("  F_RB_WITH_M_SH=",F_RB_WITH_M_SH))
       
       if (K >1) {
             # Initialize Migration matrics: to k1 from k2 imprinted to k3
-		N_FRY_Migrate = array(0, c(KK,KK,KK,2)) # to k1 from k2 imprinted to k3
+		N_FRY_Migrate = array(0, c(KK,KK,KK,2)) # to k1 from k2 imprinted to k3, by sex
             
             for (k1 in 1:K) {
                   for (k2 in 1:K){
@@ -489,7 +489,7 @@ print(paste("  F_RB_WITH_M_SH=",F_RB_WITH_M_SH))
 
             # Re-assign to N and N_Imprint for male and female
             for (k in 1:K) {
-            	N_FISH[k,3,t+1,1,,] = apply(N_FRY_Migrate[k,,,1,],c(2,3),sum)
+            	N_FISH[k,3,t+1,1,,] = apply(N_FRY_Migrate[k,,,],c(2,3),sum)
 		}
       } # end of x-site-migrate
 
