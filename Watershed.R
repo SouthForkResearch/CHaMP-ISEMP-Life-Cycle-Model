@@ -34,9 +34,13 @@ rm(list = ls(all=TRUE)) #Clean up shop before beginning
       N5R=with(header, {array(rep(0,K*I5*Tr*G*R), c(K,I5,Tr,G,R))})
       N5R_F=with(header, {array(rep(0,K*I5*Tr*G*R), c(K,I5,Tr,G,R))})
       Candidate_Smolt_NR = with(header, {array(rep(0, K*Tr*G*R), c(K,Tr,G,R))})      
-      Female_Spawners_NR = with(header, {array(rep(0, K*Tr*G*R), c(K,Tr,G,R))})
 
-	Male_Spawners_NR = with(header, {array(rep(0, K*Tr*G*R), c(K,Tr,G,R))})
+      Female_Spawners_NR = with(header, {array(rep(0, K*6*Tr*G*R), c(K,6,Tr,G,R))})
+	Male_Spawners_NR = with(header, {array(rep(0, K*6*Tr*G*R), c(K,6,Tr,G,R))})
+      Rainbow_Female_Spawners_NR = with(header, {array(rep(0, K*I5*Tr*G*R), c(K,I5,Tr,G,R))})
+	Rainbow_Male_Spawners_NR = with(header, {array(rep(0, K*I5*Tr*G*R), c(K,I5,Tr,G,R))})
+
+
 	Bonneville_NT = with(header, {array(rep(0, K*10*Tr*G*R), c(K,10,Tr,G,R))})
 	Candidate_Smolt_ByAge = with(header, {array(rep(0,K*I5*Tr*G*R), c(K,I5,Tr,G,R))})
 	Resident_Spawners_NR=with(header, {array(rep(0, K*Tr*G*R), c(K,Tr,G,R))})
@@ -66,8 +70,16 @@ for (r in 1:header$R) {
   	# Store results for Each Iteration
 	NR[,,,,r]=results$N
 	N5R[,,,,r]=results$N5
-	Female_Spawners_NR[,,,r] = results$Female_Spawners
-	Spawners_NR[,,,r] = results$Spawners
+dim(results$Female_Spawners)
+dim(Female_Spawners_NR[,,,,r])
+	Female_Spawners_NR[,,,,r] = results$Female_Spawners
+	Male_Spawners_NR[,,,,r] = results$Male_Spawners
+      Rainbow_Male_Spawners_NR[,,,,r] = results$Male_RainbowSpawners
+      Rainbow_Female_Spawners_NR[,,,,r] = results$Female_RainbowSpawners
+dim(Escapement_NR)
+dim(results$Escapement)
+dim(Escapement_NR[,,,r])
+
 	Escapement_NR[,,,r] = results$Escapement
 	Female_Escapement_NR[,,,r] = results$Female_Escapement
 
@@ -80,7 +92,7 @@ for (r in 1:header$R) {
 for (r in 1:header$R) {
 	# in second dimension: spawner=1, recruit=2 
 	for (t in 1:header$Tr) {
-		N_SPAWNER_RECRUIT_NR[t,1,r] = sum(Female_Spawners_NR[,t,,r])
+		N_SPAWNER_RECRUIT_NR[t,1,r] = sum(Female_Spawners_NR[,,t,,r])
 
 		for (age in 1:11) {
 			# this test ensures that the adult's brood year are not prior to the start of the simulation.
@@ -93,7 +105,7 @@ for (r in 1:header$R) {
 
 Reconstruction(header)
 
-PostProcessing(header, NR, N5R, Female_Spawners_NR) 
+PostProcessing(header, NR, N5R, Male_Spawners_NR,Female_Spawners_NR,Rainbow_Male_Spawners_NR,Rainbow_Female_Spawners_NR) 
 
 
 ####################################################################

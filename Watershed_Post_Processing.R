@@ -1,5 +1,5 @@
 # Create Output Files and Plots
-PostProcessing <- function(header, NR, N5R, Female_Spawners_NR) {
+PostProcessing <- function(header, NR, N5R,  Male_Spawners_NR,Female_Spawners_NR,Rainbow_Male_Spawners_NR,Rainbow_Female_Spawners_NR) {
 
 if (dev.cur() >1) {dev.off()}
 
@@ -20,7 +20,10 @@ dir.create("Output Files", showWarnings = FALSE)
 	NR = round(NR)
 	N5R = round(N5R)
    	Female_Spawners_NR = round(Female_Spawners_NR)
-	Spawners_NR = round(Spawners_NR)
+      Male_Spawners_NR = round(Male_Spawners_NR)
+      Rainbow_Male_Spawners_NR = round(Rainbow_Male_Spawners_NR)
+      Rainbow_Female_Spawners_NR = round(Rainbow_Female_Spawners_NR)
+	#Spawners_NR = round(Spawners_NR)
 	Escapement_NR = round(Escapement_NR)
 	Female_Escapement_NR = round(Female_Escapement_NR)
 
@@ -203,12 +206,71 @@ as.data.frame(list("year"=seq(1:header$Tr),Total_by_LS_gtype_mean[,],
 # Write output file for returning spawners, average across all
 # MC simulations and s_dev across all MC simulations, by Subpop Type
 
+dim(Male_Spawners_NR)
+#Female_Spawners_NR,
+#Rainbow_Male_Spawners_NR,
+#Rainbow_Female_Spawners_NR
+
+dim(Male_Spawners_NR)
+#Average over all time steps and g-types
+MS_Ave = apply(Male_Spawners_NR, c(1,2,3), mean)
+MS_Sd = apply(Male_Spawners_NR, c(1,2,3), sd)
+FS_Ave = apply(Female_Spawners_NR, c(1,2,3), mean)
+FS_Sd = apply(Female_Spawners_NR, c(1,2,3), sd)
+RMS_Ave = apply(Rainbow_Male_Spawners_NR, c(1,2,3), mean)
+RMS_Sd = apply(Rainbow_Male_Spawners_NR, c(1,2,3), sd)
+RFS_Ave = apply(Rainbow_Female_Spawners_NR, c(1,2,3), mean)
+RFS_Sd = apply(Rainbow_Female_Spawners_NR, c(1,2,3), sd)
+dim(MS_Ave)
+
+k=1
+Tr
+
+sp_names=c(
+"Male_Y0","Male_Y1","Male_Y2","Male_Y3","Male_Y4","Male_Y5",
+"Female_Y0","Female_Y1","Female_Y2","Female_Y3","Female_Y4","Female_Y5",
+"Rainbow_Male_Y1","Rainbow_Male_Y2","Rainbow_Male_Y3","Rainbow_Male_Y4","Rainbow_Male_Y5",
+"Rainbow_Female_Y1","Rainbow_Female_Y2","Rainbow_Female_Y3","Rainbow_Female_Y4","Rainbow_Female_Y5"
+)
+
+for (k in 1:K) {
+site_spawner_results = array(0, c(Tr,22))
+site_spawner_results[,1:6]=t(MS_Ave[k,,])
+site_spawner_results[,7:12]=t(FS_Ave[k,,])
+site_spawner_results[,13:17]=t(RMS_Ave[k,,])
+site_spawner_results[,18:22]=t(RFS_Ave[k,,])
+
+#plot(1:Tr,site_spawner_results[,1], type="l", ylim= c(0, max(site_spawner_results)))
+#for (f in 1:22){
+# lines(1:Tr, site_spawner_results[,f], lt=f)
+#}
+
+sp_names
+colnames(site_spawner_results) = sp_names
+colnames(site_spawner_results) 
+head(site_spawner_results)
+write.csv(site_spawner_results, paste("Output Files/Spawners",Site.Names[k],".csv",sep=""))
+
+}
+
+
+
+data.frame(MS_Ave[k,,])
+
+dim(MS_Ave)
+k=1
+
+
+####
+
+# Write output file for smolts, average across all
+# MC simulations and s_dev across all MC simulations, by Subpop Type
 
 #attach(header)
 for (k in 1:K) {
 
-Spawner.Mean.by.Subpop= apply(Spawners_NR[k, ,,],c(1,2), mean)
-Spawner.Sd.by.Subpop= apply(Spawners_NR[k, ,,],c(1,2), sd)
+#Spawner.Mean.by.Subpop= apply(Spawners_NR[k, ,,],c(1,2), mean)
+#Spawner.Sd.by.Subpop= apply(Spawners_NR[k, ,,],c(1,2), sd)
 
 Smolt.Mean.by.Subpop= apply(NR[k,6, ,,],c(1,2), mean)
 Smolt.Sd.by.Subpop= apply(NR[k,6, ,,],c(1,2), sd)
@@ -222,19 +284,21 @@ Smolt.Sd.by.Subpop= apply(NR[k,6, ,,],c(1,2), sd)
 #         "N.H3-H2","H3-H2", "H3", "N.H3-N-H3")
 #colnames(Smolt.Sd.by.Subpop) = paste(rep("Sd.",G), c("Nat", "H1", "N-H2", "H2", "N-N.H3", "N-H3", "N.H3-H3",
 #         "N.H3-H2","H3-H2", "H3", "N.H3-N-H3"), sep="")
-colnames(Spawner.Mean.by.Subpop)=c("Nat", "H1")
-colnames(Spawner.Sd.by.Subpop) = paste(rep("Sd.",G), c("Nat", "H1"), sep="")
+#colnames(Spawner.Mean.by.Subpop)=c("Nat", "H1")
+#colnames(Spawner.Sd.by.Subpop) = paste(rep("Sd.",G), c("Nat", "H1"), sep="")
 colnames(Smolt.Mean.by.Subpop)=c("Nat", "H1")
 colnames(Smolt.Sd.by.Subpop) = paste(rep("Sd.",G), c("Nat", "H1"), sep="")
 
 
 
-Spawners.by.Subpop = data.frame("Year"=seq(1:Tr), Spawner.Mean.by.Subpop, 
-Spawner.Sd.by.Subpop)
+#Spawners.by.Subpop = data.frame("Year"=seq(1:Tr), Spawner.Mean.by.Subpop, 
+#Spawner.Sd.by.Subpop)
 
-write.csv(Spawners.by.Subpop, 
-paste("Output Files/Spawners_by_Subpop",Site.Names[k],".csv",sep=""))
+#write.csv(Spawners.by.Subpop, 
+#paste("Output Files/Spawners_by_Subpop",Site.Names[k],".csv",sep=""))
 
+
+#################################################################
 
 Smolts.by.Subpop = data.frame("Year"=seq(1:Tr), Smolt.Mean.by.Subpop, 
 Smolt.Sd.by.Subpop)
@@ -264,53 +328,47 @@ for (p in 1:2) {
 	for (k in 1:K) {
 
 
-if (p==1)
- {jpeg(paste("Output Plots/","Returning Spawners Site ",Site.Names[k],".jpg",sep="")
-, 8,6, units='in', res=300)}
-
-# Find Upper Limit for plot
-if (R>1) {
-#ploty= apply(apply(NR[k,1,1:Tr,,],c(1,3),sum),1, mean)
-#UL =1.2*(max((apply(apply(NR[k,1,1:Tr,,],c(1,3),sum),1, mean)+
-#    1.96* apply(apply(NR[k,1,1:Tr,,],c(1,3),sum), 1, sd))[2:(Tr-1)]))} else {
-#ploty= apply(NR[k,1,1:Tr,,],c(1),sum)
+#if (p==1)
+# {jpeg(paste("Output Plots/","Returning Spawners Site ",Site.Names[k],".jpg",sep="")
+#, 8,6, units='in', res=300)}
+#
+## Find Upper Limit for plot
+#if (R>1) {
+#
+#ploty= apply(apply(Spawners_NR[k,1:Tr,,],c(1,3),sum),1, mean)
+#UL =1.2*(max((apply(apply(Spawners_NR[k,1:Tr,,],c(1,3),sum),1, mean)+
+#    1.96* apply(apply(Spawners_NR[k,1:Tr,,],c(1,3),sum), 1, sd))[2:(Tr-1)]))} else {
+#ploty= apply(Spawners_NR[k,1:Tr,,],c(1),sum)
 #UL= max(ploty)
+#
+#
+#}
+#
+#plot(seq(2:(Tr-1)), 
+#ploty[2:(Tr-1)], type="l",ylab="Spawning Fish",main=
+#	 paste("Number of Fish Returning to Spawn in Site ", Site.Names[k]), xlab="Time (years)",
+#	  ylim=c(0, UL))
 
-ploty= apply(apply(Spawners_NR[k,1:Tr,,],c(1,3),sum),1, mean)
-UL =1.2*(max((apply(apply(Spawners_NR[k,1:Tr,,],c(1,3),sum),1, mean)+
-    1.96* apply(apply(Spawners_NR[k,1:Tr,,],c(1,3),sum), 1, sd))[2:(Tr-1)]))} else {
-ploty= apply(Spawners_NR[k,1:Tr,,],c(1),sum)
-UL= max(ploty)
-
-
-}
-
-plot(seq(2:(Tr-1)), 
-ploty[2:(Tr-1)], type="l",ylab="Spawning Fish",main=
-	 paste("Number of Fish Returning to Spawn in Site ", Site.Names[k]), xlab="Time (years)",
-	  ylim=c(0, UL))
-
-
-if (R >1){
-
-
-lines(seq(2:(Tr-1)), 
-(apply(apply(Spawners_NR[k,1:Tr,,],c(1,3),sum),1, mean)+
-    1.96* apply(apply(Spawners_NR[k,1:Tr,,],c(1,3),sum), 1, sd))[2:(Tr-1)]
-, lt=2, col="red")
-
-lines(seq(2:(Tr-1)), 
-(apply(apply(Spawners_NR[k,1:Tr,,],c(1,3),sum),1, mean)+
-    -1.96* apply(apply(Spawners_NR[k,1:Tr,,],c(1,3),sum), 1, sd))[2:(Tr-1)]
-, lt=2, col="red")
-
-legend("topright", c("Mean of MC Simulations", "95% Limits"), lt=c(1,2),
-col=c("black", "red"))
-}
+#if (R >1){
+#
+#
+#lines(seq(2:(Tr-1)), 
+#(apply(apply(Spawners_NR[k,1:Tr,,],c(1,3),sum),1, mean)+
+#    1.96* apply(apply(Spawners_NR[k,1:Tr,,],c(1,3),sum), 1, sd))[2:(Tr-1)]
+#, lt=2, col="red")
+#
+#lines(seq(2:(Tr-1)), 
+#(apply(apply(Spawners_NR[k,1:Tr,,],c(1,3),sum),1, mean)+
+#    -1.96* apply(apply(Spawners_NR[k,1:Tr,,],c(1,3),sum), 1, sd))[2:(Tr-1)]
+#, lt=2, col="red")
+#
+#legend("topright", c("Mean of MC Simulations", "95% Limits"), lt=c(1,2),
+#col=c("black", "red"))
+#}
         
 
-if (p==1) {
-dev.off()}
+#if (p==1) {
+#dev.off()}
 }
 
 
@@ -381,56 +439,44 @@ par(mfrow=c(1,1))
 ######################################
 # Plot by hatchery type
 ######################################
-#attach(header)
-#linetype = c(1,1,1,1,1,1,2,2,2,2,2)
-linetype = c(1,1)
-par(mfrow=c(1,1))
-ls=1 # plot returning spawners
 
-k=1
-for (k in 1:K){
+#linetype = c(1,1)
+#par(mfrow=c(1,1))
+#ls=1 # plot returning spawners
+#for (k in 1:K){
+#legendtext=c("Nat", "H1")
+#
+#dim(NR)
+#dim(Spawners_NR)
+#
+#if (R==1) { plotY= Spawners_NR[k, ,1,]} else
+#          { plotY = apply(Spawners_NR[k, ,1,],1, mean)}
+#
+#if (p==1)
+# {jpeg(paste("Output Plots/","Returning Spawners by Subspecies for Site",Site.Names[k],".jpg",sep="")
+#, 8,6, units='in', res=300)}
+#
+#plot(seq(2:(Tr-1)),plotY[2:(Tr-1)], type="l", lwd=2, 
+#   xlim=c(0, Tr+40),ylim=
+#c(0, max(apply(Spawners_NR[k,,,], c(1,2),mean)+1)),
+#   xlab="years", ylab="# of fish",
+#   main=paste(Site.Names[k],":", 
+#"Number of Returning Spawners by 
+#SubSpecies Group, Average of All MC Runs"))
+#legend("topright", legendtext, col=seq(1:G), lt=linetype,
+#   title="Sub-Group")
+#
+#for (g in 2:G){
+#if (R==1) { plotY= Spawners_NR[k, ,g,]} else
+#          { plotY = apply(Spawners_NR[k, ,g,],1, mean)}
+#
+#lines(seq(2:(Tr-1)), plotY[2:(Tr-1)], col=g, lt=linetype[g])
+#}
+#if (p==1) {
+#dev.off()}
+#}
 
-#N=NR[,,,,ls]
-
-#legendtext=c("Nat", "H1", "N-H2", "H2", "N-N.H3", "N-H3", "N.H3-H3",
-#         "N.H3-H2","H3-H2", "H3", "N.H3-N-H3")
-legendtext=c("Nat", "H1")
-
-dim(NR)
-dim(Spawners_NR)
-
-if (R==1) { plotY= Spawners_NR[k, ,1,]} else
-          { plotY = apply(Spawners_NR[k, ,1,],1, mean)}
-
-if (p==1)
- {jpeg(paste("Output Plots/","Returning Spawners by Subspecies for Site",Site.Names[k],".jpg",sep="")
-, 8,6, units='in', res=300)}
-
-plot(seq(2:(Tr-1)),plotY[2:(Tr-1)], type="l", lwd=2, 
-   xlim=c(0, Tr+40),ylim=
-c(0, max(apply(Spawners_NR[k,,,], c(1,2),mean)+1)),
-   xlab="years", ylab="# of fish",
-   main=paste(Site.Names[k],":", 
-"Number of Returning Spawners by 
-SubSpecies Group, Average of All MC Runs"))
-   
- 
-legend("topright", legendtext, col=seq(1:G), lt=linetype,
-   title="Sub-Group")
-
-for (g in 2:G){
-if (R==1) { plotY= Spawners_NR[k, ,g,]} else
-          { plotY = apply(Spawners_NR[k, ,g,],1, mean)}
-
-lines(seq(2:(Tr-1)), plotY[2:(Tr-1)], col=g, lt=linetype[g])
-
-}
-if (p==1) {
-#print("dev off 3")
-dev.off()}
-}
-
-
+#######################################################################
 
 # calculate Egg-Smolt Survival Rate
 # Averaged over all simulations
@@ -559,8 +605,7 @@ dev.off()}
 # Plot Number of Non-hatchery smolts per Female Spawner, average of all runs
 # Calculate over all sites, since migration makes per-site smolts per
 # spawner sort've meaningless
-dim(NR)
-dim(Female_Spawners_NR)
+
 smolts_sum_all_locations= array(0, c(Tr, R))
 f.spawners_sum_all_locations= array(0, c(Tr, R))
 for (r in 1:R) {
@@ -568,7 +613,7 @@ for (r in 1:R) {
 #smolts_sum_all_locations[t,r] = sum(NR[,6,t,c(1,3:G),r])
 smolts_sum_all_locations[t,r] = sum(NR[,6,t,1,r])
 #f.spawners_sum_all_locations[t,r] = sum(Female_Spawners_NR[,t,c(1,3:G),r])
-f.spawners_sum_all_locations[t,r] = sum(Female_Spawners_NR[,t,1,r])
+f.spawners_sum_all_locations[t,r] = sum(Female_Spawners_NR[,,t,1,r])
 
 }}
 

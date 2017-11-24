@@ -25,8 +25,8 @@ OnePlus_Migrate.T=rep(0,KK)
 OnePlusN5_Migrate.T = array(rep(0, KK*I5), c(KK, I5))
 Candidate_Smolt=array(rep(0,K*Tr*G), c(K,Tr,G))
 
-Rainbow_Spawners = array(rep(0, KK*Tr*G), c(KK,Tr,G))
-Rainbow_Female_Spawners  = array(rep(0, KK*Tr*G),c(KK,Tr,G))
+#Rainbow_Spawners = array(rep(0, KK*Tr*G), c(KK,Tr,G))
+#Rainbow_Female_Spawners  = array(rep(0, KK*Tr*G),c(KK,Tr,G))
 
 # Maximum number of ocean years (0-5, totalling six years)
 OCEAN_AGES = 6
@@ -161,17 +161,22 @@ for (t in 2:(Tr-1)){
             # fish counts from back in step 1.  Gotta start somewhere...
 
             ###############
-            # N8 through N12: ocean ages 1 ->5 (taking into account loss due to maturation rates of prior years)
+            # N7 through N11: ocean ages 0 ->5 (taking into account loss due to maturation rates of prior years)
 
             for (i in 7:11) {
+			#print(paste("i=",i))
+#			#print(paste("N_FISH",apply(N_FISH[k,i,t-1,,,1], 1, sum)))
                   CandN_M = apply(N_FISH[k,i,t-1,,,1], 1, sum) * (1-Mat8Plus_M[k,i-6,t-1])
 			CandN_F = apply(N_FISH[k,i,t-1,,,2], 1, sum) * (1-Mat8Plus_F[k,i-6,t-1])
-
+			#print(CandN_M)
+			#print(CandN_F)
 			# Mat8Plus_M/F -- user specified input for the fraction of M or F fish that mature 
 			#   (i.e. are going to try to spawn)at each adult age.  The adult age is i-7, but the
 			#   array needs to handle values 0-5, indexes 1-6.
 			# CandN_M/F -- The number of fish trying to remain as adults for another year
 			#   the number of adult fish of each age times (1-%fish that are leaving to spawn)
+
+			
 
                   # Here's where I should be adding the surviving spawners???  Otherwise,
                   # 1-Mat8Plus gets rid of them all.....  initialize to zero than carry from
@@ -179,6 +184,7 @@ for (t in 2:(Tr-1)){
                   
                   CandN = CandN_M+ CandN_F
                   for (g in 1:G) {
+				
 				MALE_PERCENT = CandN_M[g]/CandN[g] 
 				MALE_PERCENT[is.na(MALE_PERCENT)] = 0
 
@@ -189,9 +195,10 @@ for (t in 2:(Tr-1)){
 
 				# Calculate how many male and female fish stick around for another
 				# 	year as adult and age one year.
-
 				N_FISH[k,i+1,t,g,k,1]= MALE_PERCENT * Candidates 
 				N_FISH[k,i+1,t,g,k,2]= (1-MALE_PERCENT) * Candidates 
+
+				
 
 				# For reconstruction, maintain "fresh water age" distribution
 				for (jj in 1:FRESH_AGES) {
@@ -224,14 +231,15 @@ for (t in 2:(Tr-1)){
             ############
             # NT: Mature Fish (ready to Spawn, calc's as % of ocean ages 0-5, indexes 1-6)
           	for (i in 7:I) {
-
-                  CandN_M = apply(N_FISH[k,i,t,,,1],1,sum) * (Mat8Plus_M[k,i-6,t]) 
-                  CandN_F = apply(N_FISH[k,i,t,,,2],1,sum) * (Mat8Plus_F[k,i-6,t])
+			# changed to t-1 instead of t to be consistent with above (and correct)
+			CandN_M = apply(N_FISH[k,i,t-1,,,1],1,sum) * (Mat8Plus_M[k,i-6,t]) 
+                  CandN_F = apply(N_FISH[k,i,t-1,,,2],1,sum) * (Mat8Plus_F[k,i-6,t])
                   CandN = CandN_M+ CandN_F
 
 			# CandN are the fish leaving the ocean.
-
+#print(paste("i=",i))
                   for (g in 1:G) {
+#print(CandN_M[g])
 				# NT_FISH -- mature fish (mature meaning "trying to spawn")
 				NT_FISH[k,i-6,t,g,1] = CandN_M[g] * Rel_Surv[k, i,t,g]
 				NT_FISH[k,i-6,t,g,2] = CandN_F[g] * Rel_Surv[k, i,t,g]
@@ -355,14 +363,14 @@ for (t in 2:(Tr-1)){
             # calculation, which doesn't explicity account for "spawners" before they
             # lay their eggs
 
-            for (g in 1:G) {
-			N_SPAWNERS[k,t,g,] = (N_ESCAPEMENT[k,t,g,]) * Sr[k,(2),t] * Rel_Surv[k,(1),t,g]
-
-                  Rainbow_Spawners[k,t,g] =
-				apply(N_RAINBOW_SPAWNERS[k,,t,,], 2, sum)[g]  * Sr[k,(2),t] * Rel_Surv[k,(1),t,g]
-                  Rainbow_Female_Spawners[k,t,g] = 
-				(apply(N_RAINBOW_SPAWNERS[k,,t,,2], 2, sum)[g]) * Sr[k,(2),t] * Rel_Surv[k,(1),t,g]
-            }
+            #for (g in 1:G) {
+		#	N_SPAWNERS[k,t,g,] = (N_ESCAPEMENT[k,t,g,]) * Sr[k,(2),t] * Rel_Surv[k,(1),t,g]
+            #      N_SPAWNERS[,t,,, = NT_FISH[k,i,t,,
+            #      Rainbow_Spawners[k,t,g] =
+		#		apply(N_RAINBOW_SPAWNERS[k,,t,,], 2, sum)[g]  * Sr[k,(2),t] * Rel_Surv[k,(1),t,g]
+            #      Rainbow_Female_Spawners[k,t,g] = 
+		#		(apply(N_RAINBOW_SPAWNERS[k,,t,,2], 2, sum)[g]) * Sr[k,(2),t] * Rel_Surv[k,(1),t,g]
+            #}
            
             ######################################
             ## Now calculate "candidate eggs"
@@ -862,24 +870,31 @@ print(paste("  F_RB_WITH_M_SH=",F_RB_WITH_M_SH))
 # end of cycle through years (t)
 ###################################
 
+
 Spawners = array(0, c(K,Tr,G))
-Female_Spawners = array(0, c(K,Tr,G))
-Male_Spawners = array(0, c(K,Tr,G))
+Female_Spawners = array(0, c(K,6,Tr,G))
+Male_Spawners = array(0, c(K,6,Tr,G))
 Escapement = array(0, c(K,Tr,G))
 Female_Escapement = array(0, c(K,Tr,G))
 Rainbow_N = array(0, c(K,I,Tr,G))
 Rainbow_N_F = array(0, c(K,I,Tr,G))
+Male_RainbowSpawners = array(0, c(K,I5,Tr,G))
+Female_RainbowSpawners = array(0, c(K,I5,Tr,G))
+
 for(k in 1:K) {
 	N[k,,,] = apply(N_FISH[k,,,,,], c(1,2,3), sum)
 	N5[k,,,] = apply(N5_FISH[k,,,,,], c(1,2,3), sum)
 	Spawners[k,,] = apply(N_SPAWNERS[k,,,], c(1,2), sum)
-	Female_Spawners[k,,] = N_SPAWNERS[k,,,2]
-	Male_Spawners[k,,] = N_SPAWNERS[k,,,1]
+	Female_Spawners[k,,,] = NT_FISH[k,,,,2]
+	Male_Spawners[k,,,] = NT_FISH[k,,,,1]
+
 	Escapement[k,,] = apply(N_ESCAPEMENT[k,,,], c(1,2), sum)
 	Female_Escapement[k,,] = N_ESCAPEMENT[k,,,2]
-	Rainbow_N[k,,,] = apply(N_RAINBOW[k,,,,,], c(1,2,3), sum)
-	Rainbow_N_F[k,,,] = apply(N_RAINBOW[k,,,,,2], c(1,2,3), sum)
+#	Rainbow_N[k,,,] = apply(N_RAINBOW[k,,,,,], c(1,2,3), sum)
+#	Rainbow_N_F[k,,,] = apply(N_RAINBOW[k,,,,,2], c(1,2,3), sum)
 	NT = apply(NT_FISH[,,,,], c(1,2,3,4), sum)
+      Male_RainbowSpawners[k,,,]=N_RAINBOW_SPAWNERS[k,,,,1]
+      Female_RainbowSpawners[k,,,]=N_RAINBOW_SPAWNERS[k,,,,2]
 }
 
 detach(Var.data)
@@ -889,18 +904,18 @@ detach(header.data)
 return(list(
   "N"=N, 
   "N5"=N5, 
-  "Rainbow_N"=Rainbow_N,
-  "Rainbow_N_F"=Rainbow_N_F,
-  "Female_Spawners"=Female_Spawners, 
-  "Spawners" = Spawners,
+#  "Rainbow_N"=Rainbow_N,
+#  "Rainbow_N_F"=Rainbow_N_F,
+  "Female_Spawners"=Female_Spawners,
+  "Male_Spawners" = Male_Spawners,
   "Female_Escapement" = Female_Escapement,
   "Escapement" = Escapement,
   "N_RECRUITS" = N_RECRUITS,
   "p"=p, "c"=c,
   "Candidate_Smolt"=Candidate_Smolt
   ,"Male_Spawners"=Male_Spawners,
-  "RainbowSpawners"=Rainbow_Spawners,
-  "RainbowFemSpawners"=Rainbow_Female_Spawners
+  "Male_RainbowSpawners"=Male_RainbowSpawners,
+  "Female_RainbowSpawners"=Female_RainbowSpawners
 )
 )
 
