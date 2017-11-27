@@ -214,6 +214,19 @@ dim(Male_Spawners_NR)
 dim(Male_Spawners_NR)
 #Average over all time steps and g-types
 MS_Ave = apply(Male_Spawners_NR, c(1,2,3), mean)
+MS_Ave_Wild = apply(Male_Spawners_NR[k,,,1,],c(1,2), mean)
+
+
+
+MS_Ave[1,,]
+MS_Ave_Wild
+
+#MS_Ave_Wild = apply(Male_Spawners_NR[,,,1,], c(1,2,3), mean)
+
+dim(Male_Spawners_NR)
+dim(Male_Spawners_NR[,,,1,])
+dim(MS_Ave)
+dim(MS_Ave_Wild)
 MS_Sd = apply(Male_Spawners_NR, c(1,2,3), sd)
 FS_Ave = apply(Female_Spawners_NR, c(1,2,3), mean)
 FS_Sd = apply(Female_Spawners_NR, c(1,2,3), sd)
@@ -223,42 +236,67 @@ RFS_Ave = apply(Rainbow_Female_Spawners_NR, c(1,2,3), mean)
 RFS_Sd = apply(Rainbow_Female_Spawners_NR, c(1,2,3), sd)
 dim(MS_Ave)
 
+
+dim(MS_Ave_Wild)
+dim(MS_Ave)
+MS_Ave[1,,]
+MS_Ave_Wild
 k=1
 Tr
 
 sp_names=c(
 "Male_Y0","Male_Y1","Male_Y2","Male_Y3","Male_Y4","Male_Y5",
 "Female_Y0","Female_Y1","Female_Y2","Female_Y3","Female_Y4","Female_Y5",
-"Rainbow_Male_Y1","Rainbow_Male_Y2","Rainbow_Male_Y3","Rainbow_Male_Y4","Rainbow_Male_Y5",
-"Rainbow_Female_Y1","Rainbow_Female_Y2","Rainbow_Female_Y3","Rainbow_Female_Y4","Rainbow_Female_Y5"
+"Resident_Male_Y1","Resident_Male_Y2","Resident_Male_Y3","Resident_Male_Y4","Resident_Male_Y5",
+"Resident_Female_Y1","Resident_Female_Y2","Resident_Female_Y3","Resident_Female_Y4","Resident_Female_Y5"
 )
 
+sp_names_wild = paste("Wild_", sp_names, sep="")
+sp_names_hatch = paste("Hatch_", sp_names, sep="")
+sp_names_wild
+sp_names_hatch
+
+
+k=1
 for (k in 1:K) {
-site_spawner_results = array(0, c(Tr,22))
-site_spawner_results[,1:6]=t(MS_Ave[k,,])
-site_spawner_results[,7:12]=t(FS_Ave[k,,])
-site_spawner_results[,13:17]=t(RMS_Ave[k,,])
-site_spawner_results[,18:22]=t(RFS_Ave[k,,])
+dim(Male_Spawners_NR[1,,,1,])
+MS_Ave_Wild = apply(Male_Spawners_NR[k,,,1,],c(1,2), mean)
+FS_Ave_Wild = apply(Female_Spawners_NR[k,,,1,],c(1,2), mean)
+RMS_Ave_Wild = apply(Rainbow_Male_Spawners_NR[k,,,1,],c(1,2), mean)
+RFS_Ave_Wild = apply(Rainbow_Female_Spawners_NR[k,,,1,],c(1,2), mean)
+MS_Ave_Hatch = apply(Male_Spawners_NR[k,,,2,],c(1,2), mean)
+FS_Ave_Hatch = apply(Female_Spawners_NR[k,,,2,],c(1,2), mean)
+RMS_Ave_Hatch = apply(Rainbow_Male_Spawners_NR[k,,,2,],c(1,2), mean)
+RFS_Ave_Hatch = apply(Rainbow_Female_Spawners_NR[k,,,2,],c(1,2), mean)
 
-#plot(1:Tr,site_spawner_results[,1], type="l", ylim= c(0, max(site_spawner_results)))
-#for (f in 1:22){
-# lines(1:Tr, site_spawner_results[,f], lt=f)
-#}
+All_Steelhead = apply(MS_Ave_Wild, 2, sum)+apply(FS_Ave_Wild, 2, sum) + apply(MS_Ave_Hatch, 2, sum)+ apply(FS_Ave_Hatch, 2, sum)
+All_Rainbow = apply(RMS_Ave_Wild, 2, sum) + apply(RFS_Ave_Wild, 2, sum)+apply(RMS_Ave_Hatch, 2, sum) + apply(RFS_Ave_Hatch, 2, sum)
+All_Spawners = All_Rainbow + All_Steelhead
 
-sp_names
-colnames(site_spawner_results) = sp_names
+
+# Added colums for total, total Steelhead, total Rainbow (47 total columns)
+site_spawner_results = array(0, c(Tr,47))
+
+site_spawner_results[,1] = All_Spawners
+site_spawner_results[,2] = All_Steelhead
+site_spawner_results[,3] = All_Rainbow
+site_spawner_results[,4:9]=t(MS_Ave_Wild)
+site_spawner_results[,10:15]=t(FS_Ave_Wild)
+site_spawner_results[,16:20]=t(RMS_Ave_Wild)
+site_spawner_results[,21:25]=t(RFS_Ave_Wild)
+site_spawner_results[,26:31]=t(MS_Ave_Hatch)
+site_spawner_results[,32:37]=t(FS_Ave_Hatch)
+site_spawner_results[,38:42]=t(RMS_Ave_Hatch)
+site_spawner_results[,43:47]=t(RFS_Ave_Hatch)
+
+# Assign column names.  Using "resident" and "anadromous" instead of steehead and spawner so it works for chinook and steelhead
+colnames(site_spawner_results) = c("Total Spawners","Anadromous Spawners", "Resident Spawners", sp_names_wild,sp_names_hatch)
 colnames(site_spawner_results) 
 head(site_spawner_results)
 write.csv(site_spawner_results, paste("Output Files/Spawners",Site.Names[k],".csv",sep=""))
 
 }
 
-
-
-data.frame(MS_Ave[k,,])
-
-dim(MS_Ave)
-k=1
 
 
 ####
