@@ -89,6 +89,13 @@ dim(Escapement_NR[,,,r])
   } # End of Loop through MC Iteration
 ################################################################
 
+#dim(N_SPAWNER_RECRUIT_NR)
+#N_SPAWNER_RECRUIT_NR[,1,1]
+#dim(Female_Spawners_NR)
+#Female_Spawners_NR[1,,,1,1]
+#dim(N_RECRUITS_NR)
+#N_RECRUITS_NR[,,1]
+
 for (r in 1:header$R) {
 	# in second dimension: spawner=1, recruit=2 
 	for (t in 1:header$Tr) {

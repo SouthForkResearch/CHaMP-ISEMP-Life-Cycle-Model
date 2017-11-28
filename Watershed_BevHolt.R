@@ -79,6 +79,8 @@ for (k in 1:K) {
 			#    one year in fresh water (fresh age=2)and their ocean age is 1-6 (depending on ocean stage)
 			N_ADULTS[k,2,t,g,1,y] = sum(N_FISH[k,y+6,t,g,,1])
 			N_ADULTS[k,2,t,g,2,y] = sum(N_FISH[k,y+6,t,g,,2])
+#			print(sum(N_FISH[k, y+6,t,g,,1]))
+# HERE!!!
 		}
 	}
 }
@@ -199,13 +201,19 @@ for (t in 2:(Tr-1)){
 				N_FISH[k,i+1,t,g,k,2]= (1-MALE_PERCENT) * Candidates 
 
 				
-
+#print(paste("candidates", Candidates))
+# yes, we have candidates
 				# For reconstruction, maintain "fresh water age" distribution
 				for (jj in 1:FRESH_AGES) {
-					FWA_DISTRIBUTION = sum(N_ADULTS[k,jj,t-1,g,,])/sum(N_ADULTS[k,,t-1,g,,])
+					FWA_DISTRIBUTION = sum(N_ADULTS[k,jj,t-1,g,,])/(sum(N_ADULTS[k,,t-1,g,,]))
 					FWA_DISTRIBUTION[is.na(FWA_DISTRIBUTION)] = 0
+#print(paste("FWA_D", FWA_DISTRIBUTION, Candidates))
+
 					N_ADULTS[k,jj,t,g,1,i-5] = MALE_PERCENT * Candidates * FWA_DISTRIBUTION
 					N_ADULTS[k,jj,t,g,2,i-5] = (1-MALE_PERCENT) * Candidates * FWA_DISTRIBUTION					
+# print(paste("MALE_PERCENT", MALE_PERCENT))
+#print("*")
+ #print(N_ADULTS[k,jj,t,g,1,i-5])
 				}
                   } 
             } # end of i in (7:11)
@@ -222,7 +230,16 @@ for (t in 2:(Tr-1)){
 				FWA_DISTRIBUTION[is.na(FWA_DISTRIBUTION)] = 0
 				for (g in 1:G) {
 					for (z in 1:2) {
-						N_ADULTS[k,jj,t,g,z,i-5] = N_ADULTS[k,jj,t,g,z,i-5] + (Post_Spawn_Returns_Anadromous[k,i,g,z]* FWA_DISTRIBUTION)
+						#N_ADULTS[k,jj,t,g,z,i-5] = N_ADULTS[k,jj,t,g,z,i-5] + (Post_Spawn_Returns_Anadromous[k,i,g,z]* FWA_DISTRIBUTION)
+						# This loop is trhough ocean ages, so we shouldn't have -5 in the i index, below -M@, 11/28/2017.
+						N_ADULTS[k,jj,t,g,z,i] = N_ADULTS[k,jj,t,g,z,i] + (Post_Spawn_Returns_Anadromous[k,i,g,z]* FWA_DISTRIBUTION)
+#print("*")
+#print(Post_Spawn_Returns_Anadromous[k,i,g,z])
+#print(FWA_DISTRIBUTION)
+#print(dim(N_ADULTS))
+#print(paste("k=",k,"jj=",jj,"t=",t,"g=",g, "z=", z, "i=", i))
+#print(paste("N_ADULTS=",N_ADULTS[k,jj,t,g,z,i]))
+
 					}
 				}				
 			}
@@ -266,13 +283,26 @@ for (t in 2:(Tr-1)){
      
 	NT_FISH[,,t,,] = apply(NT_FISH_MIGRATE[,,,], c(1,2,3,4), sum)
 
+      ##########################################################################################3
 	# calculate recruits for reconstruction
 	for (jj in 1:FRESH_AGES) {
-		FWA_DISTRIBUTION = sum(N_ADULTS[,jj,t-1,,,])/sum(N_ADULTS[,,t-1,,,])
+            # print(N_ADULTS[,,t-1,,,])
+		FWA_DISTRIBUTION = sum(N_ADULTS[,jj,t-1,,,])/sum(N_ADULTS[,,t-1,,,],na.rm=T) # M@ added na.rm=T 11/28/2017
+														     # But why are there NA values????
 		FWA_DISTRIBUTION[is.na(FWA_DISTRIBUTION)] = 0
+		#print("*")
+		#print(sum(N_ADULTS[,jj,t-1,,,]))
+		#print(sum(N_ADULTS[,,t-1,,,], na.rm=T))
+
 		for (kk in 1:OCEAN_AGES) {
 			N_RECRUITS[t,jj+kk-1] = N_RECRUITS[t,jj+kk-1] +
 							sum(NT_FISH[,kk,t,,] * FWA_DISTRIBUTION)
+
+#print(paste("t=",t,"jj=",jj,"kk=",kk))
+#print(paste("N_RECRUITS", N_RECRUITS[t,jj+kk-1]))
+#print(sum(NT_FISH[,kk,t,,]))
+#print(FWA_DISTRIBUTION)
+
 		}				
 	}
 	
