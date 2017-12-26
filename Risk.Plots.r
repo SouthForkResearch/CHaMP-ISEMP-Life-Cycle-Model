@@ -104,7 +104,12 @@ for (j in 1:ALTS){  #1:6
 A[A==-Inf] = 0
 
 
-X.array
+
+# Print P(QET) for Shubha
+print("#################")
+print(paste("P(QET)=", mean(X.array)))
+print("#################")
+
 YEARS
 # Diagnostics
 #print(cor(P,A))
@@ -172,7 +177,7 @@ for(k in 1:ALTS){  # loop through alternatives
 	a <- A[((k-1)*RUNS+1):((k-1)*RUNS+RUNS)]
 	x <- X.array[((k-1)*RUNS+1):((k-1)*RUNS+RUNS)]
 	
-	print(mean(x))
+#	print(mean(x))
 	points(exp(p),exp(a))
 	points(median(exp(p)), median(exp(a)), col = "red", pch = 16, cex = 1.2)
 	
